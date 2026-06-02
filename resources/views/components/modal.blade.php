@@ -8,7 +8,7 @@
         </div>
         <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Lengua</label>
-            <input type="text" x-model="tempNombre.lengua" class="w-full px-4 py-2 mt-1 rounded-full border-2 border-gray-100 bg-gray-50 text-xs focus:border-indigo-300 outline-none transition-all">
+            <x-select-lenguas model="tempNombre.lengua" />
         </div>
         <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Bibliografía</label>
