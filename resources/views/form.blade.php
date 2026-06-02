@@ -372,16 +372,10 @@
                                 <span class="text-3xl font-black text-indigo-900 tracking-tight">,</span>
                                 <h1 class="text-3xl font-black text-indigo-900 tracking-tight whitespace-nowrap" x-text="form.AutorTaxon"></h1>
                             </div>
-                            <div x-show="isItemSelected" x-cloak class="flex items-center justify-between w-full">
-                                <div class="flex items-baseline gap-2 overflow-hidden">
-                                    <h1 class="text-3xl font-black text-indigo-900 italic tracking-tight whitespace-nowrap" x-text="form.taxon"></h1>
-                                    <span class="text-3xl font-black text-indigo-900 tracking-tight">,</span>
-                                    <h1 class="text-3xl font-black text-indigo-900 tracking-tight whitespace-nowrap" x-text="form.AutorTaxon"></h1>
-                                </div>
-                                <button x-show="!isEdit" @click="limpiarSeleccion()" class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase transition-colors whitespace-nowrap ml-6">
-                                    ✕ Cambiar especie
-                                </button>
-                            </div>
+                            <button x-show="!isEdit" @click="limpiarSeleccion()"
+                                class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase transition-colors whitespace-nowrap ml-6">
+                                ✕ Cambiar especie
+                            </button>
                         </div>
                     </div>
                 </div>
