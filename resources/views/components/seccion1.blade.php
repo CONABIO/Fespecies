@@ -1,16 +1,5 @@
 <div class="p-8 bg-slate-50 min-h-screen font-sans">
-    <div class="max-w-4xl mx-auto mb-12 relative">
-        <div class="flex items-center justify-between relative z-10">
-            <template x-for="i in [1,2,3,4]">
-                <div class="relative flex flex-col items-center">
-                    <div :class="step >= i ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg scale-110' : 'bg-white border-slate-300 text-slate-400'"
-                         class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-500 font-bold text-sm" x-text="i"></div>
-                </div>
-            </template>
-        </div>
-        <div class="absolute top-5 left-0 w-full h-0.5 bg-slate-200"></div>
-        <div class="absolute top-5 left-0 h-0.5 bg-indigo-600 transition-all duration-700" :style="`width: ${((step-1)/3)*100}%`"></div>
-    </div>
+
     <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-300" class="max-w-6xl mx-auto space-y-8">
         <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">I. CLASIFICACIÓN Y DESCRIPCIÓN DE LA ESPECIE</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -299,4 +288,5 @@
         </div>
     </div>
     <x-modal />
+
 </div>
