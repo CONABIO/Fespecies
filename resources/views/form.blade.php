@@ -1,11 +1,57 @@
     @php
         $defaultForm = [
-            'id' => null,'especieId' => null,'taxon' => '','Nom' => '','Iucn' => '','Cites' => '','Reino' => '','Divisionphylum' => '','Clase' => '','Orden' => '','Familia' => '',
-            'Genero' => '','Especie_epiteto' => '','Nombreinfra' => '','Categinfra' => '','EstatusTaxon' => '','AutorTaxon' => '','IdCAT' => '','especiesSmilares' => '',
-            'resumenEspecie' => '','descEspecie' => '', 'descripcionOrigen' => '','origen' => [],'nombres_comunes' => [],'sinonimos' => [],'largoinicialhembras' => '','largofinalhembras' => '',
-            'largoinicialmachos' => '','largofinalmachos' => '','pesoinicialhembras' => '','pesofinalhembras' => '','pesoinicialmachos' => '','pesofinalmachos' => '','siNoToxicidad' => '0',
-            'toxicidad' => '','riesgoUICN' => '','infoUICN' => '','cites' => '','infoCITES' => '','nom059' => ['2001' => ['categoria' => '', 'info' => ''],'2010' => ['categoria' => '', 'info' => ''],'2019' => ['categoria' => '', 'info' => ''],],
-            'promedioLargoHembras' => '', 'unidadLargoHembras' => 'mm', 'promedioLargoMachos' => '', 'unidadLargoMachos' => 'mm', 'promedioPesoHembras' => '', 'unidadPesoHembras' => 'g', 'promedioPesoMachos' => '', 'unidadPesoMachos' => 'g',
+            'id' => null,
+            'especieId' => null,
+            'taxon' => '',
+            'Nom' => '',
+            'Iucn' => '',
+            'Cites' => '',
+            'Reino' => '',
+            'Divisionphylum' => '',
+            'Clase' => '',
+            'Orden' => '',
+            'Familia' => '',
+            'Genero' => '',
+            'Especie_epiteto' => '',
+            'Nombreinfra' => '',
+            'Categinfra' => '',
+            'EstatusTaxon' => '',
+            'AutorTaxon' => '',
+            'IdCAT' => '',
+            'especiesSmilares' => '',
+            'resumenEspecie' => '',
+            'descEspecie' => '',
+            'descripcionOrigen' => '',
+            'origen' => [],
+            'nombres_comunes' => [],
+            'sinonimos' => [],
+            'largoinicialhembras' => '',
+            'largofinalhembras' => '',
+            'largoinicialmachos' => '',
+            'largofinalmachos' => '',
+            'pesoinicialhembras' => '',
+            'pesofinalhembras' => '',
+            'pesoinicialmachos' => '',
+            'pesofinalmachos' => '',
+            'siNoToxicidad' => '0',
+            'toxicidad' => '',
+            'riesgoUICN' => '',
+            'infoUICN' => '',
+            'cites' => '',
+            'infoCITES' => '',
+            'nom059' => [
+                '2001' => ['categoria' => '', 'info' => ''],
+                '2010' => ['categoria' => '', 'info' => ''],
+                '2019' => ['categoria' => '', 'info' => ''],
+            ],
+            'promedioLargoHembras' => '',
+            'unidadLargoHembras' => 'mm',
+            'promedioLargoMachos' => '',
+            'unidadLargoMachos' => 'mm',
+            'promedioPesoHembras' => '',
+            'unidadPesoHembras' => 'g',
+            'promedioPesoMachos' => '',
+            'unidadPesoMachos' => 'g',
         ];
         $formData = $especie ?? $defaultForm;
     @endphp
@@ -19,12 +65,14 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/l23138ijuswnhf39d1698oh19vx6b1fc8z6uutbyi2ecynz4/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdn.tiny.cloud/1/l23138ijuswnhf39d1698oh19vx6b1fc8z6uutbyi2ecynz4/tinymce/8/tinymce.min.js"
+            referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('formEspecies', () => ({
                     step: 1,
+                    openMenu: false,
                     search: @json($especie->taxon ?? ''),
                     showResults: false,
                     isEdit: {{ isset($especie->id) ? 'true' : 'false' }},
@@ -34,9 +82,18 @@
                     especies: [],
                     form: @json($formData),
                     editandoIndice: -1,
-                    tempNombre: {nombre: '',lengua: '',bibliografia: '',editable: true},
+                    tempNombre: {
+                        nombre: '',
+                        lengua: '',
+                        bibliografia: '',
+                        editable: true
+                    },
                     editandoIndiceSinonimo: -1,
-                    tempSinonimo: {sinonimo: '',autor: '',anio: ''},
+                    tempSinonimo: {
+                        sinonimo: '',
+                        autor: '',
+                        anio: ''
+                    },
                     selectedIndex: -1,
 
                     init() {
@@ -72,7 +129,8 @@
                         this.$watch('selectedIndex', index => {
                             if (index >= 0) {
                                 this.$nextTick(() => {
-                                    const activeItem = document.getElementById(`res-item-${index}`);
+                                    const activeItem = document.getElementById(
+                                        `res-item-${index}`);
                                     if (activeItem) {
                                         activeItem.scrollIntoView({
                                             block: 'nearest',
@@ -104,18 +162,23 @@
                         });
                     },
 
-                   abrirModalNombre() {
-                    if (!this.form.especieId) {
+                    abrirModalNombre() {
+                        if (!this.form.especieId) {
                             Swal.fire({
-                            title: 'Aviso',
-                            text: `Debe seleccionar una especie antes de agregar nombres comunes`,
-                            icon: 'warning',
-                            confirmButtonColor: '#4f46e5',
-                            confirmButtonText: 'Ok'
-                        });
-                        }else{
+                                title: 'Aviso',
+                                text: `Debe seleccionar una especie antes de agregar nombres comunes`,
+                                icon: 'warning',
+                                confirmButtonColor: '#4f46e5',
+                                confirmButtonText: 'Ok'
+                            });
+                        } else {
                             this.editandoIndice = -1;
-                            this.tempNombre = { nombre: '', lengua: '', bibliografia: '', editable: true };
+                            this.tempNombre = {
+                                nombre: '',
+                                lengua: '',
+                                bibliografia: '',
+                                editable: true
+                            };
                             if (tinymce.get('bibliografia_editor')) {
                                 tinymce.get('bibliografia_editor').setContent('');
                             }
@@ -127,7 +190,9 @@
                         const nombreRef = this.form.nombres_comunes[index];
                         if (!nombreRef.editable) return;
                         this.editandoIndice = index;
-                        this.tempNombre = { ...nombreRef };
+                        this.tempNombre = {
+                            ...nombreRef
+                        };
                         if (tinymce.get('bibliografia_editor')) {
                             tinymce.get('bibliografia_editor').setContent(nombreRef.bibliografia || '');
                         }
@@ -152,7 +217,12 @@
                                 editable: true
                             };
                         }
-                        this.tempNombre = { nombre: '', lengua: '', bibliografia: '', editable: true };
+                        this.tempNombre = {
+                            nombre: '',
+                            lengua: '',
+                            bibliografia: '',
+                            editable: true
+                        };
                         this.showModalNombre = false;
                         this.editandoIndice = -1;
                     },
@@ -160,15 +230,20 @@
                     abrirModalSinonimo() {
                         if (!this.form.especieId) {
                             Swal.fire({
-                            title: 'Aviso',
-                            text: `Debe seleccionar una especie antes de agregar sinonimos`,
-                            icon: 'warning',
-                            confirmButtonColor: '#4f46e5',
-                            confirmButtonText: 'Ok'
-                        });
-                        }else{
+                                title: 'Aviso',
+                                text: `Debe seleccionar una especie antes de agregar sinonimos`,
+                                icon: 'warning',
+                                confirmButtonColor: '#4f46e5',
+                                confirmButtonText: 'Ok'
+                            });
+                        } else {
                             this.editandoIndiceSinonimo = -1;
-                            this.tempSinonimo = { sinonimo: '', autor: '', anio: '', editable: true };
+                            this.tempSinonimo = {
+                                sinonimo: '',
+                                autor: '',
+                                anio: '',
+                                editable: true
+                            };
                             this.showModalSinonimo = true;
                         }
                     },
@@ -177,7 +252,9 @@
                         const sinonimoRef = this.form.sinonimos[index];
                         if (!sinonimoRef.editable) return;
                         this.editandoIndiceSinonimo = index;
-                        this.tempSinonimo = { ...sinonimoRef };
+                        this.tempSinonimo = {
+                            ...sinonimoRef
+                        };
                         this.showModalSinonimo = true;
                     },
 
@@ -197,7 +274,12 @@
                                 editable: true
                             };
                         }
-                        this.tempSinonimo = { nombre: '', autor: '', anio: '', editable: true };
+                        this.tempSinonimo = {
+                            nombre: '',
+                            autor: '',
+                            anio: '',
+                            editable: true
+                        };
                         this.showModalSinonimo = false;
                         this.editandoIndiceSinonimo = -1;
                     },
@@ -214,26 +296,54 @@
                     },
                     buscarEspecie() {
                         if (this.search.length < 1) {
-                            this.especies = []; this.showResults = false; this.selectedIndex = -1; return;
+                            this.especies = [];
+                            this.showResults = false;
+                            this.selectedIndex = -1;
+                            return;
                         }
                         fetch(`/buscar-especie?q=${encodeURIComponent(this.search)}`)
                             .then(res => res.json()).then(data => {
-                                this.especies = data; this.showResults = true; this.selectedIndex = -1;
+                                this.especies = data;
+                                this.showResults = true;
+                                this.selectedIndex = -1;
                             });
                     },
 
                     async seleccionar(item) {
                         Object.assign(this.form, {
-                            Nom: item.Nom || '',  riesgoUICN: item.Iucn || '', cites: item.Cites || '', especieId: item.IdNombre, taxon: item.taxon || '', Reino: item.Reino || '', Divisionphylum: item.Divisionphylum || '', Clase: item.Clase || '',Orden: item.Orden || '',Familia: item.Familia || '', Genero: item.Genero || '', Categinfra: item.Categinfra || '', AutorTaxon: item.AutorTaxon || '', EstatusTaxon: item.EstatusTaxon || '',Especie_epiteto: item.Especie_epiteto || '', Nombreinfra: item.Nombreinfra || '', IdCAT: item.IdCAT || '', origen: item.origen ? (typeof item.origen === 'string' ? item.origen.split(', ') : item.origen) : [], nombres_comunes: item.nombres_comunes_array || []});
+                            Nom: item.Nom || '',
+                            riesgoUICN: item.Iucn || '',
+                            cites: item.Cites || '',
+                            especieId: item.IdNombre,
+                            taxon: item.taxon || '',
+                            Reino: item.Reino || '',
+                            Divisionphylum: item.Divisionphylum || '',
+                            Clase: item.Clase || '',
+                            Orden: item.Orden || '',
+                            Familia: item.Familia || '',
+                            Genero: item.Genero || '',
+                            Categinfra: item.Categinfra || '',
+                            AutorTaxon: item.AutorTaxon || '',
+                            EstatusTaxon: item.EstatusTaxon || '',
+                            Especie_epiteto: item.Especie_epiteto || '',
+                            Nombreinfra: item.Nombreinfra || '',
+                            IdCAT: item.IdCAT || '',
+                            origen: item.origen ? (typeof item.origen === 'string' ? item.origen
+                                .split(', ') : item.origen) : [],
+                            nombres_comunes: item.nombres_comunes_array || []
+                        });
                         await this.cargarSinonimos(item.IdNombre);
-                        this.search = item.taxon; this.isItemSelected = true; this.showResults = false; this.selectedIndex = -1;
+                        this.search = item.taxon;
+                        this.isItemSelected = true;
+                        this.showResults = false;
+                        this.selectedIndex = -1;
                     },
 
 
                     async avanzarSeccion() {
                         console.log("Datos que se enviarán:", JSON.parse(JSON.stringify(this.form)));
 
-                         if (this.step === 1 && !this.form.especieId) {
+                        if (this.step === 1 && !this.form.especieId) {
                             Swal.fire({
                                 title: 'Atención',
                                 text: 'Por favor, seleccione una especie antes de continuar.',
@@ -267,6 +377,80 @@
                         }
                     },
 
+                    async guardarAvance() {
+                        if (!this.form.especieId) {
+                            Swal.fire({
+                                title: 'Atención',
+                                text: 'Seleccione una especie antes de guardar.',
+                                icon: 'warning'
+                            });
+                            return;
+                        }
+
+                        // Sincronizar TinyMCE
+                        if (window.tinymce) {
+                            const editors = [
+                                'resumenEspecie_editor', 'descripcionEspecie_editor',
+                                'especiesSimilares_editor', 'descripcionOrigen_editor',
+                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor'
+                            ];
+                            editors.forEach(id => {
+                                const ed = tinymce.get(id);
+                                if (ed) {
+                                    const field = id.replace('_editor', '').replace(
+                                        'descripcionEspecie', 'descEspecie').replace(
+                                        'especiesSimilares', 'especiesSmilares');
+                                    this.form[field] = ed.getContent();
+                                }
+                            });
+                        }
+
+                        Swal.fire({
+                            title: 'Guardando...',
+                            didOpen: () => Swal.showLoading(),
+                            allowOutsideClick: false
+                        });
+
+                        try {
+                            const token = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
+                                '/guardar_seccion';
+
+                            const res = await fetch(url, {
+                                method: this.form.id ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': token,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    form: {
+                                        ...this.form,
+                                        origen: Array.isArray(this.form.origen) ? this
+                                            .form.origen.join(', ') : this.form.origen
+                                    }
+                                })
+                            });
+
+                            const result = await res.json();
+                            if (result.success) {
+                                if (result.id) this.form.id = result.id;
+                                Swal.fire({
+                                    title: '¡Guardado!',
+                                    text: 'Progreso guardado correctamente.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                throw new Error();
+                            }
+                        } catch (error) {
+                            Swal.fire('Error', 'No se pudo guardar la información', 'error');
+                        }
+                    },
+
                     limpiarSeleccion() {
                         this.isItemSelected = false;
                         this.search = '';
@@ -281,51 +465,51 @@
                     },
 
                     validarRango(keyInicio, keyFin, etiqueta) {
-                    let inicio = parseFloat(this.form[keyInicio]);
-                    let fin = parseFloat(this.form[keyFin]);
-                    if (!isNaN(inicio) && !isNaN(fin) && fin < inicio) {
+                        let inicio = parseFloat(this.form[keyInicio]);
+                        let fin = parseFloat(this.form[keyFin]);
+                        if (!isNaN(inicio) && !isNaN(fin) && fin < inicio) {
+                            Swal.fire({
+                                title: 'Valor inválido',
+                                text: `En "${etiqueta}", el valor final no puede ser menor al inicial.`,
+                                icon: 'error',
+                                confirmButtonColor: '#4f46e5',
+                                confirmButtonText: 'Corregir'
+                            });
+                            this.form[keyFin] = '';
+                        }
+                    },
+
+                    eliminarNombre(index) {
                         Swal.fire({
-                            title: 'Valor inválido',
-                            text: `En "${etiqueta}", el valor final no puede ser menor al inicial.`,
-                            icon: 'error',
+                            title: 'Eliminación',
+                            text: `¿Estás seguro de quitar este nombre común?`,
+                            icon: 'warning',
+                            showCancelButton: true,
                             confirmButtonColor: '#4f46e5',
-                            confirmButtonText: 'Corregir'
+                            cancelButtonColor: '#ef4444',
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.form.nombres_comunes.splice(index, 1);
+                            }
                         });
-                        this.form[keyFin] = '';
-                    }
-                },
+                    },
 
-                eliminarNombre(index) {
-                    Swal.fire({
-                        title: 'Eliminación',
-                        text: `¿Estás seguro de quitar este nombre común?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#4f46e5',
-                        cancelButtonColor: '#ef4444',
-                        confirmButtonText: 'Sí, eliminar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.form.nombres_comunes.splice(index, 1);
-                        }
-                    });
-                },
-
-                eliminarSinonimo(index) {
-                    Swal.fire({
-                        title: 'Eliminación',
-                        text: "¿Estás seguro de quitar este sinónimo?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#4f46e5',
-                        confirmButtonText: 'Sí, eliminar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.form.sinonimos.splice(index, 1);
-                        }
-                    });
-                },
+                    eliminarSinonimo(index) {
+                        Swal.fire({
+                            title: 'Eliminación',
+                            text: "¿Estás seguro de quitar este sinónimo?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#4f46e5',
+                            confirmButtonText: 'Sí, eliminar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.form.sinonimos.splice(index, 1);
+                            }
+                        });
+                    },
                 }));
             });
         </script>
@@ -333,68 +517,165 @@
             [x-cloak] {
                 display: none !important;
             }
+
             .tox-tinymce-aux {
                 z-index: 9999 !important;
+            }
+
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .sticky-header-glass {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+
+            @keyframes subtle-bounce {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-3px);
+                }
+            }
+
+            .step-active {
+                animation: subtle-bounce 2s infinite ease-in-out;
             }
         </style>
     </head>
 
-    <body class="bg-gray-100 min-h-screen">
-        <x-header />
-        <main class="max-w-7xl mx-auto p-6" x-data="formEspecies">
-            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-                <div class="bg-gray-50 border-b border-gray-200 p-8">
-                    <div class="max-w-5xl mx-auto">
-                        <div x-show="!isItemSelected" class="max-w-xl mx-auto">
-                            <div class="relative">
-                                <div class="flex items-center bg-white border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl shadow-sm px-4 py-3 transition-all">
-                                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                    </svg>
-                                    <input type="text" x-model="search" @input.debounce.300ms="showResults = true; buscarEspecie()" @click.away="showResults = false"  @keydown.arrow-down.prevent="if (selectedIndex < especies.length - 1) selectedIndex++" @keydown.arrow-up.prevent="if (selectedIndex > 0) selectedIndex--" @keydown.enter.prevent="if (selectedIndex !== -1) seleccionar(especies[selectedIndex])"  @keydown.escape="showResults = false"  placeholder="Escribe el nombre de la especie..." class="w-full ml-3 focus:outline-none text-base text-gray-700 bg-transparent">
-                                </div>
 
-                                <div x-show="showResults && especies.length > 0" x-cloak class="absolute z-[100] w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
-                                    <div class="max-h-60 overflow-y-auto custom-scroll">
-                                        <template x-for="(item, index) in especies" :key="index">
-                                            <div :id="'res-item-' + index" @click="seleccionar(item)"  @mouseenter="selectedIndex = index" :class="{ 'bg-indigo-600 text-white': selectedIndex === index, 'text-gray-800': selectedIndex !== index }" class="px-5 py-3 cursor-pointer transition-colors group">
-                                                <div class="text-sm font-bold" :class="selectedIndex === index ? 'text-white' : 'text-gray-800'" x-text="item.taxon"></div>
-                                            </div>
+    <body class="bg-gray-100 min-h-screen" x-data="formEspecies">
+        <x-header />
+        <main class="max-w-7xl mx-auto p-6">
+            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 relative">
+                <div class="sticky top-0 z-50 bg-white border-b border-gray-200 rounded-t-2xl shadow-md">
+                    <div class="pt-3 pb-1 max-w-5xl mx-auto">
+                        <div class="p-3 relative" x-show="!isItemSelected">
+                            <div class="max-w-xl mx-auto">
+                                <div class="relative">
+                                    <div
+                                        class="flex items-center bg-gray-50 border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl px-4 py-2">
+                                        <input type="text" x-model="search"
+                                            @input.debounce.300ms="showResults = true; buscarEspecie()"
+                                            placeholder="Escribe el nombre..."
+                                            class="w-full focus:outline-none bg-transparent">
+                                    </div>
+                                    <div x-show="showResults && especies.length > 0" x-cloak
+                                        class="absolute z-[100] w-full mt-2 bg-white shadow-2xl rounded-xl">
+                                        <template x-for="item in especies">
+                                            <div @click="seleccionar(item)"
+                                                class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white"
+                                                x-text="item.taxon"></div>
                                         </template>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div x-show="isItemSelected" x-cloak class="flex items-center justify-between w-full">
+                        <div x-show="isItemSelected" x-cloak class="flex items-center justify-between w-full px-6 py-2">
                             <div class="flex items-baseline gap-2 overflow-hidden">
-                                <h1 class="text-3xl font-black text-indigo-900 italic tracking-tight whitespace-nowrap" x-text="form.taxon"></h1>
-                                <span class="text-3xl font-black text-indigo-900 tracking-tight">,</span>
-                                <h1 class="text-3xl font-black text-indigo-900 tracking-tight whitespace-nowrap" x-text="form.AutorTaxon"></h1>
+                                <h1 class="text-xl md:text-2xl font-black text-indigo-900 italic tracking-tight whitespace-nowrap"
+                                    x-text="form.taxon"></h1>
+                                <span class="text-xl md:text-2xl font-black text-indigo-900">,</span>
+                                <h1 class="text-xl md:text-2xl font-black text-indigo-900 tracking-tight whitespace-nowrap"
+                                    x-text="form.AutorTaxon"></h1>
                             </div>
-                            <button x-show="!isEdit" @click="limpiarSeleccion()"
-                                class="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase transition-colors whitespace-nowrap ml-6">
-                                ✕ Cambiar especie
-                            </button>
+                            <button x-show="!isEdit" @click="limpiarSeleccion()" class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕ Cambiar especie</button>
+                        </div>
+
+
+                        <div class="max-w-6xl mx-auto px-4 mt-3 mb-1 overflow-x-auto no-scrollbar">
+                            <div class="min-w-[1000px] lg:min-w-full relative p-4">
+                                <div class="absolute top-[36px] left-[50px] right-[50px] h-0.5 bg-gray-200 z-0"></div>
+                                <div class="relative flex justify-between z-10">
+                                    @php $secciones = ['Clasificación', 'Distribución', 'Ambiente', 'Biología', 'Ecología', 'Genética', 'Importancia', 'Conservación', 'Prioritarias', 'Necesidades', 'Metadatos']; @endphp
+                                    @foreach ($secciones as $index => $titulo)
+                                        @php $n = $index + 1; @endphp
+                                        <div class="flex flex-col items-center cursor-pointer"
+                                            @click="if(isItemSelected || {{ $n }} == 1) step = {{ $n }}">
+                                            <div class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all"
+                                                :class="step == {{ $n }} ?
+                                                    'bg-indigo-600 border-indigo-600 text-white' : (step >
+                                                        {{ $n }} ?
+                                                        'bg-green-500 border-green-500 text-white' :
+                                                        'bg-white border-gray-300 text-gray-400')">
+                                                <template x-if="step > {{ $n }}"><svg class="w-6 h-6"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg></template>
+                                                <template x-if="step <= {{ $n }}"><span
+                                                        class="text-xs font-bold">{{ $n }}</span></template>
+                                            </div>
+                                            <span class="mt-2 text-[10px] font-bold uppercase text-center w-20"
+                                                :class="step == {{ $n }} ? 'text-indigo-900' : (step >
+                                                    {{ $n }} ? 'text-green-600' : 'text-gray-400')">{{ $titulo }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <x-seccion1 />
-                <x-seccion2 />
+                <div class="p-8">
+                    <div x-show="step === 1"><x-seccion1 /></div>
+                    <div x-show="step === 2"><x-seccion2 /></div>
+                </div>
             </div>
-
-            {{-- <div class="fixed top-48 z-[100] hidden xl:block" style="margin-left: 130px">
-                <a href="{{ route('dashboard') }}" class="group flex items-center justify-center w-14 h-14 bg-white border-2 border-indigo-100 text-indigo-600 rounded-full shadow-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 hover:-translate-y-1 transition-all duration-300">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
-                    <span class="absolute left-20 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-2xl whitespace-nowrap">
-                        Ir al inicio
-                        <div class="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
-                    </span>
-                </a>
-            </div> --}}
         </main>
+
+        <div class="fixed bottom-10 right-10 z-[9999]">
+            <div class="flex flex-col-reverse items-center gap-4">
+                <button @click="openMenu = !openMenu" type="button"
+                    class="w-16 h-16 rounded-full text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-95 border-4 border-white z-[10000]"
+                    :class="openMenu ? 'bg-red-500 rotate-45' : 'bg-indigo-600'">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
+
+                <div x-show="openMenu" x-cloak x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-10"
+                    x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3 group">
+                            <span class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity  tracking-widest">Guardar avance</span>
+                            <button @click="guardarAvance(); openMenu = false" title="Guardar Avance" class="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                    <polyline points="17 21 17 13 7 13 7 21" />
+                                    <polyline points="7 3 7 8 15 8" />
+                                    <line x1="10" y1="16" x2="14" y2="16" />
+                                    <line x1="10" y1="18" x2="14" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+                    <div class="flex items-center gap-3 group">
+                        <span
+                            class="bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">Ir a inicio</span>
+                        <a href="/dashboard"
+                            class="w-14 h-14 bg-slate-800 hover:bg-slate-900 text-white rounded-full shadow-xl flex items-center justify-center border-2 border-white transition-transform hover:scale-110">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </body>
 
     </html>
