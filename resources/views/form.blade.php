@@ -19,7 +19,7 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/l23138ijuswnhf39d1698oh19vx6b1fc8z6uutbyi2ecynz4/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdn.tiny.cloud/1/u9wd3ks0yrdb604yqwon6c60wpx9c5lgbqpywdopvg8alyn8/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
