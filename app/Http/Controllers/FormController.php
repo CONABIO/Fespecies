@@ -8,10 +8,23 @@ use Illuminate\Support\Facades\DB;
 class FormController extends Controller{
 
    public function index(Request $request) {
-    $tempId = $request->query('tempId');
+        $tempId = $request->query('tempId');
+        $paises = DB::table('pais2022')->orderBy('PAIS_SA')->get();
+        $estados = DB::table('estado2022')
+                    ->where('PAIS_SA', 'MEXICO')
+                    ->orderBy('EDO_SA')
+                    ->get();
+        return view('form', compact('tempId', 'paises', 'estados'));
+    }
 
-    return view('form', compact('tempId'));
-}
+    public function obtenerMunicipios($idEdo) {
+        $municipios = DB::table('municipio2022')
+                        ->where('idEdo', $idEdo)
+                        ->orderBy('MUN_SA')
+                        ->get();
+        return response()->json($municipios);
+    }
+
 
 
     public function buscar(Request $request)
@@ -53,12 +66,12 @@ class FormController extends Controller{
 
 
      public function guardarSeccion(Request $request, $id = null) {
-        DB::beginTransaction();
-        try {
-            $f = $request->form;
-            $especieId = $f['especieId'];
+    DB::beginTransaction();
+    try {
+        $f = $request->form;
+        $especieId = $f['especieId'];
 
-            DB::table('taxon')->updateOrInsert(
+        DB::table('taxon')->updateOrInsert(
             ['especieId' => $especieId],
             [
                 'reino'                => $f['Reino'],
@@ -100,85 +113,105 @@ class FormController extends Controller{
             ]
         );
 
-             DB::table('nombrecomun')->where('especieId', $especieId)->delete();
+        DB::table('nombrecomun')->where('especieId', $especieId)->delete();
 
-            if (!empty($f['nombres_comunes'])) {
-                foreach ($f['nombres_comunes'] as $n) {
-                    if (isset($n['editable']) && $n['editable'] == true) {
-                        if (empty($n['nombre'])) continue;
+        if (!empty($f['nombres_comunes'])) {
+            foreach ($f['nombres_comunes'] as $n) {
+                if (isset($n['editable']) && $n['editable'] == true) {
+                    if (empty($n['nombre'])) continue;
 
-                        DB::table('nombrecomun')->insert([
-                            'especieId'    => $especieId,
-                            'nombre'       => trim($n['nombre']),
-                            'lenguaje'     => !empty($n['lengua']) ? trim($n['lengua']) : 'EMPTY',
-                            'citanomcomun' => !empty($n['bibliografia']) ? $n['bibliografia'] : '<br>'
-                        ]);
-                    }
-                }
-            }
-
-            DB::table('sinonimo')->where('especieId', $especieId)->delete();
-            if (!empty($f['sinonimos'])) {
-                foreach ($f['sinonimos'] as $s) {
-                    if (isset($s['editable']) && $s['editable'] == true) {
-                        if (empty($s['sinonimo'])) continue;
-                        DB::table('sinonimo')->insert([
-                            'especieId'     => $especieId,
-                            'nombreSimple'  => trim($s['sinonimo']),
-                            'autoridad'     => $s['autor'] ?? 'EMPTY',
-                            'anio'          => $s['anio'] ?? null
-                        ]);
-                    }
-                }
-            }
-
-
-            DB::table('legislacion')->where('especieId', $especieId)->delete();
-
-                if (!empty($f['riesgoUICN'])) {
-                    DB::table('legislacion')->insert([
-                        'especieId' => $especieId,
-                        'nombreLegislacion' => 'UICN',
-                        'estatusLegalProteccion' => $f['riesgoUICN'],
-                        'infoAdicional' => $f['infoUICN'] ?? 'EMPTY'
+                    DB::table('nombrecomun')->insert([
+                        'especieId'    => $especieId,
+                        'nombre'       => trim($n['nombre']),
+                        'lenguaje'     => !empty($n['lengua']) ? trim($n['lengua']) : 'EMPTY',
+                        'citanomcomun' => !empty($n['bibliografia']) ? $n['bibliografia'] : '<br>'
                     ]);
                 }
-
-                if (!empty($f['cites'])) {
-                    DB::table('legislacion')->insert([
-                        'especieId' => $especieId,
-                        'nombreLegislacion' => 'CITES',
-                        'estatusLegalProteccion' => $f['cites'],
-                        'infoAdicional' => $f['infoCITES'] ?? 'EMPTY'
-                    ]);
-                }
-
-                if (isset($f['nom059']) && is_array($f['nom059'])) {
-                    foreach ($f['nom059'] as $year => $data) {
-                        if (!empty($data['categoria'])) {
-                            DB::table('legislacion')->insert([
-                                'especieId' => $especieId,
-                                'nombreLegislacion' => "NOM-059-SEMARNAT-{$year}",
-                                'estatusLegalProteccion' => $data['categoria'],
-                                'infoAdicional' => (!empty($data['info']) && $data['info'] !== '<p>&nbsp;</p>') ? $data['info'] : 'EMPTY'
-                            ]);
-                        }
-                    }
-                }
-
-
-            DB::commit();
-            return response()->json(['success' => true]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'linea' => $e->getLine(),
-                'archivo' => $e->getFile()
-            ], 500);
+            }
         }
+
+        DB::table('sinonimo')->where('especieId', $especieId)->delete();
+        if (!empty($f['sinonimos'])) {
+            foreach ($f['sinonimos'] as $s) {
+                if (isset($s['editable']) && $s['editable'] == true) {
+                    if (empty($s['sinonimo'])) continue;
+                    DB::table('sinonimo')->insert([
+                        'especieId'     => $especieId,
+                        'nombreSimple'  => trim($s['sinonimo']),
+                        'autoridad'     => $s['autor'] ?? 'EMPTY',
+                        'anio'          => $s['anio'] ?? null
+                    ]);
+                }
+            }
+        }
+
+        DB::table('legislacion')->where('especieId', $especieId)->delete();
+
+        if (!empty($f['riesgoUICN'])) {
+            DB::table('legislacion')->insert([
+                'especieId' => $especieId,
+                'nombreLegislacion' => 'UICN',
+                'estatusLegalProteccion' => $f['riesgoUICN'],
+                'infoAdicional' => $f['infoUICN'] ?? 'EMPTY'
+            ]);
+        }
+
+        if (!empty($f['cites'])) {
+            DB::table('legislacion')->insert([
+                'especieId' => $especieId,
+                'nombreLegislacion' => 'CITES',
+                'estatusLegalProteccion' => $f['cites'],
+                'infoAdicional' => $f['infoCITES'] ?? 'EMPTY'
+            ]);
+        }
+
+        if (isset($f['nom059']) && is_array($f['nom059'])) {
+            foreach ($f['nom059'] as $year => $data) {
+                if (!empty($data['categoria'])) {
+                    DB::table('legislacion')->insert([
+                        'especieId' => $especieId,
+                        'nombreLegislacion' => "NOM-059-SEMARNAT-{$year}",
+                        'estatusLegalProteccion' => $data['categoria'],
+                        'infoAdicional' => (!empty($data['info']) && $data['info'] !== '<p>&nbsp;</p>') ? $data['info'] : 'EMPTY'
+                    ]);
+                }
+            }
+        }
+
+        DB::table('distribucion')->updateOrInsert(
+            ['especieId' => $especieId],
+            [
+                'distribucion'        => !empty($f['paises_seleccionados']) ? implode(', ', $f['paises_seleccionados']) : null,
+                'InfoAdicionalPais'   => $f['dist_mundial_info'] ?? null,
+                'InfoAdicionalEdo'    => $f['info_adicional_estado'] ?? null,
+                'infoAdicionalMun'    => $f['info_adicional_municipio'] ?? null,
+                'historicaPotencial'  => $f['potencial_info'] ?? null,
+                'infoadicionalmexedo' => "Edo: " . ($f['dist_historica_estado'] ?? 'N/A') . " | Mun: " . ($f['dist_historica_municipio'] ?? 'N/A')
+            ]
+        );
+
+        DB::table('endemica')->updateOrInsert(
+            ['especieId' => $especieId],
+            [
+                'endemicaMexico'        => ($f['siNoEndemismo'] == '1') ? 'SÍ' : 'NO',
+                'endemicaA'             => $f['endemica_a'] ?? null,
+                'infoAdicionalEndemica' => $f['endemismo_info'] ?? null
+            ]
+        );
+
+        DB::commit();
+        return response()->json(['success' => true]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine(),
+            'archivo' => $e->getFile()
+        ], 500);
     }
+}
 
 
     public function obtenerSinonimos(Request $request) {

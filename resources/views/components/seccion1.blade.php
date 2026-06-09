@@ -1,12 +1,12 @@
-<div class="p-8 bg-slate-50 min-h-screen font-sans">
+
 
     <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-300" class="max-w-6xl mx-auto space-y-8">
-        <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">I. CLASIFICACIÓN Y DESCRIPCIÓN DE LA ESPECIE</h2>
+        <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight" style="margin-top: 55px">I. CLASIFICACIÓN Y DESCRIPCIÓN DE LA ESPECIE</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div class="space-y-8">
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex items-center justify-between mb-6">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nombres comunes:</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">1. Nombres comunes:</label>
                         <div class="flex space-x-2">
                             <button type="button" @click="abrirModalNombre()" class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[10px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3" /></svg>INGRESAR
@@ -38,7 +38,7 @@
                         </template>
                     </div>
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">
-                        <span class="mr-4">Taxonomía</span>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">2. Taxonomía:</label>
                         <div class="h-px bg-slate-100 flex-grow"></div>
                     </h3>
 
@@ -89,7 +89,7 @@
 
                     <div class="mt-8 pt-6 border-t border-slate-100">
                         <div class="flex items-center justify-between mb-4">
-                            <label class="text-[10px] font-black text-slate-500 uppercase">Sinónimos</label>
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">3. Sinónimos:</label>
                             <button type="button" @click="abrirModalSinonimo()" class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[9px] font-black rounded-xl hover:bg-indigo-700 transition-all">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round"/></svg>INGRESAR
                             </button>
@@ -130,12 +130,12 @@
 
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex flex-col mb-8">
-                        <label class="text-[10px] font-black text-slate-500 uppercase mb-3">Resumen de la especie:</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">4. Resumen de la especie:</label>
                         <textarea id="resumenEspecie_editor" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                     </div>
 
                     <div class="flex flex-col mb-8">
-                        <label class="text-[10px] font-black text-slate-500 uppercase mb-3">Descripción de la especie:</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">5. Descripción de la especie:</label>
                         <textarea id="descripcionEspecie_editor" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                     </div>
 
@@ -178,14 +178,14 @@
                         <textarea id="toxicidad_editor"></textarea>
                     </div>
                     <div class="flex flex-col">
-                        <label class="text-[10px] font-black text-slate-500 uppercase mb-3">Especies similares:</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">6. Especies similares:</label>
                         <textarea id="especiesSimilares_editor"></textarea>
                     </div>
                 </div>
 
                 <div class="bg-indigo-900 p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
                     <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-800 rounded-full opacity-30 blur-3xl"></div>
-                    <label class="relative text-[11px] font-black uppercase tracking-[0.2em] text-indigo-300 mb-8 block">Categoría NOM-059-SEMARNAT</label>
+                    <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">7. Categoría de riesgo según la NOM-059-SEMARNAT: </label>
                    <template x-if="form.Nom">
             <div class="flex flex-col items-end max-w-[70%]">
                 <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-[10px] font-black text-white uppercase shadow-lg text-right leading-tight whitespace-normal"
@@ -229,7 +229,7 @@
 
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
                     <div class="flex flex-col">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 leading-tight">Categoría de riesgo según la UICN:</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">8. Categoría de riesgo según la UICN: </label>
                         <div class="flex space-x-3 mb-4">
                         <input x-model="form.riesgoUICN" type="text" class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner" disabled>
                         </div>
@@ -237,7 +237,7 @@
                     </div>
                     <div class="h-px bg-slate-100"></div>
                     <div class="flex flex-col">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 leading-tight">Regulación del comercio internacional (CITES):</label>
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">9. Regulación del comercio internacional de la especie (CITES): </label>
                         <div class="flex space-x-3 mb-4">
                         <input x-model="form.cites" type="text" class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner" disabled>
                         </div>
@@ -246,7 +246,7 @@
                 </div>
 
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100" x-data="{open: false,filter: '', options: ['Exótica/No nativa', 'Nativa', 'Criptogénica'],toggle(option) {if (this.form.origen.includes(option)) {this.form.origen = this.form.origen.filter(i => i !== option);} else {this.form.origen.push(option); } }, get filteredOptions() { return this.options.filter(i => i.toLowerCase().includes(this.filter.toLowerCase())); } }">
-                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">Origen en relación con México:</label>
+                    <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">10. Origen en relación con México: </label>
                     <div class="relative" @click.away="open = false">
                         <div @click="open = !open" class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all">
                             <template x-if="form.origen.length === 0"><span class="text-xs text-slate-400 p-2">Seleccionar opciones...</span></template>
@@ -288,5 +288,3 @@
         </div>
     </div>
     <x-modal />
-
-</div>
