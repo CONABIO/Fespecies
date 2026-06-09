@@ -28,4 +28,6 @@ Route::get('/obtener-sinonimos', [FormController::class, 'obtenerSinonimos']);
 Route::get('/editar-ficha/{id}', [FormController::class, 'editarFicha'])->name('form.edit');
 Route::put('/actualizar_seccion/{id}', [FormController::class, 'guardarSeccion']);
 
+Route::get('/obtener-municipios/{idEdo}', [FormController::class, 'obtenerMunicipios']);
+
 require __DIR__.'/auth.php';

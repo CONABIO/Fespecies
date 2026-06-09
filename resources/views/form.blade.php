@@ -23,6 +23,17 @@
             'descEspecie' => '',
             'descripcionOrigen' => '',
             'origen' => [],
+            'paises_seleccionados' => [],
+            'dist_mundial_info' => '',
+            'dist_historica_estado' => '',
+            'info_adicional_estado' => '',
+            'dist_historica_municipio' => '',
+            'info_adicional_municipio' => '',
+            'siNoPotencial' => '0',
+            'potencial_info' => '',
+            'siNoEndemismo' => '0',
+            'endemica_a' => '',
+            'endemismo_info' => '',
             'nombres_comunes' => [],
             'sinonimos' => [],
             'largoinicialhembras' => '',
@@ -65,13 +76,14 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/l23138ijuswnhf39d1698oh19vx6b1fc8z6uutbyi2ecynz4/tinymce/8/tinymce.min.js"
+        <script src="https://cdn.tiny.cloud/1/diri29rn4y1j7vuymg9c8aurb8vpljholqhf9e8ujqoghqm5/tinymce/8/tinymce.min.js"
             referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('formEspecies', () => ({
                     step: 1,
+                    yaAvanzo: false,
                     openMenu: false,
                     search: @json($especie->taxon ?? ''),
                     showResults: false,
@@ -79,6 +91,9 @@
                     isItemSelected: {{ isset($especie) ? 'true' : 'false' }},
                     showModalNombre: false,
                     showModalSinonimo: false,
+                    paisesOptions: @json($paises ?? []),
+                    estadosOptions: @json($estados ?? []),
+                    municipiosOptions: [],
                     especies: [],
                     form: @json($formData),
                     editandoIndice: -1,
@@ -106,6 +121,9 @@
                             this.initEditor('#infoCITES_editor', 'infoCITES');
                             if (this.form.siNoToxicidad === '1') {
                                 this.initEditor('#toxicidad_editor', 'toxicidad');
+                            }
+                            if(this.form.dist_historica_estado) {
+                                this.cargarMunicipios(this.form.dist_historica_estado);
                             }
                         });
                         this.$watch('form.siNoToxicidad', v => {
@@ -138,6 +156,12 @@
                                         });
                                     }
                                 });
+                            }
+                        });
+
+                        this.$watch('step', value => {
+                            if (value >= 2) {
+                                this.yaAvanzo = true;
                             }
                         });
                     },
@@ -183,6 +207,21 @@
                                 tinymce.get('bibliografia_editor').setContent('');
                             }
                             this.showModalNombre = true;
+                        }
+                    },
+
+
+                     async cargarMunicipios(idEdo) {
+                        if (!idEdo) {
+                            this.municipiosOptions = [];
+                            return;
+                        }
+                        try {
+                            const res = await fetch(`/obtener-municipios/${idEdo}`);
+                            const data = await res.json();
+                            this.municipiosOptions = data;
+                        } catch (error) {
+                            console.error("Error al cargar municipios:", error);
                         }
                     },
 
@@ -372,7 +411,8 @@
                         });
                         const result = await res.json();
                         if (result.success) {
-                            this.step = 2;
+                            this.yaAvanzo = true;
+                            this.step++;
                             window.scrollTo(0, 0);
                         }
                     },
@@ -387,7 +427,6 @@
                             return;
                         }
 
-                        // Sincronizar TinyMCE
                         if (window.tinymce) {
                             const editors = [
                                 'resumenEspecie_editor', 'descripcionEspecie_editor',
@@ -559,7 +598,7 @@
     <body class="bg-gray-100 min-h-screen" x-data="formEspecies">
         <x-header />
         <main class="max-w-7xl mx-auto p-6">
-            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 relative">
+            <div >
                 <div class="sticky top-0 z-50 bg-white border-b border-gray-200 rounded-t-2xl shadow-md">
                     <div class="pt-3 pb-1 max-w-5xl mx-auto">
                         <div class="p-3 relative" x-show="!isItemSelected">
@@ -592,7 +631,7 @@
                                 <h1 class="text-xl md:text-2xl font-black text-indigo-900 tracking-tight whitespace-nowrap"
                                     x-text="form.AutorTaxon"></h1>
                             </div>
-                            <button x-show="!isEdit" @click="limpiarSeleccion()" class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕ Cambiar especie</button>
+                            <button x-show="!isEdit && step === 1 && !yaAvanzo" @click="limpiarSeleccion()" class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕ Cambiar especie</button>
                         </div>
 
 
@@ -629,10 +668,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="p-8">
-                    <div x-show="step === 1"><x-seccion1 /></div>
-                    <div x-show="step === 2"><x-seccion2 /></div>
-                </div>
+                <div x-show="step === 1"><x-seccion1 /></div>
+                <div x-show="step === 2"><x-seccion2 /></div>
+                <div x-show="step === 3"><x-seccion3 /></div>
             </div>
         </main>
 
@@ -650,20 +688,25 @@
                     x-transition:enter-start="opacity-0 translate-y-10"
                     x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-col gap-4">
                     <div class="flex items-center gap-3 group">
-                            <span class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity  tracking-widest">Guardar avance</span>
-                            <button @click="guardarAvance(); openMenu = false" title="Guardar Avance" class="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
-                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                                    <polyline points="17 21 17 13 7 13 7 21" />
-                                    <polyline points="7 3 7 8 15 8" />
-                                    <line x1="10" y1="16" x2="14" y2="16" />
-                                    <line x1="10" y1="18" x2="14" y2="18" />
-                                </svg>
-                            </button>
-                        </div>
+                        <span
+                            class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Guardar
+                            avance</span>
+                        <button @click="guardarAvance(); openMenu = false" title="Guardar Avance"
+                            class="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
+                            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                                <line x1="10" y1="16" x2="14" y2="16" />
+                                <line x1="10" y1="18" x2="14" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
                     <div class="flex items-center gap-3 group">
                         <span
-                            class="bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">Ir a inicio</span>
+                            class="bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">Ir
+                            a inicio</span>
                         <a href="/dashboard"
                             class="w-14 h-14 bg-slate-800 hover:bg-slate-900 text-white rounded-full shadow-xl flex items-center justify-center border-2 border-white transition-transform hover:scale-110">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
