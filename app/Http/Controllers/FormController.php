@@ -8,19 +8,19 @@ use Illuminate\Support\Facades\DB;
 class FormController extends Controller{
 
    public function index(Request $request) {
-        $tempId = $request->query('tempId');
-        $paises = DB::table('pais2022')->orderBy('PAIS_SA')->get();
-        $estados = DB::table('estado2022')
-                    ->where('PAIS_SA', 'MEXICO')
-                    ->orderBy('EDO_SA')
-                    ->get();
-        return view('form', compact('tempId', 'paises', 'estados'));
-    }
+    $tempId = $request->query('tempId');
+    $paises = DB::table('pais')->orderBy('nombrepais')->get();
+    $estados = DB::table('estado')
+                ->orderBy('nombreEstado')
+                ->get();
 
-    public function obtenerMunicipios($idEdo) {
-        $municipios = DB::table('municipio2022')
-                        ->where('idEdo', $idEdo)
-                        ->orderBy('MUN_SA')
+    return view('form', compact('tempId', 'paises', 'estados'));
+}
+
+    public function obtenerMunicipios($nombreEdo) {
+        $municipios = DB::table('municipio')
+                        ->where('nombreEstado', $nombreEdo)
+                        ->orderBy('nombreMunicipio')
                         ->get();
         return response()->json($municipios);
     }

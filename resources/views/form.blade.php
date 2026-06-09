@@ -76,8 +76,7 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/diri29rn4y1j7vuymg9c8aurb8vpljholqhf9e8ujqoghqm5/tinymce/8/tinymce.min.js"
-            referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdn.tiny.cloud/1/u9wd3ks0yrdb604yqwon6c60wpx9c5lgbqpywdopvg8alyn8/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
@@ -211,17 +210,22 @@
                     },
 
 
-                     async cargarMunicipios(idEdo) {
-                        if (!idEdo) {
+                     async cargarMunicipios(nombreEdo) {
+                        if (!nombreEdo) {
                             this.municipiosOptions = [];
                             return;
                         }
                         try {
-                            const res = await fetch(`/obtener-municipios/${idEdo}`);
-                            const data = await res.json();
+                            const response = await fetch(`/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
+                            if (!response.ok) throw new Error('Error en la red');
+
+                            const data = await response.json();
                             this.municipiosOptions = data;
+
+                            console.log("Municipios cargados:", data);
                         } catch (error) {
                             console.error("Error al cargar municipios:", error);
+                            this.municipiosOptions = [];
                         }
                     },
 
