@@ -331,6 +331,11 @@ class FormController extends Controller{
         'nom059' => ['2001' => ['categoria' => '', 'info' => ''], '2010' => ['categoria' => '', 'info' => ''], '2019' => ['categoria' => '', 'info' => '']]
     ];
 
+    $distribucion = DB::table('distribucion')->where('especieId', $id)->first();
+    $endemismo = DB::table('endemica')->where('especieId', $id)->first();
+    $estados = DB::table('estado')->orderBy('nombreEstado')->get();
+    $paises = DB::table('pais')->orderBy('nombrepais')->get();
+
     foreach ($legislacionRows as $row) {
         if ($row->nombreLegislacion == 'UICN') {
             $legisProcessed['riesgoUICN'] = $row->estatusLegalProteccion;
@@ -394,10 +399,22 @@ class FormController extends Controller{
         'infoUICN' => $legisProcessed['infoUICN'],
         'infoCITES' => $legisProcessed['infoCITES'],
         'nom059' => $legisProcessed['nom059'],
+        'paises_seleccionados' => ($distribucion && $distribucion->distribucion) ? explode(', ', $distribucion->distribucion) : [],
+        'dist_mundial_info'    => $distribucion->InfoAdicionalPais ?? '',
+        'dist_historica_estado' => $distribucion->InfoAdicionalEdo ?? '',
+        'info_adicional_estado' => $distribucion->InfoAdicionalEdo ?? '',
+        'dist_historica_municipio' => $distribucion->infoAdicionalMun ?? '',
+        'info_adicional_municipio' => $distribucion->infoAdicionalMun ?? '',
+        'potencial_info'       => $distribucion->historicaPotencial ?? '',
+        'siNoPotencial'        => !empty($distribucion->historicaPotencial) ? '1' : '0',
     ];
 
     $especie = (object)$especie;
-    return view('form', compact('especie'));
+    return view('form', [
+        'especie' => (object)$especie,
+        'estados' => $estados,
+        'paises'  => $paises
+    ]);
 }
 
 }
