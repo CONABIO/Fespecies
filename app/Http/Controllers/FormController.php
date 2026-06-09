@@ -17,13 +17,13 @@ class FormController extends Controller{
     return view('form', compact('tempId', 'paises', 'estados'));
 }
 
-public function obtenerMunicipios($nombreEdo) {
-    $municipios = DB::table('municipio')
-                    ->where('nombreEstado', $nombreEdo)
-                    ->orderBy('nombreMunicipio')
-                    ->get();
-    return response()->json($municipios);
-}
+    public function obtenerMunicipios($nombreEdo) {
+        $municipios = DB::table('municipio')
+                        ->where('nombreEstado', $nombreEdo)
+                        ->orderBy('nombreMunicipio')
+                        ->get();
+        return response()->json($municipios);
+    }
 
 
 

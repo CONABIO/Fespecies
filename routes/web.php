@@ -31,4 +31,5 @@ Route::put('/actualizar_seccion/{id}', [FormController::class, 'guardarSeccion']
 Route::get('/obtener-municipios/{nombreEdo}', [FormController::class, 'obtenerMunicipios']);
 
 
+
 require __DIR__.'/auth.php';
