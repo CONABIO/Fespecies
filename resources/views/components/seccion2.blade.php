@@ -9,7 +9,6 @@
                 <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">a) Selecciona país(es):</label>
 
                 <div class="relative">
-                    <!-- BARRA DE SELECCIONADOS (Solo muestra lo que ya elegiste) -->
                     <div @click="open = !open"
                         class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
 
@@ -17,7 +16,6 @@
                             <span class="text-xs text-slate-400 p-2 font-black uppercase tracking-widest">SELECCIONAR...</span>
                         </template>
 
-                        <!-- Aquí solo iteramos los seleccionados -->
                         <template x-for="sel in form.paises_seleccionados" :key="sel">
                             <div class="bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                 <span x-text="sel"></span>
@@ -30,7 +28,6 @@
                         </template>
                     </div>
 
-                    <!-- MENÚ DESPLEGABLE (Lista de todos los países) -->
                     <div x-show="open" @click.away="open = false"
                         class="absolute z-[110] w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden" x-cloak>
                         <div class="p-2 border-b border-slate-100 bg-slate-50">
@@ -50,7 +47,6 @@
                 <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest" style="margin-top: 20px">Información adicional paises:</label>
                 <textarea x-model="form.dist_mundial_info" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[100px] text-slate-700 font-bold"></textarea>
 
-                <!-- DISTRIBUCIÓN EN MÉXICO -->
                 <div x-show="form.paises_seleccionados.includes('México')" x-transition>
                     <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center" style="margin-top: 60px">12. Distribución histórica en México:</label>
                     <div class="space-y-6">
