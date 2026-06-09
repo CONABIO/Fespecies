@@ -210,17 +210,22 @@
                     },
 
 
-                     async cargarMunicipios(idEdo) {
-                        if (!idEdo) {
+                     async cargarMunicipios(nombreEdo) {
+                        if (!nombreEdo) {
                             this.municipiosOptions = [];
                             return;
                         }
                         try {
-                            const res = await fetch(`/obtener-municipios/${idEdo}`);
-                            const data = await res.json();
+                            const response = await fetch(`/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
+                            if (!response.ok) throw new Error('Error en la red');
+
+                            const data = await response.json();
                             this.municipiosOptions = data;
+
+                            console.log("Municipios cargados:", data);
                         } catch (error) {
                             console.error("Error al cargar municipios:", error);
+                            this.municipiosOptions = [];
                         }
                     },
 
