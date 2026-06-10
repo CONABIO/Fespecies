@@ -9,6 +9,12 @@
         <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Lengua</label>
             <x-select-lenguas model="tempNombre.lengua" />
+            <div x-show="tempNombre.lengua === 'Otro'"
+                x-transition
+                class="mt-2 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                <label class="text-[10px] font-black text-indigo-900 tracking-widest uppercase" style="margin-bottom: 20px">Especifique la lengua:</label>
+                <input type="text" x-model="tempNombre.lengua_otra" class="w-full px-4 py-2 mt-1 rounded-full border-2 border-gray-100 bg-gray-50 text-xs focus:border-indigo-300 outline-none transition-all">
+            </div>
         </div>
         <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Bibliografía</label>

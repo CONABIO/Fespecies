@@ -76,7 +76,7 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/u9wd3ks0yrdb604yqwon6c60wpx9c5lgbqpywdopvg8alyn8/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdn.tiny.cloud/1/diri29rn4y1j7vuymg9c8aurb8vpljholqhf9e8ujqoghqm5/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
@@ -246,9 +246,18 @@
                         if (!this.tempNombre.nombre || this.tempNombre.nombre.trim() === '') {
                             return alert('El nombre común es obligatorio.');
                         }
+
                         if (tinymce.get('bibliografia_editor')) {
                             this.tempNombre.bibliografia = tinymce.get('bibliografia_editor').getContent();
                         }
+
+                        if (this.tempNombre.lengua === 'Otro') {
+                            if (!this.tempNombre.lengua_otra || this.tempNombre.lengua_otra.trim() === '') {
+                                return alert('Por favor, especifique la lengua.');
+                            }
+                            this.tempNombre.lengua = this.tempNombre.lengua_otra;
+                        }
+
                         if (this.editandoIndice === -1) {
                             this.form.nombres_comunes.push({
                                 ...this.tempNombre,
@@ -260,12 +269,15 @@
                                 editable: true
                             };
                         }
+
                         this.tempNombre = {
                             nombre: '',
                             lengua: '',
+                            lengua_otra: '',
                             bibliografia: '',
                             editable: true
                         };
+
                         this.showModalNombre = false;
                         this.editandoIndice = -1;
                     },
@@ -631,7 +643,6 @@
                             <div class="flex items-baseline gap-2 overflow-hidden">
                                 <h1 class="text-xl md:text-2xl font-black text-indigo-900 italic tracking-tight whitespace-nowrap"
                                     x-text="form.taxon"></h1>
-                                <span class="text-xl md:text-2xl font-black text-indigo-900">,</span>
                                 <h1 class="text-xl md:text-2xl font-black text-indigo-900 tracking-tight whitespace-nowrap"
                                     x-text="form.AutorTaxon"></h1>
                             </div>
@@ -693,7 +704,7 @@
                     x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-col gap-4">
                     <div class="flex items-center gap-3 group">
                         <span
-                            class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Guardar
+                            class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">Guardar
                             avance</span>
                         <button @click="guardarAvance(); openMenu = false" title="Guardar Avance"
                             class="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">

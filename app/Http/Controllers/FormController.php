@@ -17,13 +17,13 @@ class FormController extends Controller{
     return view('form', compact('tempId', 'paises', 'estados'));
 }
 
-    public function obtenerMunicipios($nombreEdo) {
-        $municipios = DB::table('municipio')
-                        ->where('nombreEstado', $nombreEdo)
-                        ->orderBy('nombreMunicipio')
-                        ->get();
-        return response()->json($municipios);
-    }
+public function obtenerMunicipios($nombreEdo) {
+    $municipios = DB::table('municipio')
+                    ->where('nombreEstado', $nombreEdo)
+                    ->orderBy('nombreMunicipio')
+                    ->get();
+    return response()->json($municipios);
+}
 
 
 
@@ -193,7 +193,7 @@ class FormController extends Controller{
         DB::table('endemica')->updateOrInsert(
             ['especieId' => $especieId],
             [
-                'endemicaMexico'        => ($f['siNoEndemismo'] == '1') ? 'SÍ' : 'NO',
+                'endemicaMexico'        => (($f['siNoEndemismo'] ?? '0') == '1') ? 'SÍ' : 'NO',
                 'endemicaA'             => $f['endemica_a'] ?? null,
                 'infoAdicionalEndemica' => $f['endemismo_info'] ?? null
             ]
@@ -407,6 +407,9 @@ class FormController extends Controller{
         'info_adicional_municipio' => $distribucion->infoAdicionalMun ?? '',
         'potencial_info'       => $distribucion->historicaPotencial ?? '',
         'siNoPotencial'        => !empty($distribucion->historicaPotencial) ? '1' : '0',
+        'siNoEndemismo' => ($endemismo && $endemismo->endemicaMexico == 'SÍ') ? '1' : '0',
+        'endemica_a'    => $endemismo->endemicaA ?? '',
+        'endemismo_info' => $endemismo->infoAdicionalEndemica ?? '',
     ];
 
     $especie = (object)$especie;
