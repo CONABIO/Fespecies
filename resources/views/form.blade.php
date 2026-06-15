@@ -24,6 +24,8 @@
             'descripcionOrigen' => '',
             'origen' => [],
             'paises_seleccionados' => [],
+            'estados_seleccionados' => [],
+            'municipios_seleccionados' => [],
             'dist_mundial_info' => '',
             'dist_historica_estado' => '',
             'info_adicional_estado' => '',
@@ -76,7 +78,8 @@
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/diri29rn4y1j7vuymg9c8aurb8vpljholqhf9e8ujqoghqm5/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdn.tiny.cloud/1/diri29rn4y1j7vuymg9c8aurb8vpljholqhf9e8ujqoghqm5/tinymce/8/tinymce.min.js"
+            referrerpolicy="origin" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('alpine:init', () => {
@@ -110,21 +113,28 @@
                     },
                     selectedIndex: -1,
 
-                    init() {
-                        this.$nextTick(() => {
+                    async init() {
+                        const municipioGuardado = this.form.dist_historica_municipio
+
+                        this.$nextTick(async () => {
                             this.initEditor('#resumenEspecie_editor', 'resumenEspecie');
                             this.initEditor('#descripcionEspecie_editor', 'descEspecie');
-                            this.initEditor('#especiesSimilares_editor', 'especiesSmilares');
-                            this.initEditor('#descripcionOrigen_editor', 'descripcionOrigen');
+                            this.initEditor('#especiesSimilares_editor',
+                                'especiesSmilares');
+                            this.initEditor('#descripcionOrigen_editor',
+                                'descripcionOrigen');
                             this.initEditor('#infoUICN_editor', 'infoUICN');
                             this.initEditor('#infoCITES_editor', 'infoCITES');
                             if (this.form.siNoToxicidad === '1') {
                                 this.initEditor('#toxicidad_editor', 'toxicidad');
                             }
-                            if(this.form.dist_historica_estado) {
-                                this.cargarMunicipios(this.form.dist_historica_estado);
+                            if (this.form.dist_historica_estado) {
+                                await this.cargarMunicipios(this.form
+                                    .dist_historica_estado);
+                                this.form.dist_historica_municipio = municipioGuardado;
                             }
                         });
+
                         this.$watch('form.siNoToxicidad', v => {
                             if (v === '1') {
                                 this.$nextTick(() => this.initEditor('#toxicidad_editor',
@@ -134,6 +144,7 @@
                                 this.form.toxicidad = '';
                             }
                         });
+
                         this.$watch('showModalNombre', v => {
                             if (v) {
                                 this.$nextTick(() => this.initEditor('#bibliografia_editor',
@@ -163,6 +174,17 @@
                                 this.yaAvanzo = true;
                             }
                         });
+
+                        if (this.form.estados_seleccionados && this.form.estados_seleccionados.length >
+                            0) {
+                            // Limpiamos primero para evitar duplicados
+                            this.municipiosOptions = [];
+                            // Cargamos los municipios de cada estado seleccionado
+                            for (const estado of this.form.estados_seleccionados) {
+                                await this.cargarMunicipios(estado,
+                                true); // Le pasamos un segundo parámetro 'true' para acumular
+                            }
+                        }
                     },
 
                     initEditor(selector, field, parent = 'form') {
@@ -210,22 +232,21 @@
                     },
 
 
-                     async cargarMunicipios(nombreEdo) {
-                        if (!nombreEdo) {
-                            this.municipiosOptions = [];
-                            return;
-                        }
+                    async cargarMunicipios(nombreEdo, acumular = false) {
+                        if (!nombreEdo) return;
                         try {
-                            const response = await fetch(`/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
-                            if (!response.ok) throw new Error('Error en la red');
-
+                            const response = await fetch( `/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
                             const data = await response.json();
-                            this.municipiosOptions = data;
+                            if (acumular) {
+                                this.municipiosOptions = [...this.municipiosOptions, ...data];
+                            } else {
+                                this.municipiosOptions = [...this.municipiosOptions, ...data];
+                            }
+                            this.municipiosOptions = Array.from(new Map(this.municipiosOptions.map(
+                                m => [m.municipioId, m])).values());
 
-                            console.log("Municipios cargados:", data);
                         } catch (error) {
-                            console.error("Error al cargar municipios:", error);
-                            this.municipiosOptions = [];
+                            console.error("Error:", error);
                         }
                     },
 
@@ -396,8 +417,6 @@
 
 
                     async avanzarSeccion() {
-                        console.log("Datos que se enviarán:", JSON.parse(JSON.stringify(this.form)));
-
                         if (this.step === 1 && !this.form.especieId) {
                             Swal.fire({
                                 title: 'Atención',
@@ -408,28 +427,77 @@
                             });
                             return;
                         }
-                        if (this.step === 1 && !this.form.especieId) return alert(
-                            'Seleccione una especie.');
-                        const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
-                            '/guardar_seccion';
-                        const res = await fetch(url, {
-                            method: this.form.id ? 'PUT' : 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                form: {
-                                    ...this.form,
-                                    origen: this.form.origen.join(', ')
+
+                        if (window.tinymce) {
+                            const editors = [
+                                'resumenEspecie_editor', 'descripcionEspecie_editor',
+                                'especiesSimilares_editor', 'descripcionOrigen_editor',
+                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor'
+                            ];
+                            editors.forEach(id => {
+                                const ed = tinymce.get(id);
+                                if (ed) {
+                                    const field = id.replace('_editor', '')
+                                        .replace('descripcionEspecie', 'descEspecie')
+                                        .replace('especiesSimilares', 'especiesSmilares');
+                                    this.form[field] = ed.getContent();
                                 }
-                            })
+                            });
+                        }
+
+                        Swal.fire({
+                            title: 'Guardando...',
+                            didOpen: () => Swal.showLoading(),
+                            allowOutsideClick: false
                         });
-                        const result = await res.json();
-                        if (result.success) {
-                            this.yaAvanzo = true;
-                            this.step++;
-                            window.scrollTo(0, 0);
+
+                        try {
+                            const token = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
+                                '/guardar_seccion';
+
+                            const res = await fetch(url, {
+                                method: this.form.id ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': token,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    form: {
+                                        ...this.form,
+                                        origen: Array.isArray(this.form.origen) ? this
+                                            .form.origen.join(', ') : this.form.origen
+                                    }
+                                })
+                            });
+
+                            const result = await res.json();
+
+                            if (result.success) {
+                                if (result.id) this.form.id = result.id;
+                                Swal.fire({
+                                    title: '¡Guardado!',
+                                    text: 'Progreso guardado correctamente.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                this.yaAvanzo = true;
+                                this.step++;
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+
+                            } else {
+                                throw new Error(result.error);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire('Error', 'No se pudo guardar la información de esta sección.',
+                                'error');
                         }
                     },
 
@@ -614,7 +682,7 @@
     <body class="bg-gray-100 min-h-screen" x-data="formEspecies">
         <x-header />
         <main class="max-w-7xl mx-auto p-6">
-            <div >
+            <div>
                 <div class="sticky top-0 z-50 bg-white border-b border-gray-200 rounded-t-2xl shadow-md">
                     <div class="pt-3 pb-1 max-w-5xl mx-auto">
                         <div class="p-3 relative" x-show="!isItemSelected">
@@ -646,7 +714,9 @@
                                 <h1 class="text-xl md:text-2xl font-black text-indigo-900 tracking-tight whitespace-nowrap"
                                     x-text="form.AutorTaxon"></h1>
                             </div>
-                            <button x-show="!isEdit && step === 1 && !yaAvanzo" @click="limpiarSeleccion()" class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕ Cambiar especie</button>
+                            <button x-show="!isEdit && step === 1 && !yaAvanzo" @click="limpiarSeleccion()"
+                                class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕
+                                Cambiar especie</button>
                         </div>
 
 
