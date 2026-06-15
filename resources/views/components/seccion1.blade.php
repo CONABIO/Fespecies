@@ -195,7 +195,6 @@
                         </div>
                     </div>
                     <div x-show="form.siNoToxicidad === '1'" class="mb-6 animate-pulse-slow">
-                        <label class="text-[10px] font-black text-slate-500 uppercase mb-2 block">Información adicional sobre toxicidad:</label>
                         <textarea id="toxicidad_editor"></textarea>
                     </div>
                     <div class="flex flex-col">
