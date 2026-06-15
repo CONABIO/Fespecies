@@ -32,31 +32,37 @@ public function obtenerMunicipios($nombreEdo) {
         try {
             $query = $request->get('q');
             if (!$query) return response()->json([]);
+
             $resultados = DB::connection('mysql_catalogo')
                 ->table('_TransformaTablaNombre')
                 ->where('taxon', 'LIKE', "%{$query}%")
                 ->select('taxon', 'IdNombre', 'IdNombreRel', 'Reino', 'Clase', 'Orden', 'Familia', 'Genero', 'Categinfra', 'AutorTaxon', 'EstatusTaxon', 'Especie_epiteto', 'Nombreinfra', 'Divisionphylum', 'IdCAT','Cites','Iucn','Nom')
                 ->limit(10)
                 ->get();
+
             $resultadosProcesados = $resultados->map(function ($item) {
-            $nombresRelacionales = DB::connection('mysql_catalogo')
-                ->table('Nombre')
-                ->join('RelNomNomComunRegion', 'Nombre.IdNombre', '=', 'RelNomNomComunRegion.IdNombre')
-                ->join('NomComun', 'RelNomNomComunRegion.IdNomComun', '=', 'NomComun.IdNomComun')
-                ->where('Nombre.IdNombre', $item->IdNombre)
-                ->select('NomComun.NomComun as nombre', 'NomComun.Lengua as lengua')
-                ->get();
-            $nombresListado = [];
-            foreach ($nombresRelacionales as $nc) {
-                $nombresListado[] = [
-                    'nombre' => $nc->nombre,
-                    'lengua' => $nc->lengua,
-                    'editable' => false
-                ];
-            }
-            $item->nombres_comunes_array = $nombresListado;
-            return $item;
+                $nombresRelacionales = DB::connection('mysql_catalogo')
+                    ->table('Nombre')
+                    ->join('RelNomNomComunRegion', 'Nombre.IdNombre', '=', 'RelNomNomComunRegion.IdNombre')
+                    ->join('NomComun', 'RelNomNomComunRegion.IdNomComun', '=', 'NomComun.IdNomComun')
+                    ->join('Region', 'RelNomNomComunRegion.IdRegion', '=', 'Region.IdRegion')
+                    ->where('Nombre.IdNombre', $item->IdNombre)
+                    ->select('NomComun.NomComun as nombre', 'NomComun.Lengua as lengua')
+                    ->groupBy('NomComun.NomComun', 'NomComun.Lengua')
+                    ->get();
+
+                $nombresListado = [];
+                foreach ($nombresRelacionales as $nc) {
+                    $nombresListado[] = [
+                        'nombre' => $nc->nombre,
+                        'lengua' => $nc->lengua,
+                        'editable' => false
+                    ];
+                }
+                $item->nombres_comunes_array = $nombresListado;
+                return $item;
             });
+
             return response()->json($resultadosProcesados);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -255,11 +261,15 @@ public function obtenerMunicipios($nombreEdo) {
     $datosCatalogo = DB::connection('mysql_catalogo')->table('_TransformaTablaNombre')->where('IdCAT', $taxon->IdCAT)->first();
     $nombresCatalogo = [];
     if ($datosCatalogo) {
-        $ncRelacionales = DB::connection('mysql_catalogo')->table('Nombre')
-            ->join('RelNomNomComunRegion', 'Nombre.IdNombre', '=', 'RelNomNomComunRegion.IdNombre')
-            ->join('NomComun', 'RelNomNomComunRegion.IdNomComun', '=', 'NomComun.IdNomComun')
-            ->where('Nombre.IdNombre', $datosCatalogo->IdNombre)
-            ->select('NomComun.NomComun as nombre', 'NomComun.Lengua as lengua')->get();
+        $ncRelacionales = DB::connection('mysql_catalogo')
+            ->table('Nombre')
+                    ->join('RelNomNomComunRegion', 'Nombre.IdNombre', '=', 'RelNomNomComunRegion.IdNombre')
+                    ->join('NomComun', 'RelNomNomComunRegion.IdNomComun', '=', 'NomComun.IdNomComun')
+                    ->join('Region', 'RelNomNomComunRegion.IdRegion', '=', 'Region.IdRegion')
+                    ->where('Nombre.IdNombre', $datosCatalogo->IdNombre)
+                    ->select('NomComun.NomComun as nombre', 'NomComun.Lengua as lengua')
+                    ->groupBy('NomComun.NomComun', 'NomComun.Lengua')
+                    ->get();
         foreach ($ncRelacionales as $nc) {
             $nombresCatalogo[] = ['nombre' => trim($nc->nombre), 'lengua' => trim($nc->lengua), 'bibliografia' => '', 'editable' => false];
         }
