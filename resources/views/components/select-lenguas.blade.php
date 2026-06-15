@@ -5,7 +5,7 @@
     {{ $attributes->merge(['class' => 'w-full px-4 py-2 mt-1 rounded-full border-2 border-gray-100 bg-gray-50 text-xs focus:border-indigo-300 outline-none transition-all']) }}
 >
     <option value="">Seleccione una lengua...</option>
-
+     <option value="Otro" class="text-[11px] font-black text-red-500 tracking-widest">Ingresar la lengua</option>
     <optgroup label="FAMILIAS LINGÜÍSTICAS">
         <option value="I Familia Álgica">I Familia Álgica</option>
         <option value="II Familia Yuto-nahua">II Familia Yuto-nahua</option>
