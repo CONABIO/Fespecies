@@ -19,7 +19,7 @@
                     país(es):</label>
 
                 <div class="relative">
-                    <div @click="openPais = !openPais"
+                    <div @click="openPais = !openPais; if(openPais) $nextTick(() => $refs.inputBusquedaPais.focus())"
                         class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
                         <template x-if="form.paises_seleccionados.length === 0">
                             <span class="text-xs text-slate-400 p-2 font-black uppercase tracking-widest">SELECCIONAR
@@ -45,6 +45,7 @@
                         x-cloak>
                         <div class="p-2 border-b border-slate-100 bg-slate-50">
                             <input type="text" x-model="filterPais" @click.stop placeholder="Buscar país..."
+                                x-ref="inputBusquedaPais"
                                 class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
                         </div>
                         <div class="max-h-60 overflow-y-auto">
@@ -60,7 +61,7 @@
                 </div>
 
                 <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                    style="margin-top: 20px">Información adicional paises:</label>
+                    style="margin-top: 20px">Información adicional:</label>
                 <textarea x-model="form.dist_mundial_info"
                     class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[100px] text-slate-700 font-bold"></textarea>
                 <div x-show="form.paises_seleccionados.includes('México')" x-transition>
@@ -72,7 +73,7 @@
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">a)
                                 Estado(s):</label>
                             <div class="relative">
-                                <div @click="openEdo = !openEdo"
+                                <div @click="openEdo = !openEdo; if(openEdo) $nextTick(() => $refs.inputBusquedaEdo.focus())"
                                     class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
                                     <template x-if="form.estados_seleccionados.length === 0">
                                         <span
@@ -99,7 +100,7 @@
                                     class="absolute z-[100] w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"
                                     x-cloak>
                                     <div class="p-2 border-b border-slate-100 bg-slate-50">
-                                        <input type="text" x-model="filterEdo" @click.stop
+                                        <input type="text" x-model="filterEdo" @click.stop x-ref="inputBusquedaEdo"
                                             placeholder="Buscar estado..."
                                             class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
                                     </div>
@@ -118,7 +119,7 @@
                                 </div>
                             </div>
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                                style="margin-top: 20px">Info adicional Estado:</label>
+                                style="margin-top: 20px">Información adicional:</label>
                             <textarea x-model="form.info_adicional_estado"
                                 class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[80px] text-slate-700 font-bold"></textarea>
                         </div>
@@ -127,7 +128,7 @@
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">b)
                                 Municipio(s):</label>
                             <div class="relative">
-                                <div @click="if(municipiosOptions.length > 0) openMun = !openMun"
+                                <div @click="if(municipiosOptions.length > 0) { openMun = !openMun; if(openMun) $nextTick(() => $refs.inputBusquedaMun.focus()) }"
                                     :class="municipiosOptions.length === 0 ? 'opacity-50 cursor-not-allowed' :
                                         'cursor-pointer hover:border-indigo-300'"
                                     class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 transition-all shadow-inner">
@@ -157,22 +158,64 @@
                                     x-cloak>
                                     <div class="p-2 border-b border-slate-100 bg-slate-50">
                                         <input type="text" x-model="filterMun" @click.stop
-                                            placeholder="Buscar municipio..."
+                                            x-ref="inputBusquedaMun" placeholder="Buscar municipio..."
                                             class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
                                     </div>
-                                    <div class="max-h-60 overflow-y-auto">
+                                    <div class="max-h-60 overflow-y-auto bg-slate-50/30">
+                                        <template x-for="edoNombre in form.estados_seleccionados"
+                                            :key="edoNombre">
+                                            <div>
+                                                <template
+                                                    x-if="municipiosOptions.filter(m => m.nombreEstado === edoNombre && m.nombreMunicipio.toLowerCase().includes(filterMun.toLowerCase())).length > 0">
+                                                    <div>
+                                                        <div
+                                                            class="bg-slate-100/80 px-4 py-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest border-y border-slate-200 sticky top-0 z-10 flex items-center">
+                                                            <svg class="w-3 h-3 mr-2" fill="currentColor"
+                                                                viewBox="0 0 20 20">
+                                                                <path
+                                                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" />
+                                                            </svg>
+                                                            <span x-text="edoNombre"></span>
+                                                        </div>
+
+                                                        <template
+                                                            x-for="mun in municipiosOptions.filter(m => m.nombreEstado === edoNombre && m.nombreMunicipio.toLowerCase().includes(filterMun.toLowerCase()))"
+                                                            :key="mun.municipioId">
+                                                            <div @click="if(!form.municipios_seleccionados.includes(mun.nombreMunicipio)) { form.municipios_seleccionados.push(mun.nombreMunicipio); } openMun = false; filterMun = ''"
+                                                                class="px-8 py-3 text-xs font-bold text-slate-600 hover:bg-white hover:text-indigo-600 cursor-pointer transition-colors border-b border-slate-100 flex items-center"
+                                                                :class="form.municipios_seleccionados.includes(mun
+                                                                        .nombreMunicipio) ?
+                                                                    'bg-indigo-50 text-indigo-700' : ''">
+                                                                <span x-text="mun.nombreMunicipio"></span>
+                                                                <template
+                                                                    x-if="form.municipios_seleccionados.includes(mun.nombreMunicipio)">
+                                                                    <svg class="w-4 h-4 ml-auto text-indigo-500"
+                                                                        fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="3"
+                                                                            d="M5 13l4 4L19 7"></path>
+                                                                    </svg>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+
                                         <template
-                                            x-for="mun in municipiosOptions.filter(i => i.nombreMunicipio.toLowerCase().includes(filterMun.toLowerCase()))"
-                                            :key="mun.municipioId">
-                                            <div @click="if(!form.municipios_seleccionados.includes(mun.nombreMunicipio)) { form.municipios_seleccionados.push(mun.nombreMunicipio); } openMun = false; filterMun = ''"
-                                                class="px-5 py-3 text-xs font-black text-slate-600 hover:bg-sky-50 cursor-pointer transition-colors border-b border-slate-50"
-                                                x-text="mun.nombreMunicipio"></div>
+                                            x-if="filterMun !== '' && !municipiosOptions.some(m => m.nombreMunicipio.toLowerCase().includes(filterMun.toLowerCase()))">
+                                            <div class="p-8 text-center text-slate-400 text-xs font-medium">
+                                                No se encontraron municipios que coincidan con "<span
+                                                    x-text="filterMun"></span>"
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
                             </div>
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                                style="margin-top: 20px">Info adicional Municipio:</label>
+                                style="margin-top: 20px">Información adicional:</label>
                             <textarea x-model="form.info_adicional_municipio"
                                 class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[80px] text-slate-700 font-bold"></textarea>
                         </div>

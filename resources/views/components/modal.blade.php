@@ -27,7 +27,7 @@
     <x-modalGeneral id="showModalSinonimo" title="Agregar Sinónimo" saveFunction="guardarSinonimoManual()">
     <div>
         <label class="text-[10px] font-bold text-gray-500 uppercase">Sinónimo</label>
-        <input type="text" x-model="tempSinonimo.sinonimo" class="w-full px-4 py-2 mt-1 rounded-full border-2 border-gray-100 bg-gray-50 text-xs italic focus:border-indigo-300 outline-none transition-all">
+        <input type="text" x-model="tempSinonimo.sinonimo" class="w-full px-4 py-2 mt-1 rounded-full border-2 border-gray-100 bg-gray-50 text-xs focus:border-indigo-300 outline-none transition-all">
     </div>
     <div>
         <label class="text-[10px] font-bold text-gray-500 uppercase">Autor</label>

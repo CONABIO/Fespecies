@@ -177,12 +177,10 @@
 
                         if (this.form.estados_seleccionados && this.form.estados_seleccionados.length >
                             0) {
-                            // Limpiamos primero para evitar duplicados
                             this.municipiosOptions = [];
-                            // Cargamos los municipios de cada estado seleccionado
                             for (const estado of this.form.estados_seleccionados) {
                                 await this.cargarMunicipios(estado,
-                                true); // Le pasamos un segundo parámetro 'true' para acumular
+                                    true);
                             }
                         }
                     },
@@ -235,7 +233,8 @@
                     async cargarMunicipios(nombreEdo, acumular = false) {
                         if (!nombreEdo) return;
                         try {
-                            const response = await fetch( `/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
+                            const response = await fetch(
+                                `/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
                             const data = await response.json();
                             if (acumular) {
                                 this.municipiosOptions = [...this.municipiosOptions, ...data];
@@ -633,6 +632,107 @@
                             }
                         });
                     },
+
+                    async navegarSeccion(proximoPaso) {
+                        if (this.step === proximoPaso) return;
+                        if (this.step === 1 && !this.form.especieId && proximoPaso > 1) {
+                            Swal.fire({
+                                title: 'Atención',
+                                text: 'Por favor, seleccione una especie antes de continuar.',
+                                icon: 'warning',
+                                confirmButtonColor: '#4f46e5'
+                            });
+                            return;
+                        }
+                        if (window.tinymce) {
+                            const editors = [{
+                                    id: 'resumenEspecie_editor',
+                                    field: 'resumenEspecie'
+                                },
+                                {
+                                    id: 'descripcionEspecie_editor',
+                                    field: 'descEspecie'
+                                },
+                                {
+                                    id: 'especiesSimilares_editor',
+                                    field: 'especiesSmilares'
+                                },
+                                {
+                                    id: 'descripcionOrigen_editor',
+                                    field: 'descripcionOrigen'
+                                },
+                                {
+                                    id: 'infoUICN_editor',
+                                    field: 'infoUICN'
+                                },
+                                {
+                                    id: 'infoCITES_editor',
+                                    field: 'infoCITES'
+                                },
+                                {
+                                    id: 'toxicidad_editor',
+                                    field: 'toxicidad'
+                                }
+                            ];
+                            editors.forEach(item => {
+                                const ed = tinymce.get(item.id);
+                                if (ed) {
+                                    this.form[item.field] = ed.getContent();
+                                }
+                            });
+                        }
+
+                        Swal.fire({
+                            title: 'Guardando...',
+                            didOpen: () => Swal.showLoading(),
+                            allowOutsideClick: false
+                        });
+
+                        try {
+                            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` : '/guardar_seccion';
+                            const res = await fetch(url, {
+                                method: this.form.id ? 'PUT' : 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': token,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    form: {
+                                        ...this.form,
+                                        origen: Array.isArray(this.form.origen) ? this
+                                            .form.origen.join(', ') : this.form.origen
+                                    }
+                                })
+                            });
+
+                            const result = await res.json();
+
+                            if (result.success) {
+                                if (result.id) this.form.id = result.id;
+                                Swal.fire({
+                                    title: '¡Guardado!',
+                                    text: 'Progreso guardado correctamente.',
+                                    icon: 'success',
+                                    timer: 1000,
+                                    showConfirmButton: false
+                                });
+                                this.yaAvanzo = true;
+                                this.step = proximoPaso;
+                                window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                            } else {
+                                throw new Error(result.error);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire('Error',
+                                'No se pudo guardar la información al cambiar de sección.', 'error');
+                        }
+                    },
                 }));
             });
         </script>
@@ -727,8 +827,7 @@
                                     @php $secciones = ['Clasificación', 'Distribución', 'Ambiente', 'Biología', 'Ecología', 'Genética', 'Importancia', 'Conservación', 'Prioritarias', 'Necesidades', 'Metadatos']; @endphp
                                     @foreach ($secciones as $index => $titulo)
                                         @php $n = $index + 1; @endphp
-                                        <div class="flex flex-col items-center cursor-pointer"
-                                            @click="if(isItemSelected || {{ $n }} == 1) step = {{ $n }}">
+                                        <div class="flex flex-col items-center cursor-pointer" @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
                                             <div class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all"
                                                 :class="step == {{ $n }} ?
                                                     'bg-indigo-600 border-indigo-600 text-white' : (step >
