@@ -118,6 +118,12 @@
 
                         this.$nextTick(async () => {
                             this.initEditor('#resumenEspecie_editor', 'resumenEspecie');
+                            this.initEditor('#infoAddNombreCientifico', 'infoAddNombreCientifico');
+                            this.initEditor('#infoAddDistribucionMundialPais', 'dist_mundial_info');
+                            this.initEditor('#infoAddDistribucionMundialEstado', 'info_adicional_estado');
+                            this.initEditor('#infoAddDistribucionMundialMunicipio', 'info_adicional_municipio');
+                            this.initEditor('#infoAddDistPotMex', 'potencial_info');
+                            this.initEditor('#infoAddEndemismo', 'endemismo_info');
                             this.initEditor('#descripcionEspecie_editor', 'descEspecie');
                             this.initEditor('#especiesSimilares_editor',
                                 'especiesSmilares');
