@@ -58,7 +58,7 @@
                         <div class="h-px bg-slate-100 flex-grow"></div>
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" style="margin-bottom: 20px">
                         <div class="flex flex-col">
                             <label class="text-[9px] font-black text-slate-400 uppercase mb-2 ml-1">I. Género:</label>
                             <input type="text" x-model="form.Genero" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold text-indigo-900 shadow-inner" disabled>
@@ -83,7 +83,15 @@
                             <label class="text-[9px] font-black text-slate-400 uppercase mb-2 ml-1">VI. Autor y año:</label>
                             <input type="text" x-model="form.AutorTaxon" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-slate-500" disabled>
                         </div>
+
                     </div>
+
+                    <div class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                        <div class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
+                            <div class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10"></div>
+                        </div>
+                    </div>
+                    <textarea id="infoAddNombreCientifico" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
 
                     <div class="mt-8 pt-6 border-t border-slate-100">
                         <div class="flex items-center justify-between mb-4">
@@ -231,10 +239,10 @@
                                         <label class="text-[9px] font-black text-indigo-200 uppercase mb-2 block">Categoría:</label>
                                         <select x-model="form.nom059[data.k].categoria" class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-xs outline-none">
                                             <option value="" class="text-slate-800">Seleccionar...</option>
-                                            <option value="Probablemente extinta en el medio silvestre (E)" class="text-slate-800">Probablemente extinta (E)</option>
+                                            <option value="Probablemente extinta en el medio silvestre (E)" class="text-slate-800">Probablemente extinta en el medio silvestre (E)</option>
                                             <option value="En peligro de extinción (P)" class="text-slate-800">En peligro de extinción (P)</option>
                                             <option value="Amenazadas (A)" class="text-slate-800">Amenazada (A)</option>
-                                            <option value="Sujetas a protección especial (Pr)" class="text-slate-800">Protección especial (Pr)</option>
+                                            <option value="Sujetas a protección especial (Pr)" class="text-slate-800">Sujeta a protección especial (Pr)</option>
                                         </select>
                                     </div>
                                     <div>

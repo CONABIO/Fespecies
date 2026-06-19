@@ -4,23 +4,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-            <div class="flex flex-col" x-data="{
-                openPais: false,
-                filterPais: '',
-                openEdo: false,
-                filterEdo: '',
-                openMun: false,
-                filterMun: ''
-            }">
+            <div class="flex flex-col" x-data="{ openPais: false, filterPais: '', openEdo: false, filterEdo: '', openMun: false, filterMun: '' }">
 
                 <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">11.
                     Distribución mundial:</label>
                 <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 block">a) Selecciona
                     país(es):</label>
-
                 <div class="relative">
                     <div @click="openPais = !openPais; if(openPais) $nextTick(() => $refs.inputBusquedaPais.focus())"
-                        class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
+                        class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner"
+                        style="margin-bottom: 20px">
                         <template x-if="form.paises_seleccionados.length === 0">
                             <span class="text-xs text-slate-400 p-2 font-black uppercase tracking-widest">SELECCIONAR
                                 PAÍS...</span>
@@ -30,8 +23,7 @@
                                 class="bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                 <span x-text="sel"></span>
                                 <button type="button"
-                                    @click.stop="form.paises_seleccionados = form.paises_seleccionados.filter(i => i !== sel)"
-                                    class="ml-2 hover:text-rose-300 transition-colors">
+                                    @click.stop="form.paises_seleccionados = form.paises_seleccionados.filter(i => i !== sel)"class="ml-2 hover:text-rose-300 transition-colors">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                                             d="M6 18L18 6M6 6l12 12"></path>
@@ -41,8 +33,7 @@
                         </template>
                     </div>
                     <div x-show="openPais" @click.away="openPais = false"
-                        class="absolute z-[110] w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"
-                        x-cloak>
+                        class="absolute z-[110] w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"x-cloak>
                         <div class="p-2 border-b border-slate-100 bg-slate-50">
                             <input type="text" x-model="filterPais" @click.stop placeholder="Buscar país..."
                                 x-ref="inputBusquedaPais"
@@ -60,10 +51,18 @@
                     </div>
                 </div>
 
-                <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                    style="margin-top: 20px">Información adicional:</label>
-                <textarea x-model="form.dist_mundial_info"
-                    class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[100px] text-slate-700 font-bold"></textarea>
+                <div
+                    class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                    <div
+                        class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
+                        <div
+                            class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10">
+                        </div>
+                    </div>
+                </div>
+                <textarea id="infoAddDistribucionMundialPais" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
+
+
                 <div x-show="form.paises_seleccionados.includes('México')" x-transition>
                     <label class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center"
                         style="margin-top: 60px">12. Distribución histórica en México:</label>
@@ -72,7 +71,7 @@
                         <div class="flex flex-col">
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">a)
                                 Estado(s):</label>
-                            <div class="relative">
+                            <div class="relative" style="margin-bottom: 20px">
                                 <div @click="openEdo = !openEdo; if(openEdo) $nextTick(() => $refs.inputBusquedaEdo.focus())"
                                     class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
                                     <template x-if="form.estados_seleccionados.length === 0">
@@ -108,26 +107,31 @@
                                         <template
                                             x-for="edo in estadosOptions.filter(i => i.nombreEstado.toLowerCase().includes(filterEdo.toLowerCase()))"
                                             :key="edo.estadoId">
-                                            <div @click="if(!form.estados_seleccionados.includes(edo.nombreEstado)) {
-                                            form.estados_seleccionados.push(edo.nombreEstado);
-                                            cargarMunicipios(edo.nombreEstado);
-                                        } openEdo = false; filterEdo = ''"
+                                            <div @click="if(!form.estados_seleccionados.includes(edo.nombreEstado)) { form.estados_seleccionados.push(edo.nombreEstado); cargarMunicipios(edo.nombreEstado); } openEdo = false; filterEdo = ''"
                                                 class="px-5 py-3 text-xs font-black text-slate-600 hover:bg-emerald-50 cursor-pointer transition-colors border-b border-slate-50"
                                                 x-text="edo.nombreEstado"></div>
                                         </template>
                                     </div>
                                 </div>
                             </div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                                style="margin-top: 20px">Información adicional:</label>
-                            <textarea x-model="form.info_adicional_estado"
-                                class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[80px] text-slate-700 font-bold"></textarea>
+                            <div
+                                class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                                <div
+                                    class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
+                                    <div
+                                        class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10">
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea id="infoAddDistribucionMundialEstado" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
+
+
                         </div>
 
                         <div class="flex flex-col">
                             <label class="text-[10px] font-black text-slate-500 uppercase mb-2 ml-1 tracking-widest">b)
                                 Municipio(s):</label>
-                            <div class="relative">
+                            <div class="relative" style="margin-bottom: 20px">
                                 <div @click="if(municipiosOptions.length > 0) { openMun = !openMun; if(openMun) $nextTick(() => $refs.inputBusquedaMun.focus()) }"
                                     :class="municipiosOptions.length === 0 ? 'opacity-50 cursor-not-allowed' :
                                         'cursor-pointer hover:border-indigo-300'"
@@ -214,10 +218,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest"
-                                style="margin-top: 20px">Información adicional:</label>
-                            <textarea x-model="form.info_adicional_municipio"
-                                class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[80px] text-slate-700 font-bold"></textarea>
+                            <div
+                                class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                                <div
+                                    class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
+                                    <div
+                                        class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10">
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea id="infoAddDistribucionMundialMunicipio" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                         </div>
                     </div>
                 </div>
@@ -228,8 +238,7 @@
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between mb-6 pb-6 border-b border-slate-100">
                     <label
-                        class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">13.
-                        Distribución potencial en México:</label>
+                        class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center">13. Distribución potencial en México:</label>
                     <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                         <label class="flex items-center px-6 py-2 rounded-lg cursor-pointer transition-all"
                             :class="form.siNoPotencial == '1' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'">
@@ -244,8 +253,7 @@
                     </div>
                 </div>
                 <div x-show="form.siNoPotencial == '1'" x-transition>
-                    <textarea x-model="form.potencial_info" placeholder="Info adicional sobre potencial..."
-                        class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[100px] text-slate-700 font-bold"></textarea>
+                    <textarea id="infoAddDistPotMex" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                 </div>
             </div>
 
@@ -271,19 +279,23 @@
                             </label>
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest">b)
-                            Endémica a:</label>
-                        <input type="text" x-model="form.endemica_a"
-                            class="px-5 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-indigo-900 shadow-inner outline-none focus:border-indigo-400 transition-all"
-                            placeholder="Ej. Sierra Madre Oriental">
-                    </div>
-                    <div class="flex flex-col">
-                        <label
-                            class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest">Información
-                            adicional sobre endemismo:</label>
-                        <textarea x-model="form.endemismo_info"
-                            class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50 focus:border-indigo-400 outline-none min-h-[100px] text-slate-700 font-bold"></textarea>
+                    <div x-show="form.siNoEndemismo == '1'" x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform -translate-y-4" class="space-y-6">
+                        <div class="flex flex-col">
+                            <label class="text-[10px] font-black text-slate-500 uppercase mb-3 ml-1 tracking-widest">b)
+                                Endémica a:</label>
+                            <input type="text" x-model="form.endemica_a"
+                                class="px-5 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-black text-indigo-900 shadow-inner outline-none focus:border-indigo-400 transition-all"
+                                placeholder="Ej. Sierra Madre Oriental">
+                        </div>
+                        <div class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
+                            <div class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
+                                <div class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10"></div>
+                            </div>
+                        </div>
+                        <textarea id="infoAddEndemismo" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
+
+
                     </div>
                 </div>
             </div>
