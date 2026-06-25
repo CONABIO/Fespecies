@@ -6,6 +6,22 @@
             'Nom' => '',
             'Iucn' => '',
             'Cites' => '',
+            'tipoAmbiente' => '',
+            'habitatAgropecuario' => '',
+            'zonaUrbana' => '',
+            'VegetacionSecundaria' => '',
+            'intervaloaltitudinalinicial' => '',
+            'intervaloaltitudinalfinal' => '',
+            'infoAddintervaloaltitudinal' => '',
+            'temperaturainicial' => '',
+            'temperaturafinal' => '',
+            'infoaddtemperatura' => '',
+            'precipitacioninicial' => '',
+            'precipitacionfinal' => '',
+            'infoaddprecipitacion' => '',
+            'humedadinicial' => '',
+            'humedadfinal' => '',
+            'infoaddhumedad' => '',
             'Reino' => '',
             'Divisionphylum' => '',
             'Clase' => '',
@@ -26,6 +42,23 @@
             'paises_seleccionados' => [],
             'estados_seleccionados' => [],
             'municipios_seleccionados' => [],
+            'suelo_tipo' => [],
+            'ecorregiones_terrestres' => [],
+            'ecosistemas' => [],
+            'ecorregiones_marinas_ids' => [],
+            'ecorregiones_info_adicional' => '',
+
+            'tipo_vegetacion_a' => [],
+            'habitats_antropicos' => [],
+            'vegetacion_secundaria' => [],
+            'clima_tipo' => [],
+            'geoforma_tipo' => [],
+            'vegetacion_info_adicional_a' => '',
+            'especies_asociadas_info' => '',
+            'suelo_info' => '',
+            'clima_info' => '',
+            'geoforma_info' => '',
+
             'dist_mundial_info' => '',
             'dist_historica_estado' => '',
             'info_adicional_estado' => '',
@@ -95,6 +128,25 @@
                     showModalSinonimo: false,
                     paisesOptions: @json($paises ?? []),
                     estadosOptions: @json($estados ?? []),
+                    suelosOptions: @json($tiposSuelo ?? []),
+                    habitatsAntropicosOptions: @json($habitatsAntropicos ?? []),
+                    vegSecundariaOptions: @json($vegSecundaria ?? []),
+                    openSuelo: false,
+                    filterSuelo: '',
+                    climaOptions: @json($clima ?? []),
+                    openClima: false,
+                    filterClima: '',
+                    geoformaOptions: @json($geoforma ?? []),
+                    openGeo: false,
+                    filterGeo: '',
+                    vegetacionOptions: @json($vegetacionCat ?? []),
+                    openVeg: false,
+                    filterVeg: '',
+                    ecorregionOptions: @json($ecorregiones ?? []),
+                    openEcorregion: false,
+                    filterEcorregion: '',
+                    ecosistemaOptions: @json($ecosistemasCat ?? ($ecosistemas ?? [])),
+                    marinasOptions: @json($ecorregionesMarinasCat ?? []),
                     municipiosOptions: [],
                     especies: [],
                     form: @json($formData),
@@ -118,10 +170,14 @@
 
                         this.$nextTick(async () => {
                             this.initEditor('#resumenEspecie_editor', 'resumenEspecie');
-                            this.initEditor('#infoAddNombreCientifico', 'infoAddNombreCientifico');
-                            this.initEditor('#infoAddDistribucionMundialPais', 'dist_mundial_info');
-                            this.initEditor('#infoAddDistribucionMundialEstado', 'info_adicional_estado');
-                            this.initEditor('#infoAddDistribucionMundialMunicipio', 'info_adicional_municipio');
+                            this.initEditor('#infoAddNombreCientifico',
+                                'infoAddNombreCientifico');
+                            this.initEditor('#infoAddDistribucionMundialPais',
+                                'dist_mundial_info');
+                            this.initEditor('#infoAddDistribucionMundialEstado',
+                                'info_adicional_estado');
+                            this.initEditor('#infoAddDistribucionMundialMunicipio',
+                                'info_adicional_municipio');
                             this.initEditor('#infoAddDistPotMex', 'potencial_info');
                             this.initEditor('#infoAddEndemismo', 'endemismo_info');
                             this.initEditor('#descripcionEspecie_editor', 'descEspecie');
@@ -474,7 +530,8 @@
                                         ...this.form,
                                         origen: Array.isArray(this.form.origen) ? this
                                             .form.origen.join(', ') : this.form.origen
-                                    }
+                                    },
+                                    seccion: this.step
                                 })
                             });
 
@@ -598,7 +655,7 @@
                         if (!isNaN(inicio) && !isNaN(fin) && fin < inicio) {
                             Swal.fire({
                                 title: 'Valor inválido',
-                                text: `En "${etiqueta}", el valor final no puede ser menor al inicial.`,
+                                text: `El valor final no puede ser menor al inicial.`,
                                 icon: 'error',
                                 confirmButtonColor: '#4f46e5',
                                 confirmButtonText: 'Corregir'
@@ -650,6 +707,7 @@
                             });
                             return;
                         }
+
                         if (window.tinymce) {
                             const editors = [{
                                     id: 'resumenEspecie_editor',
@@ -709,34 +767,37 @@
                                         ...this.form,
                                         origen: Array.isArray(this.form.origen) ? this
                                             .form.origen.join(', ') : this.form.origen
-                                    }
+                                    },
+                                    seccion: this
+                                        .step
                                 })
                             });
 
                             const result = await res.json();
-
                             if (result.success) {
                                 if (result.id) this.form.id = result.id;
                                 Swal.fire({
                                     title: '¡Guardado!',
                                     text: 'Progreso guardado correctamente.',
                                     icon: 'success',
-                                    timer: 1000,
+                                    timer: 1500,
                                     showConfirmButton: false
                                 });
-                                this.yaAvanzo = true;
                                 this.step = proximoPaso;
+                                if (this.step >= 2) this.yaAvanzo = true;
                                 window.scrollTo({
                                     top: 0,
                                     behavior: 'smooth'
                                 });
+
                             } else {
-                                throw new Error(result.error);
+                                throw new Error(result.error || 'Error al guardar');
                             }
                         } catch (error) {
                             console.error(error);
                             Swal.fire('Error',
-                                'No se pudo guardar la información al cambiar de sección.', 'error');
+                                'No se pudo guardar la información antes de cambiar de sección.',
+                                'error');
                         }
                     },
                 }));
@@ -833,7 +894,8 @@
                                     @php $secciones = ['Clasificación', 'Distribución', 'Ambiente', 'Biología', 'Ecología', 'Genética', 'Importancia', 'Conservación', 'Prioritarias', 'Necesidades', 'Metadatos']; @endphp
                                     @foreach ($secciones as $index => $titulo)
                                         @php $n = $index + 1; @endphp
-                                        <div class="flex flex-col items-center cursor-pointer" @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
+                                        <div class="flex flex-col items-center cursor-pointer"
+                                            @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
                                             <div class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all"
                                                 :class="step == {{ $n }} ?
                                                     'bg-indigo-600 border-indigo-600 text-white' : (step >
@@ -860,7 +922,7 @@
                 </div>
                 <div x-show="step === 1"><x-seccion1 /></div>
                 <div x-show="step === 2"><x-seccion2 /></div>
-                <div x-show="step === 3"><x-seccion3 /></div>
+                <div x-show="step === 3"><x-seccion3 :tipos-suelo="$tiposSuelo" /></div>
             </div>
         </main>
 
