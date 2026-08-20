@@ -110,10 +110,11 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Fespecies</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        <script src="https://cdn.tiny.cloud/1/5xcfkph72qcbu2i72feiejpcumjgo4qfms5z5uljv3dofazm/tinymce/8/tinymce.min.js"
-            referrerpolicy="origin" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('formEspecies', () => ({
@@ -169,22 +170,19 @@
                         const municipioGuardado = this.form.dist_historica_municipio
 
                         this.$nextTick(async () => {
+                            this.initEditor('#vegetacion_info_adicional_a_editor', 'vegetacion_info_adicional_a');
+                            this.initEditor('#especies_asociadas_info_editor', 'especies_asociadas_info');
+                            this.initEditor('#ecorregiones_info_adicional_editor', 'ecorregiones_info_adicional');
                             this.initEditor('#resumenEspecie_editor', 'resumenEspecie');
-                            this.initEditor('#infoAddNombreCientifico',
-                                'infoAddNombreCientifico');
-                            this.initEditor('#infoAddDistribucionMundialPais',
-                                'dist_mundial_info');
-                            this.initEditor('#infoAddDistribucionMundialEstado',
-                                'info_adicional_estado');
-                            this.initEditor('#infoAddDistribucionMundialMunicipio',
-                                'info_adicional_municipio');
+                            this.initEditor('#infoAddNombreCientifico','infoAddNombreCientifico');
+                            this.initEditor('#infoAddDistribucionMundialPais','dist_mundial_info');
+                            this.initEditor('#infoAddDistribucionMundialEstado','info_adicional_estado');
+                            this.initEditor('#infoAddDistribucionMundialMunicipio','info_adicional_municipio');
                             this.initEditor('#infoAddDistPotMex', 'potencial_info');
                             this.initEditor('#infoAddEndemismo', 'endemismo_info');
                             this.initEditor('#descripcionEspecie_editor', 'descEspecie');
-                            this.initEditor('#especiesSimilares_editor',
-                                'especiesSmilares');
-                            this.initEditor('#descripcionOrigen_editor',
-                                'descripcionOrigen');
+                            this.initEditor('#especiesSimilares_editor','especiesSmilares');
+                            this.initEditor('#descripcionOrigen_editor','descripcionOrigen');
                             this.initEditor('#infoUICN_editor', 'infoUICN');
                             this.initEditor('#infoCITES_editor', 'infoCITES');
                             if (this.form.siNoToxicidad === '1') {
@@ -256,7 +254,6 @@
                             height: 130,
                             menubar: false,
                             branding: false,
-                            language: 'es',
                             setup: (editor) => {
                                 editor.on('init', () => editor.setContent(this[parent][field] ||
                                     ''));
@@ -493,7 +490,10 @@
                             const editors = [
                                 'resumenEspecie_editor', 'descripcionEspecie_editor',
                                 'especiesSimilares_editor', 'descripcionOrigen_editor',
-                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor'
+                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor',
+                                'ecorregiones_info_adicional_editor',
+                                'vegetacion_info_adicional_a_editor',
+                                'especies_asociadas_info_editor'
                             ];
                             editors.forEach(id => {
                                 const ed = tinymce.get(id);
@@ -577,7 +577,10 @@
                             const editors = [
                                 'resumenEspecie_editor', 'descripcionEspecie_editor',
                                 'especiesSimilares_editor', 'descripcionOrigen_editor',
-                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor'
+                                'infoUICN_editor', 'infoCITES_editor', 'toxicidad_editor',
+                                'ecorregiones_info_adicional_editor',
+                                'vegetacion_info_adicional_a_editor',
+                                'especies_asociadas_info_editor'
                             ];
                             editors.forEach(id => {
                                 const ed = tinymce.get(id);
@@ -753,8 +756,10 @@
                         });
 
                         try {
-                            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` : '/guardar_seccion';
+                            const token = document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
+                                '/guardar_seccion';
                             const res = await fetch(url, {
                                 method: this.form.id ? 'PUT' : 'POST',
                                 headers: {
@@ -848,82 +853,135 @@
 
     <body class="bg-gray-100 min-h-screen" x-data="formEspecies">
         <x-header />
-        <main class="max-w-7xl mx-auto p-6">
-            <div>
-                <div class="sticky top-0 z-50 bg-white border-b border-gray-200 rounded-t-2xl shadow-md">
-                    <div class="pt-3 pb-1 max-w-5xl mx-auto">
-                        <div class="p-3 relative" x-show="!isItemSelected">
-                            <div class="max-w-xl mx-auto">
-                                <div class="relative">
-                                    <div
-                                        class="flex items-center bg-gray-50 border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl px-4 py-2">
-                                        <input type="text" x-model="search"
-                                            @input.debounce.300ms="showResults = true; buscarEspecie()"
-                                            placeholder="Escribe el nombre..."
-                                            class="w-full focus:outline-none bg-transparent">
-                                    </div>
-                                    <div x-show="showResults && especies.length > 0" x-cloak
-                                        class="absolute z-[100] w-full mt-2 bg-white shadow-2xl rounded-xl">
-                                        <template x-for="item in especies">
-                                            <div @click="seleccionar(item)"
-                                                class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white"
-                                                x-text="item.taxon"></div>
-                                        </template>
-                                    </div>
+        <main class="relative">
+            <div class="sticky top-0 z-[1000] w-full bg-white border-b shadow-md">
+                <div class="max-w-5xl mx-auto px-4 md:px-6 py-3">
+                    <div class="min-h-[50px] flex items-center">
+                        <div x-show="!isItemSelected" class="w-full" x-transition:enter="duration-200">
+                            <div class="max-w-xl mx-auto relative">
+                                <div
+                                    class="flex items-center bg-gray-50 border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl px-4 py-2 shadow-sm">
+                                    <svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" x-model="search"
+                                        @input.debounce.300ms="showResults = true; buscarEspecie()"
+                                        placeholder="Escribe el nombre de la especie..."
+                                        class="w-full focus:outline-none bg-transparent font-medium text-slate-700">
                                 </div>
-                            </div>
-                        </div>
 
-                        <div x-show="isItemSelected" x-cloak class="flex items-center justify-between w-full px-6 py-2">
-                            <div class="flex items-baseline gap-2 overflow-hidden">
-                                <h1 class="text-xl md:text-2xl font-black text-indigo-900 italic tracking-tight whitespace-nowrap"
-                                    x-text="form.taxon"></h1>
-                                <h1 class="text-xl md:text-2xl font-black text-indigo-900 tracking-tight whitespace-nowrap"
-                                    x-text="form.AutorTaxon"></h1>
-                            </div>
-                            <button x-show="!isEdit && step === 1 && !yaAvanzo" @click="limpiarSeleccion()"
-                                class="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase transition-colors ml-4">✕
-                                Cambiar especie</button>
-                        </div>
-
-
-                        <div class="max-w-6xl mx-auto px-4 mt-3 mb-1 overflow-x-auto no-scrollbar">
-                            <div class="min-w-[1000px] lg:min-w-full relative p-4">
-                                <div class="absolute top-[36px] left-[50px] right-[50px] h-0.5 bg-gray-200 z-0"></div>
-                                <div class="relative flex justify-between z-10">
-                                    @php $secciones = ['Clasificación', 'Distribución', 'Ambiente', 'Biología', 'Ecología', 'Genética', 'Importancia', 'Conservación', 'Prioritarias', 'Necesidades', 'Metadatos']; @endphp
-                                    @foreach ($secciones as $index => $titulo)
-                                        @php $n = $index + 1; @endphp
-                                        <div class="flex flex-col items-center cursor-pointer"
-                                            @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
-                                            <div class="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all"
-                                                :class="step == {{ $n }} ?
-                                                    'bg-indigo-600 border-indigo-600 text-white' : (step >
-                                                        {{ $n }} ?
-                                                        'bg-green-500 border-green-500 text-white' :
-                                                        'bg-white border-gray-300 text-gray-400')">
-                                                <template x-if="step > {{ $n }}"><svg class="w-6 h-6"
-                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                                    </svg></template>
-                                                <template x-if="step <= {{ $n }}"><span
-                                                        class="text-xs font-bold">{{ $n }}</span></template>
-                                            </div>
-                                            <span class="mt-2 text-[10px] font-bold uppercase text-center w-20"
-                                                :class="step == {{ $n }} ? 'text-indigo-900' : (step >
-                                                    {{ $n }} ? 'text-green-600' : 'text-gray-400')">{{ $titulo }}</span>
+                                <!-- Resultados del buscador -->
+                                <div x-show="showResults && especies.length > 0" x-cloak
+                                    class="absolute z-[1001] w-full mt-2 bg-white shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
+                                    <template x-for="item in especies">
+                                        <div @click="seleccionar(item)"
+                                            class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white transition-colors border-b border-slate-50 last:border-none">
+                                            <span class="font-bold italic" x-text="item.taxon"></span>
+                                            <span class="text-xs ml-2 opacity-70" x-text="item.AutorTaxon"></span>
                                         </div>
-                                    @endforeach
+                                    </template>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div x-show="isItemSelected" class="w-full flex items-center justify-between"
+                            x-transition:enter="duration-200">
+                            <div class="flex items-baseline gap-3 overflow-hidden">
+                                <h1 class="text-[38px]  font-black text-indigo-900 italic truncate tracking-tight"
+                                    x-text="form.taxon"></h1>
+                                <span class="text-sm md:text-lg font-bold text-slate-400 truncate opacity-80"
+                                    x-text="form.AutorTaxon"></span>
+                            </div>
+
+                            <!-- Botón para regresar/cambiar solo en el paso 1 -->
+                            <button x-show="step === 1 && !isEdit" @click="limpiarSeleccion()"
+                                class="flex items-center gap-1 text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-all border border-rose-100">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" stroke-width="3" />
+                                </svg>
+                                CAMBIAR ESPECIE
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. STEPPER (Progreso - Siempre visible) -->
+                    <div class="mt-3 overflow-x-auto no-scrollbar">
+                        <div class="min-w-[1000px] lg:min-w-full relative py-2 px-2">
+                            <!-- Línea de progreso de fondo -->
+                            <div class="absolute top-[26px] left-10 right-10 h-0.5 bg-slate-100 z-0"></div>
+
+                            <div class="relative flex justify-between z-10">
+                                @php
+                                    $secciones = [
+                                        'Clasificación',
+                                        'Distribución',
+                                        'Ambiente',
+                                        'Biología',
+                                        'Ecología',
+                                        'Genética',
+                                        'Importancia',
+                                        'Conservación',
+                                        'Prioritarias',
+                                        'Necesidades',
+                                        'Metadatos',
+                                    ];
+                                @endphp
+                                @foreach ($secciones as $index => $titulo)
+                                    @php $n = $index + 1; @endphp
+                                    <div class="flex flex-col items-center cursor-pointer group"
+                                        @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
+                                        <!-- Círculo del paso -->
+                                        <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300"
+                                            :class="step == {{ $n }} ?
+                                                'bg-indigo-600 border-indigo-600 text-white scale-110 shadow-md' : (
+                                                    step > {{ $n }} ?
+                                                    'bg-emerald-500 border-emerald-500 text-white' :
+                                                    'bg-white border-slate-300 text-slate-400 group-hover:border-indigo-400'
+                                                )">
+
+                                            <template x-if="step > {{ $n }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="step <= {{ $n }}">
+                                                <span class="text-[10px] font-black"
+                                                    x-text="{{ $n }}"></span>
+                                            </template>
+                                        </div>
+                                        <!-- Título del paso -->
+                                        <span class="mt-1 text-[10px] font-bold text-center w-20 transition-colors"
+                                            :class="step == {{ $n }} ? 'text-indigo-900' : (step >
+                                                {{ $n }} ? 'text-emerald-600' : 'text-slate-400')">
+                                            {{ $titulo }}
+                                        </span>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
                 </div>
-                <div x-show="step === 1"><x-seccion1 /></div>
-                <div x-show="step === 2"><x-seccion2 /></div>
-                <div x-show="step === 3"><x-seccion3 :tipos-suelo="$tiposSuelo" /></div>
             </div>
+
+            <main class="relative">
+                <div class="sticky top-0 z-[1000] w-full bg-white border-b shadow-md">
+                </div>
+                <div class="px-6">
+                    <div x-show="step === 1" class="pt-10">
+                        <x-seccion1 />
+                    </div>
+                    <div x-show="step === 2" x-cloak class="pt-10">
+                        <x-seccion2 />
+                    </div>
+                    <div x-show="step === 3" x-cloak class="pt-10">
+                        <x-seccion3 :tipos-suelo="$tiposSuelo" />
+                    </div>
+                </div>
+            </main>
         </main>
 
         <div class="fixed bottom-10 right-10 z-[9999]">
