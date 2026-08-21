@@ -42,210 +42,161 @@
 <body class="bg-gray-50 min-h-screen">
     <x-header />
     <main class="max-w-[1400px] mx-auto p-6">
-        <div class="bg-white border border-gray-200 rounded shadow-sm p-4" x-data="{ selectedId: null }">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ url()->current() }}" class="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-600 text-[11px] font-bold uppercase tracking-wider rounded border border-gray-300 transition-colors shadow-sm">
+        <form method="GET" action="{{ url()->current() }}" id="mainFilterForm">
+            <div class="flex items-center justify-between gap-6 mb-12">
+                <div class="flex-shrink-0"></div>
+                <div class="flex-1 max-w-3xl w-full" x-data="{
+                    query: '{{ request('q') }}',
+                    results: [],
+                    showResults: false,
+                    loading: false,
+                    buscarCatalogo() {
+                        if (this.query.length < 2) {
+                            this.results = [];
+                            this.showResults = false;
+                            return;
+                        }
+                        this.loading = true;
+                        fetch(`/buscar-especie?q=${encodeURIComponent(this.query)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                this.results = data;
+                                this.showResults = (data.length > 0);
+                                this.loading = false;
+                            })
+                            .catch(() => { this.loading = false; });
+                    },
+                    seleccionar(taxon) {
+                        this.query = taxon;
+                        this.showResults = false;
+                        $nextTick(() => { document.getElementById('mainFilterForm').submit(); });
+                    }
+                }" @click.away="showResults = false">
+
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-30">
+                            <svg x-show="!loading" class="h-6 w-6 text-indigo-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <svg x-show="loading" class="animate-spin h-5 w-5 text-indigo-500" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                        <input type="text" name="q" x-model="query" @input.debounce.400ms="buscarCatalogo()"
+                            @keydown.enter.prevent="document.getElementById('mainFilterForm').submit()"
+                            placeholder="Escribe el nombre de la especie..." autocomplete="off"
+                            class="block w-full pl-16 pr-8 py-4 bg-white border-[3px] border-indigo-500 rounded-full text-xl font-medium text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-8 focus:ring-indigo-500/5 transition-all shadow-2xl relative z-20">
+                        <div x-show="showResults" x-cloak x-transition
+                            class="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 max-h-[450px] overflow-y-auto">
+                            <template x-for="item in results" :key="item.IdNombre">
+                                <div @click="seleccionar(item.taxon)"
+                                    class="px-8 py-4 hover:bg-slate-50 cursor-pointer border-b border-gray-50 transition-colors group">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-slate-900 font-bold text-lg italic group-hover:text-indigo-600"
+                                            x-text="item.taxon"></span>
+                                        <span class="text-slate-400 text-xs font-semibold tracking-widest uppercase"
+                                            x-text="item.AutorTaxon"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <a href="{{ route('form.index') }}"
+                        class="flex items-center gap-3 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-[12px] font-black uppercase tracking-widest rounded-full shadow-xl shadow-emerald-200 transition-all hover:-translate-y-1 active:translate-y-0">
+                        <span>Ingresar nueva ficha</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6" x-data="{ selectedId: null }">
+                <div class="flex justify-between items-center mb-6">
+                    <a href="{{ url()->current() }}"
+                        class="flex items-center gap-2 px-4 py-2 bg-white hover:bg-red-50 text-gray-500 text-[11px] font-bold uppercase rounded-lg border border-gray-200 transition-all">
                         <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Borrar Filtros
                     </a>
-                </div>
-                <div class="flex items-center space-x-6 text-sm text-blue-600"></div>
-                <div class="flex space-x-3">
-                    <a href="{{ route('form.index') }}" class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
-                            </path>
-                        </svg>
-                    </a>
-                    <button
-                       @click="if(selectedId) window.location.href = '/editar-ficha/' + selectedId"
-                        :disabled="!selectedId"
-                        :class="selectedId ? 'bg-blue-500 hover:bg-blue-600 opacity-100 cursor-pointer' : 'bg-blue-300 opacity-50 cursor-not-allowed'"
-                        class="w-8 h-8 rounded-full text-white flex items-center justify-center shadow-sm transition-all"
-                        title="Editar ficha seleccionada">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                        </svg>
-                    </button>
-                    <button :disabled="!selectedId" :class="selectedId ? 'bg-red-500 hover:bg-red-600 opacity-100 cursor-pointer' : 'bg-red-300 opacity-50 cursor-not-allowed'" class="w-8 h-8 rounded-full text-white flex items-center justify-center shadow-sm transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
 
-            <form method="GET" action="{{ url()->current() }}">
-                <div x-data="{ activeSearch: null }" class="border border-gray-200 rounded-lg shadow-sm bg-white">
-                    <div class="overflow-x-auto" style="overflow: visible;">
-                        <table class="w-full text-sm border-collapse">
-                            <thead class="bg-[#003D4A] text-white uppercase text-[11px] tracking-wider">
-                                <tr>
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 130px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Id de Ficha</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'id' ? null : 'id')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-
-                                        <div x-show="activeSearch === 'id'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_id" value="{{ request('f_id') }}" placeholder="Ej: 12" @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round"stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 150px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Tipo Ficha</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'tipo' ? null : 'tipo')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div x-show="activeSearch === 'tipo'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_tipo" value="{{ request('f_tipo') }}" placeholder="Filtro Tipo..." @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 150px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Familia</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'familia' ? null : 'familia')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div x-show="activeSearch === 'familia'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_familia" value="{{ request('f_familia') }}" placeholder="Filtro Familia..." @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 150px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Género</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'genero' ? null : 'genero')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div x-show="activeSearch === 'genero'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_genero" value="{{ request('f_genero') }}" placeholder="Filtro Género..." @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 150px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Especie</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'especie' ? null : 'especie')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div x-show="activeSearch === 'especie'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_especie" value="{{ request('f_especie') }}" placeholder="Filtro Especie..." @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-
-                                    <th class="p-3 border-r border-white/10 relative" style="min-width: 150px;">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>Infraespecie</span>
-                                            <button type="button" @click="activeSearch = (activeSearch === 'infraespecie' ? null : 'infraespecie')" class="focus:outline-none">
-                                                <svg class="w-4 h-4 hover:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div x-show="activeSearch === 'infraespecie'" x-transition @click.away="activeSearch = null" class="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 p-3 bg-white border border-gray-200 rounded-lg shadow-2xl" style="min-width: 220px;">
-                                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t border-l border-gray-200 rotate-45"></div>
-                                            <div class="flex gap-2">
-                                                <input type="text" name="f_infraespecie" value="{{ request('f_infraespecie') }}" placeholder="Filtro Infraespecie..." @keydown.enter="$el.form.submit()" class="w-full px-2 py-1.5 text-gray-800 border rounded text-xs focus:outline-none">
-                                                <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody class="bg-white text-gray-700">
-                                @forelse ($taxones as $taxon)
-                                    <tr @click="selectedId = (selectedId === {{ $taxon->especieId }} ? null : {{ $taxon->especieId }})" :class="{ 'bg-green-200 hover:bg-green-200': selectedId === {{ $taxon->especieId }} }" class="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer select-none" >
-                                        <td class="p-3 border-r border-gray-200 text-blue-600 font-medium text-center">{{ $taxon->especieId }}</td>
-                                        <td class="p-3 border-r border-gray-200 text-center">{{ $taxon->tipoficha }}</td>
-                                        <td class="p-3 border-r border-gray-200 text-center">{{ $taxon->familia }}</td>
-                                        <td class="p-3 border-r border-gray-200 italic text-center">{{ $taxon->genero }}</td>
-                                        <td class="p-3 border-r border-gray-200 italic text-center">{{ $taxon->especie }}</td>
-                                        <td class="p-3 text-center">{{ $taxon->infraespecie ?? '---' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="p-8 text-center text-gray-400 italic">No se encontraron registros...</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="flex gap-4">
+                        <button type="button"
+                            @click="if(selectedId) window.location.href = '/editar-ficha/' + selectedId"
+                            :disabled="!selectedId"
+                            :class="selectedId ? 'bg-blue-600 shadow-lg' : 'bg-gray-200 opacity-50'"
+                            class="w-12 h-12 rounded-full text-white flex items-center justify-center transition-all">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                        <button type="button" :disabled="!selectedId"
+                            :class="selectedId ? 'bg-red-500 shadow-lg' : 'bg-gray-200 opacity-50'"
+                            class="w-12 h-12 rounded-full text-white flex items-center justify-center transition-all">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                stroke-width="2.5">
+                                <path
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <div class="mt-8 flex justify-center [&_nav_p]:hidden [&_nav_div:nth-child(2)]:flex [&_nav_div:nth-child(2)]:justify-center [&_nav_div:nth-child(2)]:w-full"> {{ $taxones->links() }}</div>
-            </form>
-        </div>
-    </main>
+                <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    <table class="w-full text-sm">
+                        <thead class="bg-[#003D4A] text-white uppercase text-[11px] font-bold tracking-widest">
+                            <tr>
+                                <th class="p-4 border-r border-white/10 text-center">Id de Ficha</th>
+                                <th class="p-4 border-r border-white/10 text-center">Tipo Ficha</th>
+                                <th class="p-4 border-r border-white/10 text-center">Familia</th>
+                                <th class="p-4 border-r border-white/10 text-center">Género</th>
+                                <th class="p-4 border-r border-white/10 text-center">Especie</th>
+                                <th class="p-4 text-center">Infraespecie</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @forelse ($taxones as $taxon)
+                                <tr @click="selectedId = (selectedId === {{ $taxon->especieId }} ? null : {{ $taxon->especieId }})"
+                                    :class="{ 'bg-emerald-50': selectedId === {{ $taxon->especieId }} }"
+                                    class="border-b border-gray-100 hover:bg-slate-50 transition-colors cursor-pointer text-center">
+                                    <td class="p-4 border-r border-gray-50 text-blue-600 font-bold">
+                                        {{ $taxon->especieId }}</td>
+                                    <td class="p-4 border-r border-gray-50">{{ $taxon->tipoficha }}</td>
+                                    <td class="p-4 border-r border-gray-50">{{ $taxon->familia }}</td>
+                                    <td class="p-4 border-r border-gray-50 italic font-medium">{{ $taxon->genero }}
+                                    </td>
+                                    <td class="p-4 border-r border-gray-50 italic font-medium">{{ $taxon->especie }}
+                                    </td>
+                                    <td class="p-4 text-gray-400">{{ $taxon->infraespecie ?? '---' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="p-12 text-center text-gray-400 italic bg-slate-50">No
+                                        hay registros que coincidan con la búsqueda...</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
+                <div class="mt-8 flex justify-center">
+                    {{ $taxones->links() }}
+                </div>
+            </div>
+        </form>
+    </main>
 </body>
 
 </html>
