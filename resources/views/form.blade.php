@@ -170,19 +170,29 @@
                         const municipioGuardado = this.form.dist_historica_municipio
 
                         this.$nextTick(async () => {
-                            this.initEditor('#vegetacion_info_adicional_a_editor', 'vegetacion_info_adicional_a');
-                            this.initEditor('#especies_asociadas_info_editor', 'especies_asociadas_info');
-                            this.initEditor('#ecorregiones_info_adicional_editor', 'ecorregiones_info_adicional');
+                            this.initEditor('#vegetacion_info_adicional_a_editor',
+                                'vegetacion_info_adicional_a');
+                            this.initEditor('#especies_asociadas_info_editor',
+                                'especies_asociadas_info');
+                            this.initEditor('#ecorregiones_info_adicional_editor',
+                                'ecorregiones_info_adicional');
                             this.initEditor('#resumenEspecie_editor', 'resumenEspecie');
-                            this.initEditor('#infoAddNombreCientifico','infoAddNombreCientifico');
-                            this.initEditor('#infoAddDistribucionMundialPais','dist_mundial_info');
-                            this.initEditor('#infoAddDistribucionMundialEstado','info_adicional_estado');
-                            this.initEditor('#infoAddDistribucionMundialMunicipio','info_adicional_municipio');
+                            this.initEditor('#infoAddNombreCientifico',
+                                'infoAddNombreCientifico');
+                            this.initEditor('#infoAddDistribucionMundialPais',
+                                'dist_mundial_info');
+                            this.initEditor('#infoAddDistribucionMundialEstado',
+                                'info_adicional_estado');
+                            this.initEditor('#infoAddDistribucionMundialMunicipio',
+                                'info_adicional_municipio');
                             this.initEditor('#infoAddDistPotMex', 'potencial_info');
                             this.initEditor('#infoAddEndemismo', 'endemismo_info');
                             this.initEditor('#descripcionEspecie_editor', 'descEspecie');
-                            this.initEditor('#especiesSimilares_editor','especiesSmilares');
-                            this.initEditor('#descripcionOrigen_editor','descripcionOrigen');
+                            this.initEditor('#toxicidad_editor', 'toxicidad');
+                            this.initEditor('#especiesSimilares_editor',
+                                'especiesSmilares');
+                            this.initEditor('#descripcionOrigen_editor',
+                                'descripcionOrigen');
                             this.initEditor('#infoUICN_editor', 'infoUICN');
                             this.initEditor('#infoCITES_editor', 'infoCITES');
                             if (this.form.siNoToxicidad === '1') {
@@ -249,15 +259,29 @@
                         tinymce.remove(selector);
                         tinymce.init({
                             selector: selector,
-                            plugins: 'lists link',
+                            plugins: 'lists link contextmenu paste',
                             toolbar: 'bold italic | link',
-                            height: 130,
+                            height: 200, // Altura pequeña
                             menubar: false,
                             branding: false,
+                            statusbar: false,
+                            contextmenu: 'copy paste | link',
+
+                            // ESTO SOLUCIONA EL ESPACIO SUPERIOR
+                            content_style: `
+                                body {
+                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                    font-size: 18px;
+                                    margin: 4px; /* Margen pequeño para que no pegue al borde */
+                                }
+                                p { margin: 0; padding: 0; } /* Quitamos el margen a los párrafos */
+                            `,
+
                             setup: (editor) => {
-                                editor.on('init', () => editor.setContent(this[parent][field] ||
-                                    ''));
-                                editor.on('change keyup', () => {
+                                editor.on('init', () => {
+                                    editor.setContent(this[parent][field] || '');
+                                });
+                                editor.on('change input undo redo SetContent', () => {
                                     this[parent][field] = editor.getContent();
                                 });
                             }
@@ -847,6 +871,21 @@
             .step-active {
                 animation: subtle-bounce 2s infinite ease-in-out;
             }
+
+            .tox-tinymce {
+                border-radius: 12px !important;
+                border: 1px solid #e2e8f0 !important;
+                overflow: hidden;
+            }
+
+            .tox .tox-toolbar__group {
+                padding: 0px 4px !important;
+            }
+
+            .tox .tox-tbtn {
+                height: 18px !important;
+                width: 18px !important;
+            }
         </style>
     </head>
 
@@ -984,49 +1023,50 @@
             </main>
         </main>
 
-        <div class="fixed bottom-10 right-10 z-[9999]">
-            <div class="flex flex-col-reverse items-center gap-4">
-                <button @click="openMenu = !openMenu" type="button"
-                    class="w-16 h-16 rounded-full text-white shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-95 border-4 border-white z-[10000]"
-                    :class="openMenu ? 'bg-red-500 rotate-45' : 'bg-indigo-600'">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+        <div class="fixed right-6 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-4">
+
+            <div class="flex items-center justify-end group">
+                <span
+                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-800 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                    Ir a inicio
+                </span>
+                <a href="/dashboard"
+                    class="w-16 h-16 bg-white border-2 border-slate-100 text-slate-500 rounded-2xl shadow-lg flex items-center justify-center hover:bg-slate-800 hover:text-white hover:border-slate-800 transition-all duration-300 hover:scale-110 active:scale-95">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="flex items-center justify-end group">
+                <span
+                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-amber-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                    Guardar avance
+                </span>
+                <button @click="guardarAvance()" type="button"
+                    class="w-16 h-16 bg-white border-2 border-amber-300 text-amber-500 rounded-2xl shadow-lg flex items-center justify-center hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-300 hover:scale-110 active:scale-95">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
                     </svg>
                 </button>
+            </div>
 
-                <div x-show="openMenu" x-cloak x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0 translate-y-10"
-                    x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-col gap-4">
-                    <div class="flex items-center gap-3 group">
-                        <span
-                            class="bg-gray-800 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">Guardar
-                            avance</span>
-                        <button @click="guardarAvance(); openMenu = false" title="Guardar Avance"
-                            class="w-12 h-12 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 active:scale-95">
-                            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                                <polyline points="17 21 17 13 7 13 7 21" />
-                                <polyline points="7 3 7 8 15 8" />
-                                <line x1="10" y1="16" x2="14" y2="16" />
-                                <line x1="10" y1="18" x2="14" y2="18" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-3 group">
-                        <span
-                            class="bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">Ir
-                            a inicio</span>
-                        <a href="/dashboard"
-                            class="w-14 h-14 bg-slate-800 hover:bg-slate-900 text-white rounded-full shadow-xl flex items-center justify-center border-2 border-white transition-transform hover:scale-110">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
+            <div class="flex items-center justify-end group">
+                <span
+                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                    Siguiente sección
+                </span>
+                <button @click="avanzarSeccion()" type="button"
+                    class="w-16 h-16 bg-indigo-600 text-white rounded-2xl shadow-[0_10px_25px_rgba(79,70,229,0.3)] flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-white/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </button>
             </div>
         </div>
     </body>
