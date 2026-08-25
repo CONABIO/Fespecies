@@ -731,4 +731,14 @@ class FormController extends Controller{
     ]);
 }
 
+
+public function verificarExistencia($idCAT) {
+    $fichas = DB::table('taxon')->where('IdCAT', $idCAT)->get();
+
+    return response()->json([
+        'count' => $fichas->count(),
+        'fichas' => $fichas
+    ]);
+}
+
 }

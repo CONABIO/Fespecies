@@ -261,13 +261,11 @@
                             selector: selector,
                             plugins: 'lists link contextmenu paste',
                             toolbar: 'bold italic | link',
-                            height: 200, // Altura pequeña
+                            height: 200,
                             menubar: false,
                             branding: false,
                             statusbar: false,
-                            contextmenu: 'copy paste | link',
-
-                            // ESTO SOLUCIONA EL ESPACIO SUPERIOR
+                            contextmenu: false,
                             content_style: `
                                 body {
                                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -468,6 +466,55 @@
                     },
 
                     async seleccionar(item) {
+                        try {
+                            const response = await fetch(`/verificar-existencia/${item.IdCAT}`);
+                            const data = await response.json();
+                            if (data.count === 1) {
+                                Swal.fire({
+                                    title: 'Especie ya registrada',
+                                    html: `La especie <b>${item.taxon}</b> ya cuenta con una ficha técnica.<br>¿Deseas editarla?`,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#4f46e5',
+                                    cancelButtonColor: '#64748b',
+                                    confirmButtonText: 'Ir a editar ficha',
+                                    cancelButtonText: 'Cerrar',
+                                    reverseButtons: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = `/editar-ficha/${data.fichas[0].especieId}`;
+                                    } else {
+                                        this.limpiarSeleccion();
+                                    }
+                                });
+                                return;
+                            }
+
+                            if (data.count > 1) {
+                                Swal.fire({
+                                    title: 'Múltiples fichas encontradas',
+                                    html: `Se encontraron <b>${data.count}</b> registros para <b>${item.taxon}</b>.<br><br>Selecciona cuál deseas gestionar desde el listado general.`,
+                                    icon: 'info',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#4f46e5',
+                                    cancelButtonColor: '#64748b',
+                                    confirmButtonText: 'Ver todos los registros',
+                                    cancelButtonText: 'Cerrar',
+                                    reverseButtons: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = `/dashboard?q=${encodeURIComponent(item.taxon)}`;
+                                    } else {
+                                        this.limpiarSeleccion();
+                                    }
+                                });
+                                return;
+                            }
+
+                        } catch (error) {
+                            console.error("Error verificando existencia:", error);
+                        }
+
                         Object.assign(this.form, {
                             Nom: item.Nom || '',
                             riesgoUICN: item.Iucn || '',
@@ -486,10 +533,10 @@
                             Especie_epiteto: item.Especie_epiteto || '',
                             Nombreinfra: item.Nombreinfra || '',
                             IdCAT: item.IdCAT || '',
-                            origen: item.origen ? (typeof item.origen === 'string' ? item.origen
-                                .split(', ') : item.origen) : [],
+                            origen: item.origen ? (typeof item.origen === 'string' ? item.origen.split(', ') : item.origen) : [],
                             nombres_comunes: item.nombres_comunes_array || []
                         });
+
                         await this.cargarSinonimos(item.IdNombre);
                         this.search = item.taxon;
                         this.isItemSelected = true;
@@ -911,12 +958,11 @@
                                         class="w-full focus:outline-none bg-transparent font-medium text-slate-700">
                                 </div>
 
-                                <!-- Resultados del buscador -->
                                 <div x-show="showResults && especies.length > 0" x-cloak
                                     class="absolute z-[1001] w-full mt-2 bg-white shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
                                     <template x-for="item in especies">
                                         <div @click="seleccionar(item)"
-                                            class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white transition-colors border-b border-slate-50 last:border-none">
+                                            class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white transition-colors !border-none">
                                             <span class="font-bold italic" x-text="item.taxon"></span>
                                             <span class="text-xs ml-2 opacity-70" x-text="item.AutorTaxon"></span>
                                         </div>
@@ -934,7 +980,6 @@
                                     x-text="form.AutorTaxon"></span>
                             </div>
 
-                            <!-- Botón para regresar/cambiar solo en el paso 1 -->
                             <button x-show="step === 1 && !isEdit" @click="limpiarSeleccion()"
                                 class="flex items-center gap-1 text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-all border border-rose-100">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -945,11 +990,8 @@
                         </div>
                     </div>
 
-                    <!-- 3. STEPPER (Progreso - Siempre visible) -->
                     <div class="mt-3 overflow-x-auto no-scrollbar">
                         <div class="min-w-[1000px] lg:min-w-full relative py-2 px-2">
-                            <!-- Línea de progreso de fondo -->
-                            <div class="absolute top-[26px] left-10 right-10 h-0.5 bg-slate-100 z-0"></div>
 
                             <div class="relative flex justify-between z-10">
                                 @php
@@ -971,7 +1013,6 @@
                                     @php $n = $index + 1; @endphp
                                     <div class="flex flex-col items-center cursor-pointer group"
                                         @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
-                                        <!-- Círculo del paso -->
                                         <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300"
                                             :class="step == {{ $n }} ?
                                                 'bg-indigo-600 border-indigo-600 text-white scale-110 shadow-md' : (
@@ -992,7 +1033,6 @@
                                                     x-text="{{ $n }}"></span>
                                             </template>
                                         </div>
-                                        <!-- Título del paso -->
                                         <span class="mt-1 text-[10px] font-bold text-center w-20 transition-colors"
                                             :class="step == {{ $n }} ? 'text-indigo-900' : (step >
                                                 {{ $n }} ? 'text-emerald-600' : 'text-slate-400')">
@@ -1007,7 +1047,7 @@
             </div>
 
             <main class="relative">
-                <div class="sticky top-0 z-[1000] w-full bg-white border-b shadow-md">
+                <div class="sticky top-0 z-[1000] w-full bg-white shadow-md">
                 </div>
                 <div class="px-6">
                     <div x-show="step === 1" class="pt-10">

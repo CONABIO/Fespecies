@@ -232,36 +232,38 @@
                     <textarea id="descripcionEspecie_editor" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                 </div>
 
-                <h3 class="text-xs font-black text-slate-400 tracking-[0.2em] mb-6 flex items-center">
-                    <div class="h-px bg-slate-100 flex-grow"></div>
-                </h3>
+                <div x-show="form.Reino === 'Animalia'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2">
 
+                    <h3 class="text-xs font-black text-slate-400 tracking-[0.2em] mb-6 flex items-center">
+                        <div class="h-px bg-slate-100 flex-grow"></div>
+                    </h3>
 
-                <div class="space-y-4">
-                    <template
-                        x-for="m in [{l:'a) Largo total para hembras:', i:'largoinicialhembras', f:'largofinalhembras', p:'promedioLargoHembras', u:'unidadLargoHembras', opts:['mm', 'cm', 'm']},{l:'b) Largo total para machos:', i:'largoinicialmachos', f:'largofinalmachos', p:'promedioLargoMachos', u:'unidadLargoMachos', opts:['mm', 'cm', 'm']}, {l:'c) Peso para hembras:', i:'pesoinicialhembras', f:'pesofinalhembras', p:'promedioPesoHembras', u:'unidadPesoHembras', opts:['g', 'kg', 't']},{l:'d) Peso para machos:', i:'pesoinicialmachos', f:'pesofinalmachos', p:'promedioPesoMachos', u:'unidadPesoMachos', opts:['g', 'kg', 't']}]">
-                        <div
-                            class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                            <span class="text-[14px] font-bold text-slate-500 mb-2 md:mb-0"
-                                x-text="m.l"></span>
-                            <div class="flex items-center space-x-2 text-[13px] font-bold text-slate-400">de
-                                <input type="number" min="0" x-model="form[m.i]"
-                                    class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">a
-                                <input type="number" min="0" x-model="form[m.f]"
-                                    @change="validarRango(m.i, m.f, m.l)"
-                                    class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">prom.
-                                <input type="number" min="0"
-                                    :value="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
-                                    class="w-16 px-1 py-1.5 rounded-lg bg-indigo-50 border-none text-[11px] font-black text-indigo-600 text-center">
-                                <select x-model="form[m.u]"
-                                    class="ml-2 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-black text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-400 transition-all">
-                                    <template x-for="opt in m.opts" :key="opt">
-                                        <option :value="opt" x-text="opt"></option>
-                                    </template>
-                                </select>
+                    <div class="space-y-4">
+                        <template
+                            x-for="m in [{l:'a) Largo total para hembras:', i:'largoinicialhembras', f:'largofinalhembras', p:'promedioLargoHembras', u:'unidadLargoHembras', opts:['mm', 'cm', 'm']},{l:'b) Largo total para machos:', i:'largoinicialmachos', f:'largofinalmachos', p:'promedioLargoMachos', u:'unidadLargoMachos', opts:['mm', 'cm', 'm']}, {l:'c) Peso para hembras:', i:'pesoinicialhembras', f:'pesofinalhembras', p:'promedioPesoHembras', u:'unidadPesoHembras', opts:['g', 'kg', 't']},{l:'d) Peso para machos:', i:'pesoinicialmachos', f:'pesofinalmachos', p:'promedioPesoMachos', u:'unidadPesoMachos', opts:['g', 'kg', 't']}]">
+                            <div
+                                class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <span class="text-[14px] font-bold text-slate-500 mb-2 md:mb-0"
+                                    x-text="m.l"></span>
+                                <div class="flex items-center space-x-2 text-[13px] font-bold text-slate-400">de
+                                    <input type="number" min="0" x-model="form[m.i]"
+                                        class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">a
+                                    <input type="number" min="0" x-model="form[m.f]"
+                                        @change="validarRango(m.i, m.f, m.l)"
+                                        class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">prom.
+                                    <input type="number" min="0"
+                                        :value="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
+                                        class="w-16 px-1 py-1.5 rounded-lg bg-indigo-50 border-none text-[11px] font-black text-indigo-600 text-center">
+                                    <select x-model="form[m.u]"
+                                        class="ml-2 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-black text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-400 transition-all">
+                                        <template x-for="opt in m.opts" :key="opt">
+                                            <option :value="opt" x-text="opt"></option>
+                                        </template>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-6 mb-8 pb-6  " style="margin-top: 20px">
                     <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">e)Toxicidad:</label>
