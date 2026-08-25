@@ -30,6 +30,11 @@ Route::put('/actualizar_seccion/{id}', [FormController::class, 'guardarSeccion']
 
 Route::get('/obtener-municipios/{nombreEdo}', [FormController::class, 'obtenerMunicipios']);
 
+Route::get('/buscar-dashboard', [TaxonController::class, 'buscarEnTaxon'])->name('especies.buscar_local');
+
+Route::get('/verificar-existencia/{idCAT}', [FormController::class, 'verificarExistencia']);
+
+
 
 
 require __DIR__.'/auth.php';
