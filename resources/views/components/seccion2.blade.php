@@ -12,8 +12,7 @@
                     <div @click="openPais = !openPais; if(openPais) $nextTick(() => $refs.inputBusquedaPais.focus())"
                         class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
                         <template x-if="form.paises_seleccionados.length === 0">
-                            <span class="text-xs text-slate-400 p-2 font-bold uppercase tracking-widest">SELECCIONAR
-                                PAÍS...</span>
+                            <span class="text-[15px] text-slate-400 p-2 font-bold tracking-widest">Seleccionar país</span>
                         </template>
                         <template x-for="sel in form.paises_seleccionados" :key="sel">
                             <div
@@ -82,8 +81,7 @@
                         <div @click="openEdo = !openEdo; if(openEdo) $nextTick(() => $refs.inputBusquedaEdo.focus())"
                             class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all shadow-inner">
                             <template x-if="form.estados_seleccionados.length === 0">
-                                <span class="text-xs text-slate-400 p-2 font-bold uppercase tracking-widest">SELECCIONAR
-                                    ESTADO...</span>
+                                <span class="text-xs text-slate-400 p-2 font-bold tracking-widest">Seleccionar estado</span>
                             </template>
                             <template x-for="sel in form.estados_seleccionados" :key="sel">
                                 <div
@@ -156,8 +154,8 @@
                                 'cursor-pointer hover:border-indigo-300'"
                             class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 transition-all shadow-inner">
                             <template x-if="form.municipios_seleccionados.length === 0">
-                                <span class="text-xs text-slate-400 p-2 font-bold uppercase tracking-widest"
-                                    x-text="municipiosOptions.length === 0 ? 'Primero selecciona un estado...' : 'SELECCIONAR MUNICIPIO...'"></span>
+                                <span class="text-xs text-slate-400 p-2 font-bold  tracking-widest"
+                                    x-text="municipiosOptions.length === 0 ? 'Primero selecciona un estado...' : 'Seleccionar municipio...'"></span>
                             </template>
                             <template x-for="sel in form.municipios_seleccionados" :key="sel">
                                 <div
@@ -199,7 +197,7 @@
                                     <div
                                         x-show="municipiosOptions.some(m => m.nombreEstado === edoNombre && m.nombreMunicipio.toLowerCase().includes(filterMun.toLowerCase()))">
                                         <div
-                                            class="bg-slate-100/80 px-4 py-1 text-[9px] font-black text-indigo-600 uppercase border-y border-slate-200 sticky top-0">
+                                            class="bg-slate-100/80 px-4 py-1 text-[9px] font-black text-indigo-600 border-y border-slate-200 sticky top-0">
                                             <span x-text="edoNombre"></span>
                                         </div>
                                         <template
@@ -293,24 +291,6 @@
         </div>
 
         <div class="mt-16 flex justify-between pb-24">
-            <button type="button" @click="navegarSeccion(1)"
-                class="group flex items-center px-10 py-5 bg-white text-slate-400 rounded-full font-black text-xs uppercase tracking-[0.3em] shadow-lg border border-slate-100 hover:bg-slate-50 transition-all">
-                <svg class="w-5 h-5 mr-4 group-hover:-translate-x-2 transition-transform" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                        d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
-                </svg>
-                Anterior
-            </button>
-            <button type="button" @click="avanzarSeccion()"
-                class="group flex items-center px-12 py-5 bg-indigo-600 text-white rounded-full font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all">
-                Siguiente Sección
-                <svg class="w-5 h-5 ml-4 group-hover:translate-x-2 transition-transform" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                </svg>
-            </button>
         </div>
     </div>
 </div>

@@ -7,7 +7,7 @@
                     <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">1. Nombres comunes:</label>
                     <div class="flex space-x-2">
                         <button type="button" @click="abrirModalNombre()"
-                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[10px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
+                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[16px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 4v16m8-8H4" stroke-width="3" />
                             </svg>Ingresar
@@ -25,7 +25,7 @@
                                 x-text="n.nombre"></span>
                             <span :class="n.editable ? 'bg-amber-500' : 'bg-indigo-500'"
                                 class="ml-2 px-1.5 py-0.5 text-[9px] font-black text-white rounded-md  leading-none"
-                                x-text="n.lengua || 'SIN LENGUA'"></span>
+                                x-text="n.lengua || 'Sin lengua'"></span>
                             <template x-if="n.editable">
                                 <div class="flex items-center ml-2 border-l border-amber-200 pl-1 gap-1">
                                     <button type="button" @click.stop="editarNombre(index)"
@@ -139,7 +139,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">3. Sinónimos:</label>
                         <button type="button" @click="abrirModalSinonimo()"
-                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[10px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
+                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[16px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round" />
                             </svg>Ingresar
@@ -312,7 +312,7 @@
                                         <span
                                             class="w-8 h-8 rounded-xl bg-white text-slate-800 flex items-center justify-center font-black text-xs shadow-lg"
                                             x-text="data.icon"></span>
-                                        <span class="text-xs font-black text-slate-700" x-text="data.v"></span>
+                                        <span class="text-[16px] font-black text-slate-700" x-text="data.v"></span>
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span x-show="form.nom059[data.k].categoria"
