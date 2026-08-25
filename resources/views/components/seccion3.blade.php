@@ -844,7 +844,6 @@
     </div>
 
     <div class="mt-16 flex justify-between items-center pb-24">
-        <button type="button" @click="step = 2" class="group flex items-center px-10 py-5 bg-slate-200 text-slate-600 rounded-full font-black text-xs tracking-[0.3em] shadow-xl hover:bg-slate-300 transition-all">Anterior</button>
-        <button type="button" @click="avanzarSeccion()" class="group flex items-center px-12 py-5 bg-indigo-600 text-white rounded-full font-black text-xs tracking-[0.3em] shadow-2xl hover:bg-indigo-700 transition-all">Siguiente</button>
+
     </div>
 </div>

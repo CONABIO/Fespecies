@@ -225,10 +225,10 @@
                         });
 
                         this.$watch('selectedIndex', index => {
-                            if (index >= 0) {
+                            if (index >= 0 && this.$refs.especiesContainer) {
                                 this.$nextTick(() => {
-                                    const activeItem = document.getElementById(
-                                        `res-item-${index}`);
+                                    const container = this.$refs.especiesContainer;
+                                    const activeItem = container.children[index];
                                     if (activeItem) {
                                         activeItem.scrollIntoView({
                                             block: 'nearest',
@@ -954,15 +954,21 @@
                                     </svg>
                                     <input type="text" x-model="search"
                                         @input.debounce.300ms="showResults = true; buscarEspecie()"
+                                        @keydown.down.prevent="if(especies.length > 0) selectedIndex = (selectedIndex + 1) % especies.length"
+                                        @keydown.up.prevent="if(especies.length > 0) selectedIndex = (selectedIndex - 1 + especies.length) % especies.length"
+                                        @keydown.enter.prevent="if(selectedIndex >= 0) seleccionar(especies[selectedIndex])"
                                         placeholder="Escribe el nombre de la especie..."
                                         class="w-full focus:outline-none bg-transparent font-medium text-slate-700">
                                 </div>
 
                                 <div x-show="showResults && especies.length > 0" x-cloak
-                                    class="absolute z-[1001] w-full mt-2 bg-white shadow-2xl rounded-xl border border-slate-100 overflow-hidden">
-                                    <template x-for="item in especies">
+                                    x-ref="especiesContainer"
+                                    class="absolute z-[1001] w-full mt-2 bg-white shadow-2xl rounded-xl border border-slate-100 overflow-hidden max-h-60 overflow-y-auto">
+                                    <template x-for="(item, index) in especies" :key="index">
                                         <div @click="seleccionar(item)"
-                                            class="px-5 py-3 cursor-pointer hover:bg-indigo-600 hover:text-white transition-colors !border-none">
+                                            @mouseenter="selectedIndex = index"
+                                            :class="{ 'bg-indigo-600 text-white': selectedIndex === index, 'text-slate-700': selectedIndex !== index }"
+                                            class="px-5 py-3 cursor-pointer transition-colors !border-none">
                                             <span class="font-bold italic" x-text="item.taxon"></span>
                                             <span class="text-xs ml-2 opacity-70" x-text="item.AutorTaxon"></span>
                                         </div>
@@ -1013,7 +1019,7 @@
                                     @php $n = $index + 1; @endphp
                                     <div class="flex flex-col items-center cursor-pointer group"
                                         @click="if(isItemSelected || {{ $n }} == 1) navegarSeccion({{ $n }})">
-                                        <div class="w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300"
+                                        <div class="w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300"
                                             :class="step == {{ $n }} ?
                                                 'bg-indigo-600 border-indigo-600 text-white scale-110 shadow-md' : (
                                                     step > {{ $n }} ?
@@ -1029,11 +1035,11 @@
                                                 </svg>
                                             </template>
                                             <template x-if="step <= {{ $n }}">
-                                                <span class="text-[10px] font-black"
+                                                <span class="text-[16px] font-black"
                                                     x-text="{{ $n }}"></span>
                                             </template>
                                         </div>
-                                        <span class="mt-1 text-[10px] font-bold text-center w-20 transition-colors"
+                                        <span class="mt-1 text-[14px] font-bold text-center w-20 transition-colors"
                                             :class="step == {{ $n }} ? 'text-indigo-900' : (step >
                                                 {{ $n }} ? 'text-emerald-600' : 'text-slate-400')">
                                             {{ $titulo }}
@@ -1063,31 +1069,30 @@
             </main>
         </main>
 
+       <!-- BLOQUE DE BOTONES FLOTANTES (DERECHA) -->
         <div class="fixed right-6 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-4">
 
+            <!-- 1. IR A INICIO (AHORA NEGRITO) -->
             <div class="flex items-center justify-end group">
-                <span
-                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-800 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Ir a inicio
                 </span>
                 <a href="/dashboard"
-                    class="w-16 h-16 bg-white border-2 border-slate-100 text-slate-500 rounded-2xl shadow-lg flex items-center justify-center hover:bg-slate-800 hover:text-white hover:border-slate-800 transition-all duration-300 hover:scale-110 active:scale-95">
+                    class="w-16 h-16 bg-slate-900 border-2 border-slate-900 text-white rounded-2xl shadow-lg flex items-center justify-center hover:bg-black transition-all duration-300 hover:scale-110 active:scale-95">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </a>
             </div>
 
+            <!-- 2. GUARDAR AVANCE -->
             <div class="flex items-center justify-end group">
-                <span
-                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-amber-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-amber-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Guardar avance
                 </span>
                 <button @click="guardarAvance()" type="button"
-                    class="w-16 h-16 bg-white border-2 border-amber-300 text-amber-500 rounded-2xl shadow-lg flex items-center justify-center hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-300 hover:scale-110 active:scale-95">
-                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
+                    class="w-16 h-16 bg-amber-500 border-2 border-amber-500 text-white rounded-2xl shadow-lg flex items-center justify-center hover:bg-amber-600 transition-all duration-300 hover:scale-110 active:scale-95">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
                         <polyline points="17 21 17 13 7 13 7 21" />
                         <polyline points="7 3 7 8 15 8" />
@@ -1095,16 +1100,28 @@
                 </button>
             </div>
 
+            <!-- 3. SECCIÓN ANTERIOR (AHORA GRIS OSCURO, NO BLANCO) -->
+            <div class="flex items-center justify-end group" x-show="step > 1" x-cloak x-transition>
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                    Sección anterior
+                </span>
+                <button @click="navegarSeccion(step - 1)" type="button"
+                    class="w-16 h-16 bg-slate-600 border-2 border-slate-600 text-white rounded-2xl shadow-lg flex items-center justify-center hover:bg-slate-700 transition-all duration-300 hover:scale-110 active:scale-95">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 4. SIGUIENTE SECCIÓN -->
             <div class="flex items-center justify-end group">
-                <span
-                    class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Siguiente sección
                 </span>
                 <button @click="avanzarSeccion()" type="button"
                     class="w-16 h-16 bg-indigo-600 text-white rounded-2xl shadow-[0_10px_25px_rgba(79,70,229,0.3)] flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-white/20">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                 </button>
             </div>
