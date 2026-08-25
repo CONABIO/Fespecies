@@ -44,57 +44,48 @@
 <body class="bg-gray-50 min-h-screen">
     <x-header />
     <main class="max-w-[1400px] mx-auto p-6">
-        <form method="GET" action="{{ url()->current() }}" id="mainFilterForm"
-            x-data="{
-                query: '{{ request('q') }}',
-                results: [],
-                showResults: false,
-                loading: false,
-                selectedIndex: -1,
+        <form method="GET" action="{{ url()->current() }}" id="mainFilterForm" x-data="{
+            query: '{{ request('q') }}',
+            results: [],
+            showResults: false,
+            loading: false,
+            selectedIndex: -1, // RASTREADOR DE POSICIÓN
 
-                init() {
-                    // ESTO ES LO QUE HACE EL SCROLL REAL
-                    this.$watch('selectedIndex', index => {
-                        if (index >= 0 && this.$refs.resultsContainer) {
-                            this.$nextTick(() => {
-                                const container = this.$refs.resultsContainer;
-                                const activeItem = container.children[index];
-                                if (activeItem) {
-                                    activeItem.scrollIntoView({
-                                        block: 'nearest',
-                                        behavior: 'smooth'
-                                    });
-                                }
-                            });
-                        }
-                    });
-                },
-
-                buscarCatalogo() {
-                    if (this.query.length < 2) {
-                        this.results = [];
-                        this.showResults = false;
-                        this.selectedIndex = -1;
-                        return;
-                    }
-                    this.loading = true;
-                    fetch(`/buscar-dashboard?q=${encodeURIComponent(this.query)}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            this.results = data;
-                            this.showResults = (data.length > 0);
-                            this.loading = false;
-                            this.selectedIndex = -1;
-                        })
-                        .catch(() => { this.loading = false; });
-                },
-                seleccionar(taxon) {
-                    this.query = taxon;
+            buscarCatalogo() {
+                if (this.query.length < 2) {
+                    this.results = [];
                     this.showResults = false;
-                    $nextTick(() => { document.getElementById('mainFilterForm').submit(); });
+                    this.selectedIndex = -1;
+                    return;
                 }
-            }">
-
+                this.loading = true;
+                fetch(`/buscar-dashboard?q=${encodeURIComponent(this.query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.results = data;
+                        this.showResults = (data.length > 0);
+                        this.loading = false;
+                        this.selectedIndex = -1; // Resetear al buscar
+                    })
+                    .catch(() => { this.loading = false; });
+            },
+            seleccionar(taxon) {
+                this.query = taxon;
+                this.showResults = false;
+                $nextTick(() => { document.getElementById('mainFilterForm').submit(); });
+            },
+            // FUNCIONES DE NAVEGACIÓN
+            nextResult() {
+                if (this.results.length > 0) {
+                    this.selectedIndex = (this.selectedIndex + 1) % this.results.length;
+                }
+            },
+            prevResult() {
+                if (this.results.length > 0) {
+                    this.selectedIndex = (this.selectedIndex - 1 + this.results.length) % this.results.length;
+                }
+            }
+        }">
             <input type="hidden" name="q" :value="query">
 
             <div class="flex items-center justify-between gap-6 mb-12">
@@ -103,27 +94,32 @@
 
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-30">
-                            <svg x-show="!loading" class="h-6 w-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            <svg x-show="!loading" class="h-6 w-6 text-indigo-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <svg x-show="loading" x-cloak class="animate-spin h-5 w-5 text-indigo-500" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
                             </svg>
                         </div>
 
                         <input type="text" x-model="query"
                             @input.debounce.400ms="buscarCatalogo()"
-                            @keydown.down.prevent="if(results.length > 0) selectedIndex = (selectedIndex + 1) % results.length"
-                            @keydown.up.prevent="if(results.length > 0) selectedIndex = (selectedIndex - 1 + results.length) % results.length"
+                            @keydown.down.prevent="nextResult()"
+                            @keydown.up.prevent="prevResult()"
                             @keydown.enter.prevent="selectedIndex >= 0 ? seleccionar(results[selectedIndex].taxon) : document.getElementById('mainFilterForm').submit()"
                             @keydown.escape="showResults = false"
                             placeholder="Escribe el nombre de la especie..." autocomplete="off"
                             class="block w-full pl-16 pr-8 py-4 bg-white border-[3px] border-indigo-500 rounded-full text-xl font-medium text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-8 focus:ring-indigo-500/5 transition-all shadow-2xl relative z-20">
 
-                        <div x-show="showResults" x-cloak x-transition x-ref="resultsContainer"
+                        <div x-show="showResults" x-cloak x-transition
                             class="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 max-h-[450px] overflow-y-auto">
-                            <template x-for="(item, index) in results" :key="item.especieId || index">
+                            <template x-for="(item, index) in results" :key="item.especieId">
                                 <div @click="seleccionar(item.taxon)"
                                     @mouseenter="selectedIndex = index"
                                     :class="{ 'bg-indigo-600 text-white': selectedIndex === index, 'text-slate-900': selectedIndex !== index }"
@@ -158,7 +154,8 @@
                     <a href="{{ url()->current() }}"
                         class="flex items-center gap-2 px-4 py-2 bg-white hover:bg-red-50 text-gray-500 text-[16px] font-bold rounded-lg border border-gray-200 transition-all shadow-sm">
                         <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Borrar Filtros
                     </a>
@@ -193,6 +190,9 @@
                                             <a href="/editar-ficha/{{ $taxon->especieId }}" class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-md">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </a>
+                                            <button type="button" class="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-all shadow-md">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
