@@ -224,11 +224,12 @@
                             }
                         });
 
-                        this.$watch('selectedIndex', index => {
+                         this.$watch('selectedIndex', index => {
                             if (index >= 0 && this.$refs.especiesContainer) {
                                 this.$nextTick(() => {
                                     const container = this.$refs.especiesContainer;
-                                    const activeItem = container.children[index];
+                                    // Buscamos el elemento hijo basado en el índice
+                                    const activeItem = container.querySelectorAll('.especie-item')[index];
                                     if (activeItem) {
                                         activeItem.scrollIntoView({
                                             block: 'nearest',
@@ -1069,10 +1070,8 @@
             </main>
         </main>
 
-       <!-- BLOQUE DE BOTONES FLOTANTES (DERECHA) -->
         <div class="fixed right-6 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-4">
 
-            <!-- 1. IR A INICIO (AHORA NEGRITO) -->
             <div class="flex items-center justify-end group">
                 <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Ir a inicio
@@ -1085,7 +1084,6 @@
                 </a>
             </div>
 
-            <!-- 2. GUARDAR AVANCE -->
             <div class="flex items-center justify-end group">
                 <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-amber-500 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Guardar avance
@@ -1100,7 +1098,6 @@
                 </button>
             </div>
 
-            <!-- 3. SECCIÓN ANTERIOR (AHORA GRIS OSCURO, NO BLANCO) -->
             <div class="flex items-center justify-end group" x-show="step > 1" x-cloak x-transition>
                 <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Sección anterior
@@ -1113,7 +1110,6 @@
                 </button>
             </div>
 
-            <!-- 4. SIGUIENTE SECCIÓN -->
             <div class="flex items-center justify-end group">
                 <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-indigo-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Siguiente sección
