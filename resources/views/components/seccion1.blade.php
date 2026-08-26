@@ -1,10 +1,11 @@
-    <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-300"
-    class="space-y-8 pt-10">
+    <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-300" class="space-y-8 pt-10">
         <div class="max-w-3xl mx-auto space-y-12">
-            <h2 class="text-[30px] font-black text-slate-800 tracking-tight" style="mar">I.Clasificación y descripcion de la especie</h2>
+            <h2 class="text-[30px] font-black text-slate-800 tracking-tight" style="mar">I.Clasificación y descripcion
+                de la especie</h2>
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between mb-6">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">1. Nombres comunes:</label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">1. Nombres
+                        comunes:</label>
                     <div class="flex space-x-2">
                         <button type="button" @click="abrirModalNombre()"
                             class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[16px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
@@ -21,17 +22,16 @@
                             :class="n.editable ? 'bg-amber-50 boArder-amber-200 cursor-pointer hover:bg-amber-100' :
                                 'bg-indigo-50 border-indigo-200 cursor-default'"
                             class="inline-flex items-center w-fit px-2.5 py-1 border-2 rounded-full transition-all group shadow-sm">
-                            <span class="text-[11px] font-bold text-slate-700 whitespace-nowrap"
+                            <span class="text-[16px] font-bold text-slate-700 whitespace-nowrap"
                                 x-text="n.nombre"></span>
                             <span :class="n.editable ? 'bg-amber-500' : 'bg-indigo-500'"
-                                class="ml-2 px-1.5 py-0.5 text-[9px] font-black text-white rounded-md  leading-none"
+                                class="ml-2 px-1.5 py-0.5 text-[14px] font-black text-white rounded-md  leading-none"
                                 x-text="n.lengua || 'Sin lengua'"></span>
                             <template x-if="n.editable">
                                 <div class="flex items-center ml-2 border-l border-amber-200 pl-1 gap-1">
                                     <button type="button" @click.stop="editarNombre(index)"
                                         class="p-0.5 hover:bg-indigo-600 hover:text-white rounded-full text-amber-600 transition-all">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path
                                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -40,8 +40,7 @@
 
                                     <button type="button" @click.stop="eliminarNombre(index)"
                                         class="p-0.5 hover:bg-rose-500 hover:text-white rounded-full text-amber-600 transition-all">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                                                 d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
@@ -52,7 +51,8 @@
                     </template>
                 </div>
                 <h3 class="text-xs font-black text-slate-400  tracking-[0.2em] mb-6 flex items-center">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2. Taxonomía:</label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2.
+                        Taxonomía:</label>
                     <div class="h-px bg-slate-100 flex-grow"></div>
                 </h3>
 
@@ -137,7 +137,8 @@
 
                 <div class="mt-8 pt-6 border-t border-slate-100">
                     <div class="flex items-center justify-between mb-4">
-                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">3. Sinónimos:</label>
+                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">3.
+                            Sinónimos:</label>
                         <button type="button" @click="abrirModalSinonimo()"
                             class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[16px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +156,8 @@
                                     'bg-indigo-50 border-indigo-200 cursor-default'"
                                 class="flex flex-col p-3 border-2 rounded-2xl transition-all group">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold italic text-slate-700" x-text="s.sinonimo"></span>
+                                    <span class="text-[16px] font-bold italic text-slate-700"
+                                        x-text="s.sinonimo"></span>
                                     <template x-if="s.editable">
                                         <svg class="w-3 h-3 text-amber-500" ...></svg>
                                     </template>
@@ -164,7 +166,7 @@
                                             <button type="button" @click.stop="editarSinonimo(index)"
                                                 class="p-0.5 hover:bg-indigo-600 hover:text-white rounded-full text-amber-600 transition-all"
                                                 title="Editar">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24" stroke-width="2.5">
                                                     <path
                                                         d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
@@ -175,7 +177,7 @@
                                             <button type="button" @click.stop="eliminarSinonimo(index)"
                                                 class="p-0.5 hover:bg-rose-500 hover:text-white rounded-full text-amber-600 transition-all"
                                                 title="Eliminar">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24" stroke-width="3">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M6 18L18 6M6 6l12 12"></path>
@@ -186,7 +188,7 @@
 
                                 </div>
                                 <div :class="s.editable ? 'text-slate-500' : 'text-indigo-600'"
-                                    class="text-[9px] mt-1">
+                                    class="text-[14px] mt-1">
                                     <span x-text="s.autor"></span> <span x-show="s.anio"
                                         x-text="'(' + s.anio + ')'"></span>
                                 </div>
@@ -202,7 +204,8 @@
 
                     <div class="flex flex-col mb-8 relative group">
                         <div class="flex items-center gap-2 mb-6">
-                            <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">4. Resumen de la especie:</label>
+                            <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">4.
+                                Resumen de la especie:</label>
                             <div class="cursor-help text-slate-300 hover:text-indigo-500 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -228,58 +231,100 @@
                 </div>
 
                 <div class="flex flex-col mb-8">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">5. Descripción de la especie:</label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                        style="margin-bottom: 20px">5. Descripción de la especie:</label>
                     <textarea id="descripcionEspecie_editor" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                 </div>
 
-                <div x-show="form.Reino === 'Animalia'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2">
+                <div x-show="form.Reino === 'Animalia'" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform -translate-y-2">
 
                     <h3 class="text-xs font-black text-slate-400 tracking-[0.2em] mb-6 flex items-center">
                         <div class="h-px bg-slate-100 flex-grow"></div>
                     </h3>
 
-                    <div class="space-y-4">
-                        <template
-                            x-for="m in [{l:'a) Largo total para hembras:', i:'largoinicialhembras', f:'largofinalhembras', p:'promedioLargoHembras', u:'unidadLargoHembras', opts:['mm', 'cm', 'm']},{l:'b) Largo total para machos:', i:'largoinicialmachos', f:'largofinalmachos', p:'promedioLargoMachos', u:'unidadLargoMachos', opts:['mm', 'cm', 'm']}, {l:'c) Peso para hembras:', i:'pesoinicialhembras', f:'pesofinalhembras', p:'promedioPesoHembras', u:'unidadPesoHembras', opts:['g', 'kg', 't']},{l:'d) Peso para machos:', i:'pesoinicialmachos', f:'pesofinalmachos', p:'promedioPesoMachos', u:'unidadPesoMachos', opts:['g', 'kg', 't']}]">
+                    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                        <div
+                            class="hidden md:grid grid-cols-12 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
+                            <div class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                Atributo / Sexo</div>
                             <div
-                                class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <span class="text-[14px] font-bold text-slate-500 mb-2 md:mb-0"
-                                    x-text="m.l"></span>
-                                <div class="flex items-center space-x-2 text-[13px] font-bold text-slate-400">de
-                                    <input type="number" min="0" x-model="form[m.i]"
-                                        class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">a
-                                    <input type="number" min="0" x-model="form[m.f]"
-                                        @change="validarRango(m.i, m.f, m.l)"
-                                        class="w-16 px-2 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-center">prom.
-                                    <input type="number" min="0"
-                                        :value="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
-                                        class="w-16 px-1 py-1.5 rounded-lg bg-indigo-50 border-none text-[11px] font-black text-indigo-600 text-center">
-                                    <select x-model="form[m.u]"
-                                        class="ml-2 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-black text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-400 transition-all">
-                                        <template x-for="opt in m.opts" :key="opt">
-                                            <option :value="opt" x-text="opt"></option>
-                                        </template>
-                                    </select>
+                                class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                Rango (Mín - Máx)</div>
+                            <div
+                                class="col-span-2 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                Promedio</div>
+                            <div
+                                class="col-span-2 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">
+                                Unidad</div>
+                        </div>
+
+                        <div class="divide-y divide-slate-100">
+                            <template
+                                x-for="m in [
+                                {l:'Largo Hembras', i:'largoinicialhembras', f:'largofinalhembras', p:'promedioLargoHembras', u:'unidadLargoHembras', opts:['mm', 'cm', 'm'], icon:'📏'},
+                                {l:'Largo Machos', i:'largoinicialmachos', f:'largofinalmachos', p:'promedioLargoMachos', u:'unidadLargoMachos', opts:['mm', 'cm', 'm'], icon:'📏'},
+                                {l:'Peso Hembras', i:'pesoinicialhembras', f:'pesofinalhembras', p:'promedioPesoHembras', u:'unidadPesoHembras', opts:['g', 'kg', 't'], icon:'⚖️'},
+                                {l:'Peso Machos', i:'pesoinicialmachos', f:'pesofinalmachos', p:'promedioPesoMachos', u:'unidadPesoMachos', opts:['g', 'kg', 't'], icon:'⚖️'}
+                            ]">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-8 py-5 hover:bg-slate-50/30 transition-colors">
+                                    <div class="col-span-4 flex items-center gap-3">
+                                        <span
+                                            class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-sm"
+                                            x-text="m.icon"></span>
+                                        <span class="text-[15px] font-bold text-slate-700" x-text="m.l"></span>
+                                    </div>
+                                    <div class="col-span-4 flex items-center justify-center gap-2">
+                                        <input type="number" placeholder="Mín" x-model="form[m.i]"
+                                            @input="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
+                                            @change="validarRango(m.i, m.f, m.l)"
+                                            class="w-full max-w-[100px] px-3 py-2 rounded-xl border border-slate-200 text-center font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+
+                                        <span class="text-slate-300">—</span>
+
+                                        <input type="number" placeholder="Máx" x-model="form[m.f]"
+                                            @input="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
+                                            @change="validarRango(m.i, m.f, m.l)"
+                                            class="w-full max-w-[100px] px-3 py-2 rounded-xl border border-slate-200 text-center font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                                    </div>
+                                    <div class="col-span-2 flex justify-center">
+                                        <input type="number" step="0.01" x-model="form[m.p]"
+                                            class="w-full max-w-[90px] px-3 py-2 rounded-xl bg-indigo-600 border-none text-center font-black text-white shadow-sm shadow-indigo-700 focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                                    </div>
+                                    <div class="col-span-2 flex justify-end">
+                                        <select x-model="form[m.u]"
+                                            class="px-3 py-2 rounded-xl bg-slate-100 border-none text-[12px] font-black text-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer">
+                                            <template x-for="opt in m.opts" :key="opt">
+                                                <option :value="opt" x-text="opt"></option>
+                                            </template>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center space-x-6 mb-8 pb-6  " style="margin-top: 20px">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">e)Toxicidad:</label>
+                    <label
+                        class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">e)Toxicidad:</label>
                     <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <label class="flex items-center px-6 py-2 rounded-lg cursor-pointer transition-all" :class="form.siNoToxicidad == '1' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'">
+                        <label class="flex items-center px-6 py-2 rounded-lg cursor-pointer transition-all"
+                            :class="form.siNoToxicidad == '1' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400'">
                             <input type="radio" x-model="form.siNoToxicidad" value="1" class="hidden">
                             <span class="text-[10px] font-black">SÍ</span>
                         </label>
-                        <label class="flex items-center px-6 py-2 rounded-lg cursor-pointer transition-all" :class="form.siNoToxicidad == '0' ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-400'">
+                        <label class="flex items-center px-6 py-2 rounded-lg cursor-pointer transition-all"
+                            :class="form.siNoToxicidad == '0' ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-400'">
                             <input type="radio" x-model="form.siNoToxicidad" value="0" class="hidden">
                             <span class="text-[10px] font-black">NO</span>
                         </label>
                     </div>
                 </div>
-                <div style="margin-top: -30px">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 10px">Información adicional</label>
+                <div style="margin-top: -30px" x-show="form.siNoToxicidad == '1'" x-cloak x-transition>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"
+                        style="margin-bottom: 10px">
+                        Información adicional
+                    </label>
                     <textarea id="toxicidad_editor" placeholder="Información adicional sobre toxicidad"></textarea>
                 </div>
             </div>
@@ -287,13 +332,15 @@
             <div class="space-y-8">
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex flex-col">
-                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">6. Especies similares:</label>
+                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                            style="margin-bottom: 20px">6. Especies similares:</label>
                         <textarea id="especiesSimilares_editor"></textarea>
                     </div>
                 </div>
 
                 <div class="bg-white p-8 rounded-[2.5rem] shadow-xl text-white relative overflow-hidden">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">7. Categoría de riesgo en la NOM-059-SEMARNAT: </label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">7. Categoría
+                        de riesgo en la NOM-059-SEMARNAT: </label>
                     <template x-if="form.Nom">
                         <div class="flex flex-col items-end max-w-[70%]">
                             <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-[10px] font-black text-white  shadow-lg text-right leading-tight whitespace-normal"
@@ -330,7 +377,7 @@
 
                                     <div>
                                         <label
-                                            class="text-[10px] font-bold text-slate-500 mb-2 block ml-1 tracking-wider">
+                                           class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">
                                             Categoría:
                                         </label>
                                         <select x-model="form.nom059[data.k].categoria"
@@ -353,10 +400,12 @@
 
                                     <div>
                                         <label
-                                            class="text-[10px] font-bold text-slate-500 mb-2 block ml-1 tracking-wider">
+                                            class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">
                                             Información Adicional:
                                         </label>
-                                        <textarea x-model="form.nom059[data.k].info" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-medium min-h-[100px] outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all shadow-sm" placeholder="Escribe detalles adicionales aquí..."></textarea>
+                                        <textarea :id="'nom059_info_' + data.k"
+                                            class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-medium min-h-[100px] outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all shadow-sm"
+                                            placeholder="Escribe detalles adicionales aquí..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -366,26 +415,37 @@
 
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
                     <div class="flex flex-col">
-                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">8. Categoría de riesgo en la UICN: </label>
+                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                            style="margin-bottom: 20px">8. Categoría de riesgo en la UICN: </label>
                         <div class="flex space-x-3 mb-4">
-                            <input x-model="form.riesgoUICN" type="text" class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner" disabled>
+                            <input x-model="form.riesgoUICN" type="text"
+                                class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner"
+                                disabled>
                         </div>
-                        <label class="text-[15px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 10px">Información adicional</label>
+                        <label class="text-[15px] font-bold text-slate-700 tracking-tight flex items-center"
+                            style="margin-bottom: 10px">Información adicional</label>
                         <textarea id="infoUICN_editor" placeholder="Información adicional sobre categoría de riesgo según la UICN"></textarea>
                     </div>
                     <div class="h-px bg-slate-100"></div>
                     <div class="flex flex-col">
-                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">9. Regulación del comercio internacional de la especie (CITES): </label>
+                        <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                            style="margin-bottom: 20px">9. Regulación del comercio internacional de la especie (CITES):
+                        </label>
                         <div class="flex space-x-3 mb-4">
-                            <input x-model="form.cites" type="text" class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner" disabled>
+                            <input x-model="form.cites" type="text"
+                                class="flex-1 px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 shadow-inner"
+                                disabled>
                         </div>
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 10px">Información adicional</label>
-                        <textarea id="infoCITES_editor" placeholder="Información adicional regulación del comercio internacional de la especie (CITES)"></textarea>
+                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"
+                            style="margin-bottom: 10px">Información adicional</label>
+                        <textarea id="infoCITES_editor"
+                            placeholder="Información adicional regulación del comercio internacional de la especie (CITES)"></textarea>
                     </div>
                 </div>
 
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100" x-data="{ open: false, filter: '', options: ['Exótica/No nativa', 'Nativa', 'Criptogénica'], toggle(option) { if (this.form.origen.includes(option)) { this.form.origen = this.form.origen.filter(i => i !== option); } else { this.form.origen.push(option); } }, get filteredOptions() { return this.options.filter(i => i.toLowerCase().includes(this.filter.toLowerCase())); } }">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">10. Origen en relación con México: </label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                        style="margin-bottom: 20px">10. Origen en relación con México: </label>
                     <div class="relative" @click.away="open = false">
                         <div @click="open = !open"
                             class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all">

@@ -1,6 +1,4 @@
-<!-- Aqui esta el contenido de los modales de nombres comunes y de sinonimos, no estan juntos son cosas separadas pero aqui van a ir el contendido de modales -->
-
-<div x-show="showModalNombre" x-cloak class="fixed inset-0 z-[100] ...">
+<div x-show="showModalNombre" x-cloak class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50">
 <x-modalGeneral id="showModalNombre" title="Agregar Nombre Común" saveFunction="guardarNombreComun()">
         <div>
             <label class="text-[10px] font-bold text-gray-500 uppercase">Nombre Común*</label>
@@ -23,7 +21,7 @@
     </x-modalGeneral>
 </div>
 
-<div x-show="showModalSinonimo" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
+<div x-show="showModalSinonimo" x-cloak class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50">
     <x-modalGeneral id="showModalSinonimo" title="Agregar Sinónimo" saveFunction="guardarSinonimoManual()">
     <div>
         <label class="text-[10px] font-bold text-gray-500 uppercase">Sinónimo</label>
