@@ -1,4 +1,4 @@
-@props(['model'])
+@props(['model' => 'tempNombre.lengua'])
 
 <select
     x-model="{{ $model }}"
