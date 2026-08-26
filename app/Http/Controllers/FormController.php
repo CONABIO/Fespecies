@@ -484,6 +484,11 @@ public function editarFicha($id) {
     }
 
     $dist = (array)DB::table('distribucion')->where('especieId', $id)->first();
+    $distId = $dist['distribucionid'] ?? $dist['distribucionId'] ?? null;
+    $paisesS = $distId ? DB::table('reldistribucionpais')->join('pais','reldistribucionpais.paisId','=','pais.paisId')->where('distribucionid', $distId)->pluck('nombrepais')->toArray() : [];
+    $edosS   = $distId ? DB::table('reldistribucionestado')->join('estado','reldistribucionestado.estadoId','=','estado.estadoId')->where('distribucionid', $distId)->pluck('nombreEstado')->toArray() : [];
+    $munsS   = $distId ? DB::table('reldistribucionmunicipio')->join('municipio','reldistribucionmunicipio.municipioId','=','municipio.municipioId')->where('distribucionid', $distId)->pluck('nombreMunicipio')->toArray() : [];
+
     $endemismo = (array)DB::table('endemica')->where('especieId', $id)->first();
     $habitat = (array)DB::table('habitat')->where('especieId', $id)->first();
 
@@ -537,11 +542,18 @@ public function editarFicha($id) {
     'sinonimos' => DB::table('sinonimo')->where('especieId', $id)->get()->map(function($s){
         return ['sinonimo' => $s->nombreSimple, 'autor' => $s->autoridad, 'anio' => $s->anio, 'editable' => true];
     })->toArray(),
-    'dist_mundial_info'      => $getData('InfoAdicionalPais'),
-    'info_adicional_estado'  => $getData('InfoAdicionalEdo'),
-    'siNoEndemismo'          => ($endemismo && ($endemismo['endemicaMexico'] ?? $endemismo['endemicamexico'] ?? '') == 'SÍ') ? '1' : '0',
-    'endemismo_info'         => ($endemismo['infoAdicionalEndemica'] ?? $endemismo['infoadicionalendemica'] ?? ''),
     'tipoAmbiente'           => $habitat['tipoAmbiente'] ?? $habitat['tipoambiente'] ?? '',
+    'paises_seleccionados'     => $paisesS,
+    'estados_seleccionados'    => $edosS,
+    'municipios_seleccionados' => $munsS,
+    'dist_mundial_info'        => $dist['InfoAdicionalPais'] ?? $dist['infoadicionalpais'] ?? '',
+    'info_adicional_estado'    => $dist['InfoAdicionalEdo'] ?? $dist['infoadicionaledo'] ?? '',
+    'info_adicional_municipio' => $dist['infoAdicionalMun'] ?? $dist['infoadicionalmun'] ?? '',
+    'potencial_info'           => $dist['historicaPotencial'] ?? $dist['historicapotencial'] ?? '',
+    'siNoPotencial'            => (!empty($dist['historicaPotencial']) || !empty($dist['historicapotencial'])) ? '1' : '0',
+    'siNoEndemismo'            => ($endemismo && ($endemismo['endemicaMexico'] ?? $endemismo['endemicamexico'] ?? '') == 'SÍ') ? '1' : '0',
+    'endemica_a'               => $endemismo['endemicaA'] ?? $endemismo['endemicaa'] ?? '',
+    'endemismo_info'           => $endemismo['infoAdicionalEndemica'] ?? $endemismo['infoadicionalendemica'] ?? '',
 ];
 
     return view('form', [

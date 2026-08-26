@@ -182,7 +182,10 @@
                                 { id: '#infoCITES_editor', field: 'infoCITES' },
                                 { id: '#vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
                                 { id: '#especies_asociadas_info_editor', field: 'especies_asociadas_info' },
-                                { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' }
+                                { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
+                                { id: '#infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
+                                { id: '#infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
+                                { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' }
                             ];
 
                             for (const item of editors) {
@@ -197,6 +200,13 @@
                                     this.initEditorNom059(selector, year);
                                 }
                             });
+
+                            if (this.form.siNoPotencial == '1') {
+                                this.initEditor('#infoAddDistPotMex', 'potencial_info');
+                            }
+                            if (this.form.siNoEndemismo == '1') {
+                                this.initEditor('#infoAddEndemismo', 'endemismo_info');
+                            }
 
                             if (this.form.dist_historica_estado) {
                                 await this.cargarMunicipios(this.form.dist_historica_estado);
@@ -220,6 +230,28 @@
                                     'bibliografia', 'tempNombre'));
                             } else {
                                 tinymce.remove('#bibliografia_editor');
+                            }
+                        });
+
+                        this.$watch('form.siNoPotencial', v => {
+                            if (v === '1') {
+                                this.$nextTick(() => this.initEditor('#infoAddDistPotMex', 'potencial_info'));
+                            } else {
+                                if (tinymce.get('infoAddDistPotMex')) {
+                                    tinymce.remove('#infoAddDistPotMex');
+                                }
+                                this.form.potencial_info = '';
+                            }
+                        });
+
+                        this.$watch('form.siNoEndemismo', v => {
+                            if (v === '1') {
+                                this.$nextTick(() => this.initEditor('#infoAddEndemismo', 'endemismo_info'));
+                            } else {
+                                if (tinymce.get('infoAddEndemismo')) {
+                                    tinymce.remove('#infoAddEndemismo');
+                                }
+                                this.form.endemismo_info = '';
                             }
                         });
 
