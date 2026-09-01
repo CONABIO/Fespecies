@@ -49,8 +49,7 @@
             results: [],
             showResults: false,
             loading: false,
-            selectedIndex: -1, // RASTREADOR DE POSICIÓN
-
+            selectedIndex: -1,
             buscarCatalogo() {
                 if (this.query.length < 2) {
                     this.results = [];
@@ -65,7 +64,7 @@
                         this.results = data;
                         this.showResults = (data.length > 0);
                         this.loading = false;
-                        this.selectedIndex = -1; // Resetear al buscar
+                        this.selectedIndex = -1;
                     })
                     .catch(() => { this.loading = false; });
             },
@@ -74,7 +73,6 @@
                 this.showResults = false;
                 $nextTick(() => { document.getElementById('mainFilterForm').submit(); });
             },
-            // FUNCIONES DE NAVEGACIÓN
             nextResult() {
                 if (this.results.length > 0) {
                     this.selectedIndex = (this.selectedIndex + 1) % this.results.length;
