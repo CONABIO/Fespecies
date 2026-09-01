@@ -22,7 +22,7 @@
                             :class="n.editable ? 'bg-amber-50 boArder-amber-200 cursor-pointer hover:bg-amber-100' :
                                 'bg-indigo-50 border-indigo-200 cursor-default'"
                             class="inline-flex items-center w-fit px-2.5 py-1 border-2 rounded-full transition-all group shadow-sm">
-                            <span class="text-[16px] font-bold text-slate-700 whitespace-nowrap"
+                            <span class="text-[13px] font-bold text-slate-700 whitespace-nowrap"
                                 x-text="n.nombre"></span>
                             <span :class="n.editable ? 'bg-amber-500' : 'bg-indigo-500'"
                                 class="ml-2 px-1.5 py-0.5 text-[14px] font-black text-white rounded-md  leading-none"
@@ -140,7 +140,7 @@
                         <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">3.
                             Sinónimos:</label>
                         <button type="button" @click="abrirModalSinonimo()"
-                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[16px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
+                            class="flex items-center px-3 py-1.5 bg-indigo-600 text-white text-[13px] font-black rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round" />
                             </svg>Ingresar
@@ -245,12 +245,12 @@
 
                     <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                         <div
-                            class="hidden md:grid grid-cols-12 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
+                            class="hidden md:grid grid-cols-10 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
                             <div class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                                Atributo / Sexo</div>
+                                Atributo</div>
                             <div
                                 class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
-                                Rango (Mín - Máx)</div>
+                                De - A</div>
                             <div
                                 class="col-span-2 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
                                 Promedio</div>
@@ -343,7 +343,7 @@
                         de riesgo en la NOM-059-SEMARNAT: </label>
                     <template x-if="form.Nom">
                         <div class="flex flex-col items-end max-w-[70%]">
-                            <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-[10px] font-black text-white  shadow-lg text-right leading-tight whitespace-normal"
+                            <div class="px-3 py-1.5 rounded-xl bg-emerald-500 text-[13px] font-black text-white  shadow-lg text-right leading-tight whitespace-normal"
                                 x-text="form.Nom">
                             </div>
                         </div>
@@ -363,7 +363,7 @@
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span x-show="form.nom059[data.k].categoria"
-                                            class="px-2 py-1 rounded bg-emerald-500 text-[9px] font-black"
+                                            class="px-2 py-1 rounded bg-emerald-500 text-[13px] font-black"
                                             x-text="form.nom059[data.k].categoria"></span>
                                         <svg class="w-4 h-4 text-white/50 transition-transform duration-300"
                                             :class="openYear === data.id ? 'rotate-180 text-white' : ''"
@@ -453,7 +453,7 @@
                                     class="text-xs text-slate-400 p-2">Seleccionar opciones...</span></template>
                             <template x-for="sel in form.origen" :key="sel">
                                 <div
-                                    class="bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
+                                    class="bg-indigo-600 text-white text-[13px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                     <span x-text="sel"></span>
                                     <button type="button" @click.stop="toggle(sel)"
                                         class="ml-2 hover:text-rose-300 transition-colors">

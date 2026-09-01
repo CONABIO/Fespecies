@@ -73,10 +73,12 @@ class TaxonController extends Controller
                 }
             })
             ->select(
-                DB::raw("CONCAT(genero, ' ', especie, ' ', IFNULL(infraespecie, '')) as taxon"),
-                'autor as AutorTaxon',
-                'especieId'
+                DB::raw("TRIM(CONCAT(TRIM(genero), ' ', TRIM(especie), ' ', IFNULL(TRIM(infraespecie), ''))) as taxon"),
+                DB::raw("TRIM(autor) as AutorTaxon"),
+                DB::raw("MAX(especieId) as especieId")
             )
+            ->groupBy('taxon', 'AutorTaxon')
+            ->orderBy('taxon', 'asc')
             ->limit(15)
             ->get();
 

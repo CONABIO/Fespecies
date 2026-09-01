@@ -99,6 +99,27 @@
             'unidadPesoHembras' => 'g',
             'promedioPesoMachos' => '',
             'unidadPesoMachos' => 'g',
+
+            'habitat_marino_vertical' => '',
+            'habitat_marino_horizontal' => '',
+            'habitat_marino_infoAddVH' => '',
+            'habitat_marino_especiesAsociadas' => '',
+            'habitat_marino_disturbiosAntropicos' => 'NO',
+            'habitat_marino_infoAddDisturbiosAntropicos' => '',
+            'interbatimetricoinicial' => '',
+            'interbatimetricofinal' => '',
+            'interbatimetricopromedio' => '',
+            'infoaddinterbatimetrico' => '',
+            'amplitudmareasinicial' => '',
+            'amplitudmareasfinal' => '',
+            'amplitudmareaspromedio' => '',
+            'infoaddamplitudmareas' => '',
+            'salinidadinicial' => '', 'salinidadfinal' => '', 'salinidadpromedio' => '', 'unidadsalinidad' => '',
+            'oxigenoinicial' => '', 'oxigenofinal' => '', 'oxigenopromedio' => '',
+            'phinicial' => '', 'phfinal' => '', 'phpromedio' => '',
+            'temeperaturainicial' => '', 'temeperaturafinal' => '', 'temeperaturapromedio' => '',
+            'corrientes' => '',
+            'infoaddcaracagua' => '',
         ];
         $formData = $especie ?? $defaultForm;
     @endphp
@@ -185,7 +206,23 @@
                                 { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
                                 { id: '#infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
                                 { id: '#infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
-                                { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' }
+                                { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' },
+                                { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
+                                { id: '#tiny-clima', field: 'clima_info' },
+                                { id: '#tiny-temp', field: 'infoaddtemperatura' },
+                                { id: '#tiny-precip', field: 'infoaddprecipitacion' },
+                                { id: '#tiny-humedad', field: 'infoaddhumedad' },
+                                { id: '#tiny-suelo', field: 'suelo_info' },
+                                { id: '#tiny-geoforma', field: 'geoforma_info' },
+                                { id: '#tiny-temperatura', field: 'infoaddtemperatura' },
+                                { id: '#tiny-precipitacion', field: 'infoaddprecipitacion' },
+                                { id: '#tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
+                                { id: '#tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
+                                { id: '#tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
+                                { id: '#tiny-batimetria', field: 'infoaddinterbatimetrico' },
+                                { id: '#tiny-mareas', field: 'infoaddamplitudmareas' },
+                                { id: '#tiny-corrientes', field: 'corrientes' },
+                                { id: '#tiny-agua', field: 'infoaddcaracagua' },
                             ];
 
                             for (const item of editors) {
@@ -276,6 +313,37 @@
                             }
                         });
 
+                        this.$watch('step', value => {
+                            if (value === 3) {
+                                this.$nextTick(() => {
+                                    const seccion3Editors = [
+                                        { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
+                                        { id: '#tiny-clima', field: 'clima_info' },
+                                        { id: '#tiny-temp', field: 'infoaddtemperatura' },
+                                        { id: '#tiny-precip', field: 'infoaddprecipitacion' },
+                                        { id: '#tiny-humedad', field: 'infoaddhumedad' },
+                                        { id: '#tiny-suelo', field: 'suelo_info' },
+                                        { id: '#tiny-geoforma', field: 'geoforma_info' },
+                                        { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
+                                        { id: '#vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
+                                        { id: '#especies_asociadas_info_editor', field: 'especies_asociadas_info' },
+                                        { id: '#tiny-batimetria', field: 'infoaddinterbatimetrico' },
+                                        { id: '#tiny-mareas', field: 'infoaddamplitudmareas' },
+                                        { id: '#tiny-corrientes', field: 'corrientes' },
+                                        { id: '#tiny-agua', field: 'infoaddcaracagua' }
+                                    ];
+
+                                    setTimeout(() => {
+                                        seccion3Editors.forEach(item => {
+                                            if (document.querySelector(item.id)) {
+                                                this.initEditor(item.id, item.field);
+                                            }
+                                        });
+                                    }, 100);
+                                });
+                            }
+                        });
+
                         if (this.form.estados_seleccionados && this.form.estados_seleccionados.length >
                             0) {
                             this.municipiosOptions = [];
@@ -304,7 +372,23 @@
                             { id: 'infoAddEndemismo', field: 'endemismo_info' },
                             { id: 'ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
                             { id: 'vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
-                            { id: 'especies_asociadas_info_editor', field: 'especies_asociadas_info' }
+                            { id: 'especies_asociadas_info_editor', field: 'especies_asociadas_info' },
+                            { id: 'tiny-altitud', field: 'infoAddintervaloaltitudinal' },
+                            { id: 'tiny-clima', field: 'clima_info' },
+                            { id: 'tiny-temp', field: 'infoaddtemperatura' },
+                            { id: 'tiny-precip', field: 'infoaddprecipitacion' },
+                            { id: 'tiny-humedad', field: 'infoaddhumedad' },
+                            { id: 'tiny-suelo', field: 'suelo_info' },
+                            { id: 'tiny-geoforma', field: 'geoforma_info' },
+                            { id: '#tiny-temperatura', field: 'infoaddtemperatura' },
+                            { id: '#tiny-precipitacion', field: 'infoaddprecipitacion' },
+                            { id: 'tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
+                            { id: 'tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
+                            { id: 'tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
+                            { id: 'tiny-batimetria', field: 'infoaddinterbatimetrico' },
+                            { id: 'tiny-mareas', field: 'infoaddamplitudmareas' },
+                            { id: 'tiny-agua', field: 'infoaddcaracagua' },
+                            { id: 'tiny-corrientes', field: 'corrientes' },
                         ];
 
                         editorConfig.forEach(item => {
@@ -337,9 +421,9 @@
                                 body {
                                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                                     font-size: 18px;
-                                    margin: 4px; /* Margen pequeño para que no pegue al borde */
+                                    margin: 4px;
                                 }
-                                p { margin: 0; padding: 0; } /* Quitamos el margen a los párrafos */
+                                p { margin: 0; padding: 0; }
                             `,
 
                             setup: (editor) => {

@@ -29,7 +29,7 @@
                             <span class="text-[15px] text-slate-400 p-2 font-bold tracking-widest uppercase">SELECCIONAR PAÍS...</span>
                         </template>
                         <template x-for="sel in form.paises_seleccionados" :key="sel">
-                            <div class="bg-indigo-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
+                            <div class="bg-indigo-600 text-white text-[13px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                 <span x-text="sel"></span>
                                 <button type="button" @click.stop="form.paises_seleccionados = form.paises_seleccionados.filter(i => i !== sel)" class="ml-2 hover:text-rose-300 transition-colors">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -117,7 +117,7 @@
                                 <span class="text-xs text-slate-400 p-2 font-bold tracking-widest ">Selecciona estado(s)</span>
                             </template>
                             <template x-for="sel in form.estados_seleccionados" :key="sel">
-                                <div class="bg-emerald-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
+                                <div class="bg-emerald-600 text-white text-[13px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                     <span x-text="sel"></span>
                                     <button type="button" @click.stop="form.estados_seleccionados = form.estados_seleccionados.filter(i => i !== sel); municipiosOptions = municipiosOptions.filter(m => m.nombreEstado !== sel);" class="ml-2 hover:text-rose-300 transition-colors">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -173,7 +173,7 @@
                                 <span class="text-xs text-slate-400 p-2 font-bold tracking-widest" x-text="municipiosOptions.length === 0 ? 'Primero selecciona un estado...' : 'Selecciona municipio(s)'"></span>
                             </template>
                             <template x-for="sel in form.municipios_seleccionados" :key="sel">
-                                <div class="bg-sky-600 text-white text-[10px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
+                                <div class="bg-sky-600 text-white text-[13px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
                                     <span x-text="sel"></span>
                                     <button type="button" @click.stop="form.municipios_seleccionados = form.municipios_seleccionados.filter(m => m !== sel)" class="ml-2 hover:text-rose-300 transition-colors">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>

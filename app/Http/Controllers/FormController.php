@@ -311,27 +311,28 @@ class FormController extends Controller{
                     ['especieId' => $especieId],
                     [
                         'tipoAmbiente'         => $f['tipoAmbiente'],
-                        'habitatAgropecuario'  => $f['habitatAgropecuario'],
-                        'zonaUrbana'           => $f['zonaUrbana'],
-                        'VegetacionSecundaria' => $f['VegetacionSecundaria'],
-                        'intervaloaltitudinalinicial'  => $f['intervaloaltitudinalinicial'],
-                        'intervaloaltitudinalfinal'    => $f['intervaloaltitudinalfinal'],
-                        'infoAddintervaloaltitudinal'  => $f['infoAddintervaloaltitudinal'],
-                        'temperaturainicial'    => $f['temperaturainicial'],
-                        'temperaturafinal'      => $f['temperaturafinal'],
-                        'infoaddtemperatura'    => $f['infoaddtemperatura'],
-                        'precipitacioninicial'  => $f['precipitacioninicial'],
-                        'precipitacionfinal'         => $f['precipitacionfinal'],
-                        'infoaddprecipitacion'         => $f['infoaddprecipitacion'],
-                        'humedadinicial'         => $f['humedadinicial'],
-                        'humedadfinal'         => $f['humedadfinal'],
-                        'infoaddhumedad'         => $f['infoaddhumedad'],
-                        'vertical'                   => $f['habitat_marino_vertical'],
-                        'horizontal'                 => $f['habitat_marino_horizontal'],
-                        'infoAddVH'                  => $f['habitat_marino_infoAddVH'],
-                        'especiesAsociadas'          => $f['habitat_marino_especiesAsociadas'],
-                        'disturbiosAntropicos'       => $f['habitat_marino_disturbiosAntropicos'],
-                        'infoAddDisturbiosAntropicos'=> $f['habitat_marino_infoAddDisturbiosAntropicos'],
+                        'habitatAgropecuario'  => $f['habitatAgropecuario'] ?? null,
+                        'zonaUrbana'           => $f['zonaUrbana']?? null,
+                        'VegetacionSecundaria' => $f['VegetacionSecundaria']?? null,
+                        'intervaloaltitudinalinicial'  => $f['intervaloaltitudinalinicial']?? null,
+                        'intervaloaltitudinalfinal'    => $f['intervaloaltitudinalfinal']?? null,
+                        'infoAddintervaloaltitudinal'  => $f['infoAddintervaloaltitudinal']?? null,
+                        'temperaturainicial'    => $f['temperaturainicial']?? null,
+                        'temperaturafinal'      => $f['temperaturafinal']?? null,
+                        'infoaddtemperatura'    => $f['infoaddtemperatura']?? null,
+                        'precipitacioninicial'  => $f['precipitacioninicial']?? null,
+                        'precipitacionfinal'         => $f['precipitacionfinal']?? null,
+                        'infoaddprecipitacion'         => $f['infoaddprecipitacion']?? null,
+                        'humedadinicial'         => $f['humedadinicial']?? null,
+                        'humedadfinal'         => $f['humedadfinal']?? null,
+                        'infoaddhumedad'         => $f['infoaddhumedad']?? null,
+                        'infoAddEcorregion'    => $f['ecorregiones_info_adicional'] ?? null,
+                        'vertical'                   => $f['habitat_marino_vertical']?? null,
+                        'horizontal'                 => $f['habitat_marino_horizontal']?? null,
+                        'infoAddVH'                  => $f['habitat_marino_infoAddVH']?? null,
+                        'especiesAsociadas'          => $f['habitat_marino_especiesAsociadas']?? null,
+                        'disturbiosAntropicos'       => $f['habitat_marino_disturbiosAntropicos']?? null,
+                        'infoAddDisturbiosAntropicos'=> $f['habitat_marino_infoAddDisturbiosAntropicos'] ?? null,
                         'interbatimetricoinicial'         => $f['interbatimetricoinicial'] ?? null,
                         'interbatimetricofinal'           => $f['interbatimetricofinal'] ?? null,
                         'infoaddinterbatimetrico'         => $f['infoaddinterbatimetrico'] ?? null,
@@ -459,19 +460,34 @@ public function editarFicha($id) {
     }
 
     $nombresLocalesLimpios = DB::table('nombrecomun')->where('especieId', $id)->get()->map(function($n) {
-        return [
-            'nombre' => trim($n->nombre),
-            'lengua' => trim($n->lenguaje),
-            'bibliografia' => ($n->citanomcomun === 'EMPTY' ? '' : $n->citanomcomun),
-            'editable' => true
-        ];
+        return ['nombre' => trim($n->nombre), 'lengua' => trim($n->lenguaje), 'bibliografia' => ($n->citanomcomun === 'EMPTY' ? '' : $n->citanomcomun), 'editable' => true];
     })->toArray();
 
-    $nom059Processed = [
-        '2001' => ['categoria' => '', 'info' => ''],
-        '2010' => ['categoria' => '', 'info' => ''],
-        '2019' => ['categoria' => '', 'info' => '']
-    ];
+    $nom059Processed = ['2001' => ['categoria' => '', 'info' => ''], '2010' => ['categoria' => '', 'info' => ''], '2019' => ['categoria' => '', 'info' => '']];
+
+    $sinonimosCatalogo = [];
+    if ($datosCatalogo) {
+        $sinonimosCatalogo = DB::connection('mysql_catalogo')->table('_TransformaTablaNombre')
+            ->select('Taxon as sinonimo', 'AutorTaxon as autor')
+            ->where('IdNombreRel', '=', $datosCatalogo->IdNombre)->get()
+            ->map(function($s) { return ['sinonimo' => trim($s->sinonimo), 'autor' => trim($s->autor), 'anio' => null, 'editable' => false]; })->toArray();
+    }
+    $sinonimosLocalesRaw = DB::table('sinonimo')->where('especieId', $id)->get();
+    $sinonimosLocalesLimpios = [];
+    foreach ($sinonimosLocalesRaw as $s) {
+        $sinonimoL = strtolower(trim($s->nombreSimple));
+        $autorL = strtolower(trim($s->autoridad));
+        $esDuplicado = false;
+        foreach ($sinonimosCatalogo as $cat) {
+            if (strtolower(trim($cat['sinonimo'])) === $sinonimoL && strtolower(trim($cat['autor'])) === $autorL) {
+                $esDuplicado = true; break;
+            }
+        }
+        if (!$esDuplicado) {
+            $sinonimosLocalesLimpios[] = ['sinonimo' => trim($s->nombreSimple), 'autor' => $s->autoridad === 'EMPTY' ? '' : $s->autoridad, 'anio' => $s->anio, 'editable' => true];
+        }
+    }
+
     $legisRows = DB::table('legislacion')->where('especieId', $id)->get();
     foreach ($legisRows as $row) {
         if (str_contains($row->nombreLegislacion, 'NOM-059')) {
@@ -490,71 +506,140 @@ public function editarFicha($id) {
     $munsS   = $distId ? DB::table('reldistribucionmunicipio')->join('municipio','reldistribucionmunicipio.municipioId','=','municipio.municipioId')->where('distribucionid', $distId)->pluck('nombreMunicipio')->toArray() : [];
 
     $endemismo = (array)DB::table('endemica')->where('especieId', $id)->first();
-    $habitat = (array)DB::table('habitat')->where('especieId', $id)->first();
+    $habitat = DB::table('habitat')->where('especieId', $id)->first();
 
-   $especie = [
-    'id'        => $id,
-    'especieId' => $id,
-    'taxon'     => trim(($t['genero'] ?? '') . ' ' . ($t['especie'] ?? '') . ' ' . ($t['infraespecie'] ?? '')),
-    'Reino'     => $t['reino'] ?? '',
-    'Divisionphylum' => $t['divisionphylum'] ?? '',
-    'Clase'     => $t['clase'] ?? '',
-    'Orden'     => $t['orden'] ?? '',
-    'Familia'   => $t['familia'] ?? '',
-    'Genero'    => $t['genero'] ?? '',
-    'Especie_epiteto' => $t['especie'] ?? '',
-    'Nombreinfra'     => $t['infraespecie'] ?? '',
-    'Categinfra'      => $t['categinfra'] ?? '',
-    'EstatusTaxon'    => $t['estatus'] ?? '',
-    'AutorTaxon'      => $t['autor'] ?? '',
-    'IdCAT'           => $t['IdCAT'] ?? $t['idcat'] ?? '',
-    'Nom'             => $t['Nom'] ?? $t['nom'] ?? '',
-    'resumenEspecie'          => $getData('resumenEspecie'),
-    'infoAddNombreCientifico' => $getData('infoAddNombreCientifico'),
-    'descEspecie'             => $getData('descEspecie'),
-    'especiesSmilares'        => $getData('especiesSmilares'),
-    'descripcionOrigen'       => $getData('descripcionOrigen'),
-    'toxicidad'               => $getData('toxicidad'),
-    'siNoToxicidad'           => (string)($t['siNoToxicidad'] ?? $t['sinotoxicidad'] ?? '0'),
-    'riesgoUICN' => $datosCatalogo->Iucn ?? $getData('infoUICN'),
-    'infoUICN'   => $getData('infoUICN'),
-    'cites'      => $datosCatalogo->Cites ?? $getData('infoCITES'),
-    'infoCITES'  => $getData('infoCITES'),
-    'nom059'     => $nom059Processed,
-    'largoinicialmachos'   => $t['largoinicialmachos'] ?? '',
-    'largofinalmachos'     => $t['largofinalmachos'] ?? '',
-    'largoinicialhembras'  => $t['largoinicialhembras'] ?? '',
-    'largofinalhembras'    => $t['largofinalhembras'] ?? '',
-    'pesoinicialmachos'    => $t['pesoinicialmachos'] ?? '',
-    'pesofinalmachos'      => $t['pesofinalmachos'] ?? '',
-    'pesoinicialhembras'   => $t['pesoinicialhembras'] ?? '',
-    'pesofinalhembras'     => $t['pesofinalhembras'] ?? '',
-    'promedioLargoMachos'  => $t['promedioLargoMachos'] ?? '',
-    'unidadLargoMachos'    => $t['unidadLargoMachos'] ?? 'mm',
-    'promedioLargoHembras' => $t['promedioLargoHembras'] ?? '',
-    'unidadLargoHembras'   => $t['unidadLargoHembras'] ?? 'mm',
-    'promedioPesoMachos'   => $t['promedioPesoMachos'] ?? '',
-    'unidadPesoMachos'     => $t['unidadPesoMachos'] ?? 'g',
-    'promedioPesoHembras'  => $t['promedioPesoHembras'] ?? '',
-    'unidadPesoHembras'    => $t['unidadPesoHembras'] ?? 'g',
-    'origen' => ($t['origen'] ?? '') ? explode(', ', $t['origen']) : [],
-    'nombres_comunes' => array_merge($nombresCatalogo, $nombresLocalesLimpios),
-    'sinonimos' => DB::table('sinonimo')->where('especieId', $id)->get()->map(function($s){
-        return ['sinonimo' => $s->nombreSimple, 'autor' => $s->autoridad, 'anio' => $s->anio, 'editable' => true];
-    })->toArray(),
-    'tipoAmbiente'           => $habitat['tipoAmbiente'] ?? $habitat['tipoambiente'] ?? '',
-    'paises_seleccionados'     => $paisesS,
-    'estados_seleccionados'    => $edosS,
-    'municipios_seleccionados' => $munsS,
-    'dist_mundial_info'        => $dist['InfoAdicionalPais'] ?? $dist['infoadicionalpais'] ?? '',
-    'info_adicional_estado'    => $dist['InfoAdicionalEdo'] ?? $dist['infoadicionaledo'] ?? '',
-    'info_adicional_municipio' => $dist['infoAdicionalMun'] ?? $dist['infoadicionalmun'] ?? '',
-    'potencial_info'           => $dist['historicaPotencial'] ?? $dist['historicapotencial'] ?? '',
-    'siNoPotencial'            => (!empty($dist['historicaPotencial']) || !empty($dist['historicapotencial'])) ? '1' : '0',
-    'siNoEndemismo'            => ($endemismo && ($endemismo['endemicaMexico'] ?? $endemismo['endemicamexico'] ?? '') == 'SÍ') ? '1' : '0',
-    'endemica_a'               => $endemismo['endemicaA'] ?? $endemismo['endemicaa'] ?? '',
-    'endemismo_info'           => $endemismo['infoAdicionalEndemica'] ?? $endemismo['infoadicionalendemica'] ?? '',
-];
+    $getOp = function($pId) use ($id) {
+        return DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', $pId)->pluck('idopcion')->toArray();
+    };
+    $getObs = function($pId) use ($id) {
+        return DB::table('observacionescarac')->where('especieId', $id)->where('idpregunta', $pId)->value('infoadicional');
+    };
+
+    $ecorregionesS = $habitat ? DB::table('relecorregionhabitat')->where('habitatId', $habitat->habitatId)->pluck('ecorregionId')->toArray() : [];
+    $ecosistemasS  = $habitat ? DB::table('relecosistemahabitat')->where('habitatId', $habitat->habitatId)->pluck('ecosistemaid')->toArray() : [];
+
+    $especie = [
+        'id'        => $id,
+        'especieId' => $id,
+        'taxon'     => trim(($t['genero'] ?? '') . ' ' . ($t['especie'] ?? '') . ' ' . ($t['infraespecie'] ?? '')),
+        'Reino'     => $t['reino'] ?? '',
+        'Divisionphylum' => $t['divisionphylum'] ?? '',
+        'Clase'     => $t['clase'] ?? '',
+        'Orden'     => $t['orden'] ?? '',
+        'Familia'   => $t['familia'] ?? '',
+        'Genero'    => $t['genero'] ?? '',
+        'Especie_epiteto' => $t['especie'] ?? '',
+        'Nombreinfra'     => $t['infraespecie'] ?? '',
+        'Categinfra'      => $t['categinfra'] ?? '',
+        'EstatusTaxon'    => $t['estatus'] ?? '',
+        'AutorTaxon'      => $t['autor'] ?? '',
+        'IdCAT'           => $t['IdCAT'] ?? $t['idcat'] ?? '',
+        'Nom'             => $t['Nom'] ?? $t['nom'] ?? '',
+        'resumenEspecie'          => $getData('resumenEspecie'),
+        'infoAddNombreCientifico' => $getData('infoAddNombreCientifico'),
+        'descEspecie'             => $getData('descEspecie'),
+        'especiesSmilares'        => $getData('especiesSmilares'),
+        'descripcionOrigen'       => $getData('descripcionOrigen'),
+        'toxicidad'               => $getData('toxicidad'),
+        'siNoToxicidad'           => (string)($t['siNoToxicidad'] ?? $t['sinotoxicidad'] ?? '0'),
+        'riesgoUICN' => $datosCatalogo->Iucn ?? $getData('infoUICN'),
+        'infoUICN'   => $getData('infoUICN'),
+        'cites'      => $datosCatalogo->Cites ?? $getData('infoCITES'),
+        'infoCITES'  => $getData('infoCITES'),
+        'nom059'     => $nom059Processed,
+        'largoinicialmachos'   => $t['largoinicialmachos'] ?? '',
+        'largofinalmachos'     => $t['largofinalmachos'] ?? '',
+        'largoinicialhembras'  => $t['largoinicialhembras'] ?? '',
+        'largofinalhembras'    => $t['largofinalhembras'] ?? '',
+        'pesoinicialmachos'    => $t['pesoinicialmachos'] ?? '',
+        'pesofinalmachos'      => $t['pesofinalmachos'] ?? '',
+        'pesoinicialhembras'   => $t['pesoinicialhembras'] ?? '',
+        'pesofinalhembras'     => $t['pesofinalhembras'] ?? '',
+        'promedioLargoMachos'  => $t['promedioLargoMachos'] ?? '',
+        'unidadLargoMachos'    => $t['unidadLargoMachos'] ?? 'mm',
+        'promedioLargoHembras' => $t['promedioLargoHembras'] ?? '',
+        'unidadLargoHembras'   => $t['unidadLargoHembras'] ?? 'mm',
+        'promedioPesoMachos'   => $t['promedioPesoMachos'] ?? '',
+        'unidadPesoMachos'     => $t['unidadPesoMachos'] ?? 'g',
+        'promedioPesoHembras'  => $t['promedioPesoHembras'] ?? '',
+        'unidadPesoHembras'    => $t['unidadPesoHembras'] ?? 'g',
+        'origen' => ($t['origen'] ?? '') ? explode(', ', $t['origen']) : [],
+        'nombres_comunes' => array_merge($nombresCatalogo, $nombresLocalesLimpios),
+        'sinonimos' => array_merge($sinonimosCatalogo, $sinonimosLocalesLimpios),
+        'tipoAmbiente'           => $habitat->tipoAmbiente ?? '',
+        'paises_seleccionados'     => $paisesS,
+        'estados_seleccionados'    => $edosS,
+        'municipios_seleccionados' => $munsS,
+        'dist_mundial_info'        => $dist['InfoAdicionalPais'] ?? $dist['infoadicionalpais'] ?? '',
+        'info_adicional_estado'    => $dist['InfoAdicionalEdo'] ?? $dist['infoadicionaledo'] ?? '',
+        'info_adicional_municipio' => $dist['infoAdicionalMun'] ?? $dist['infoadicionalmun'] ?? '',
+        'potencial_info'           => $dist['historicaPotencial'] ?? $dist['historicapotencial'] ?? '',
+        'siNoPotencial'            => (!empty($dist['historicaPotencial']) || !empty($dist['historicapotencial'])) ? '1' : '0',
+        'siNoEndemismo'            => ($endemismo && ($endemismo['endemicaMexico'] ?? $endemismo['endemicamexico'] ?? '') == 'SÍ') ? '1' : '0',
+        'endemica_a'               => $endemismo['endemicaA'] ?? $endemismo['endemicaa'] ?? '',
+        'endemismo_info'           => $endemismo['infoAdicionalEndemica'] ?? $endemismo['infoadicionalendemica'] ?? '',
+
+        'habitatAgropecuario' => $habitat->habitatAgropecuario ?? '',
+        'zonaUrbana' => $habitat->zonaUrbana ?? '',
+        'VegetacionSecundaria' => $habitat->VegetacionSecundaria ?? '',
+        'intervaloaltitudinalinicial' => $habitat->intervaloaltitudinalinicial ?? '',
+        'intervaloaltitudinalfinal' => $habitat->intervaloaltitudinalfinal ?? '',
+        'infoAddintervaloaltitudinal' => $habitat->infoAddintervaloaltitudinal ?? '',
+        'temperaturainicial' => $habitat->temperaturainicial ?? '',
+        'temperaturafinal' => $habitat->temperaturafinal ?? '',
+        'infoaddtemperatura' => $habitat->infoaddtemperatura ?? '',
+        'precipitacioninicial' => $habitat->precipitacioninicial ?? '',
+        'precipitacionfinal' => $habitat->precipitacionfinal ?? '',
+        'infoaddprecipitacion' => $habitat->infoaddprecipitacion ?? '',
+        'humedadinicial' => $habitat->humedadinicial ?? '',
+        'humedadfinal' => $habitat->humedadfinal ?? '',
+        'infoaddhumedad' => $habitat->infoaddhumedad ?? '',
+
+        'suelo_tipo' => $getOp(6),
+        'suelo_info' => $getObs(6) ?? '',
+        'habitats_antropicos' => $getOp(1),
+        'vegetacion_secundaria' => $getOp(2),
+        'clima_tipo' => $getOp(4),
+        'clima_info' => $getObs(4) ?? '',
+        'geoforma_tipo' => $getOp(7),
+        'geoforma_info' => $getObs(7) ?? '',
+        'especies_asociadas_info' => $getObs(2) ?? '',
+        'tipo_vegetacion_a' => $getOp(3),
+        'vegetacion_info_adicional_a' => $getObs(3) ?? '',
+        'ecorregiones_terrestres' => $ecorregionesS,
+        'ecosistemas' => $ecosistemasS,
+        'ecorregiones_marinas_ids' => $getOp(44),
+        'habitat_marino_vertical'  => $habitat->vertical ?? '',
+        'habitat_marino_horizontal' => $habitat->horizontal ?? '',
+        'habitat_marino_infoAddVH' => $habitat->infoAddVH ?? '',
+        'habitat_marino_especiesAsociadas' => $habitat->especiesAsociadas ?? '',
+        'habitat_marino_disturbiosAntropicos' => $habitat->disturbiosAntropicos ?? 'NO',
+        'habitat_marino_infoAddDisturbiosAntropicos'=> $habitat->infoAddDisturbiosAntropicos ?? '',
+        'interbatimetricoinicial' => $habitat->interbatimetricoinicial ?? '',
+        'interbatimetricofinal'   => $habitat->interbatimetricofinal ?? '',
+        'infoaddinterbatimetrico' => $habitat->infoaddinterbatimetrico ?? '',
+        'amplitudmareasinicial'   => $habitat->amplitudmareasinicial ?? '',
+        'amplitudmareasfinal'     => $habitat->amplitudmareasfinal ?? '',
+        'infoaddamplitudmareas'   => $habitat->infoaddamplitudmareas ?? '',
+        'salinidadinicial'        => $habitat->salinidadinicial ?? '',
+        'salinidadfinal'          => $habitat->salinidadfinal ?? '',
+        'unidadsalinidad'         => $habitat->unidadsalinidad ?? '',
+        'oxigenoinicial'          => $habitat->oxigenoinicial ?? '',
+        'oxigenofinal'            => $habitat->oxigenofinal ?? '',
+        'phinicial'               => $habitat->phinicial ?? '',
+        'phfinal'                 => $habitat->phfinal ?? '',
+        'temeperaturainicial'     => $habitat->temeperaturainicial ?? '',
+        'temeperaturafinal'       => $habitat->temeperaturafinal ?? '',
+        'corrientes'              => $habitat->corrientes ?? '',
+        'infoaddcaracagua'        => $habitat->infoaddcaracagua ?? '',
+        'interbatimetricopromedio' => $habitat->interbatimetricopromedio ?? '',
+        'amplitudmareaspromedio'   => $habitat->amplitudmareaspromedio ?? '',
+        'salinidadpromedio'        => $habitat->salinidadpromedio ?? '',
+        'oxigenopromedio'          => $habitat->oxigenopromedio ?? '',
+        'phpromedio'               => $habitat->phpromedio ?? '',
+        'temeperaturapromedio'     => $habitat->temeperaturapromedio ?? '',
+        'ecorregiones_info_adicional' => $habitat->infoAddEcorregion ?? '',
+    ];
 
     return view('form', [
         'especie' => (object)$especie,
@@ -571,7 +656,6 @@ public function editarFicha($id) {
         'ecorregionesMarinasCat' => DB::table('cat_preguntas')->where('idpregunta', 44)->get(),
     ]);
 }
-
 
 
 public function verificarExistencia($idCAT) {
