@@ -246,16 +246,16 @@
                     <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
                         <div
                             class="hidden md:grid grid-cols-10 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
-                            <div class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                            <div class="col-span-4 text-[11px] font-black text-slate-400  tracking-widest">
                                 Atributo</div>
                             <div
-                                class="col-span-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                class="col-span-4 text-[11px] font-black text-slate-400  tracking-widest text-center">
                                 De - A</div>
                             <div
-                                class="col-span-2 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                class="col-span-2 text-[11px] font-black text-slate-400  tracking-widest text-center">
                                 Promedio</div>
                             <div
-                                class="col-span-2 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">
+                                class="col-span-2 text-[11px] font-black text-slate-400  tracking-widest text-right">
                                 Unidad</div>
                         </div>
 
@@ -275,21 +275,30 @@
                                         <span class="text-[15px] font-bold text-slate-700" x-text="m.l"></span>
                                     </div>
                                     <div class="col-span-4 flex items-center justify-center gap-2">
-                                        <input type="number" placeholder="Mín" x-model="form[m.i]"
-                                            @input="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
+                                        <input type="number"
+                                            placeholder="Mín"
+                                            x-model="form[m.i]"
+                                            min="0.01"
+                                            @input="actualizarPromedio(m.i, m.f, m.p)"
                                             @change="validarRango(m.i, m.f, m.l)"
                                             class="w-full max-w-[100px] px-3 py-2 rounded-xl border border-slate-200 text-center font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
 
                                         <span class="text-slate-300">—</span>
 
-                                        <input type="number" placeholder="Máx" x-model="form[m.f]"
-                                            @input="form[m.p] = calcularPromedio(form[m.i], form[m.f])"
+                                        <input type="number"
+                                            placeholder="Máx"
+                                            x-model="form[m.f]"
+                                            min="0.01"
+                                            @input="actualizarPromedio(m.i, m.f, m.p)"
                                             @change="validarRango(m.i, m.f, m.l)"
                                             class="w-full max-w-[100px] px-3 py-2 rounded-xl border border-slate-200 text-center font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
-                                    </div>
+                                                                            </div>
                                     <div class="col-span-2 flex justify-center">
-                                        <input type="number" step="0.01" x-model="form[m.p]"
-                                            class="w-full max-w-[90px] px-3 py-2 rounded-xl bg-indigo-600 border-none text-center font-black text-white shadow-sm shadow-indigo-700 focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                                        <input type="number"
+                                        step="0.01"
+                                        x-model="form[m.p]"
+                                        placeholder="---"
+                                        class="w-full max-w-[90px] px-3 py-2 rounded-xl bg-indigo-600 border-none text-center font-black text-white shadow-sm shadow-indigo-700 focus:ring-2 focus:ring-indigo-400 outline-none transition-all opacity-90">
                                     </div>
                                     <div class="col-span-2 flex justify-end">
                                         <select x-model="form[m.u]"
@@ -443,58 +452,21 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100" x-data="{ open: false, filter: '', options: ['Exótica/No nativa', 'Nativa', 'Criptogénica'], toggle(option) { if (this.form.origen.includes(option)) { this.form.origen = this.form.origen.filter(i => i !== option); } else { this.form.origen.push(option); } }, get filteredOptions() { return this.options.filter(i => i.toLowerCase().includes(this.filter.toLowerCase())); } }">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
-                        style="margin-bottom: 20px">10. Origen en relación con México: </label>
-                    <div class="relative" @click.away="open = false">
-                        <div @click="open = !open"
-                            class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer hover:border-indigo-300 transition-all">
-                            <template x-if="form.origen.length === 0"><span
-                                    class="text-xs text-slate-400 p-2">Seleccionar opciones...</span></template>
-                            <template x-for="sel in form.origen" :key="sel">
-                                <div
-                                    class="bg-indigo-600 text-white text-[13px] font-black px-4 py-1.5 rounded-xl flex items-center shadow-md">
-                                    <span x-text="sel"></span>
-                                    <button type="button" @click.stop="toggle(sel)"
-                                        class="ml-2 hover:text-rose-300 transition-colors">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
-                        <div x-show="open" x-transition
-                            class="absolute z-[110] w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"
-                            x-cloak>
-                            <div class="p-2 border-b border-slate-100 bg-slate-50">
-                                <input type="text" x-model="filter" placeholder="Buscar..."
-                                    class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400"
-                                    @click.stop>
-                            </div>
-                            <div class="max-h-40 overflow-y-auto">
-                                <template x-for="option in filteredOptions" :key="option">
-                                    <div @click="toggle(option)"
-                                        class="px-5 py-3 text-xs flex items-center justify-between cursor-pointer hover:bg-indigo-50 transition-colors"
-                                        :class="form.origen.includes(option) ? 'text-indigo-600 font-black' :
-                                            'text-slate-600 font-bold'">
-                                        <span x-text="option"></span>
-                                        <svg x-show="form.origen.includes(option)" class="w-4 h-4 text-indigo-600"
-                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">
+                        10. Origen en relación con México:
+                    </label>
+                    @include('components.multi-select', [
+                        'model' => 'form.origen',
+                        'options' => "['Exótica/No nativa', 'Nativa', 'Criptogénica']",
+                        'placeholder' => 'Selecciona el origen...'
+                    ])
+
                     <div class="mt-6">
-                        <label class="text-[15px] font-bold text-slate-700 tracking-tight flex items-center"
-                            style="margin-bottom: 10px">Información adicional</label>
-                        <textarea id="descripcionOrigen_editor" placeholder="Información adicional sobre origen en relación con México:"></textarea>
+                        <label class="text-[15px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 10px">
+                            Información adicional
+                        </label>
+                        <textarea id="descripcionOrigen_editor"></textarea>
                     </div>
                 </div>
             </div>
