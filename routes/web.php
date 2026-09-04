@@ -34,6 +34,8 @@ Route::get('/buscar-dashboard', [TaxonController::class, 'buscarEnTaxon'])->name
 
 Route::get('/verificar-existencia/{idCAT}', [FormController::class, 'verificarExistencia']);
 
+Route::post('/obtener-municipios-multiple', [FormController::class, 'obtenerMunicipiosMultiple']);
+
 
 
 

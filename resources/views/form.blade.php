@@ -2,6 +2,7 @@
         $defaultForm = [
             'id' => null,
             'especieId' => null,
+            'bloquearAmbiente' => false,
             'taxon' => '',
             'Nom' => '',
             'Iucn' => '',
@@ -48,7 +49,11 @@
             'ecorregiones_marinas_ids' => [],
             'ecorregiones_info_adicional' => '',
             'infoAddNombreCientifico' => '',
-
+            'nom059' => [
+                '2001' => ['categoria' => '', 'info' => ''],
+                '2010' => ['categoria' => '', 'info' => ''],
+                '2019' => ['categoria' => '', 'info' => ''],
+            ],
             'tipo_vegetacion_a' => [],
             'habitats_antropicos' => [],
             'vegetacion_secundaria' => [],
@@ -59,7 +64,6 @@
             'suelo_info' => '',
             'clima_info' => '',
             'geoforma_info' => '',
-
             'dist_mundial_info' => '',
             'dist_historica_estado' => '',
             'info_adicional_estado' => '',
@@ -86,11 +90,6 @@
             'infoUICN' => '',
             'cites' => '',
             'infoCITES' => '',
-            'nom059' => [
-                '2001' => ['categoria' => '', 'info' => ''],
-                '2010' => ['categoria' => '', 'info' => ''],
-                '2019' => ['categoria' => '', 'info' => ''],
-            ],
             'promedioLargoHembras' => '',
             'unidadLargoHembras' => 'mm',
             'promedioLargoMachos' => '',
@@ -99,7 +98,6 @@
             'unidadPesoHembras' => 'g',
             'promedioPesoMachos' => '',
             'unidadPesoMachos' => 'g',
-
             'habitat_marino_vertical' => '',
             'habitat_marino_horizontal' => '',
             'habitat_marino_infoAddVH' => '',
@@ -136,6 +134,8 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
         <script>
             document.addEventListener('alpine:init', () => {
@@ -189,72 +189,31 @@
                     selectedIndex: -1,
 
                     async init() {
-                        const municipioGuardado = this.form.dist_historica_municipio
-
+                        const municipioGuardado = this.form.dist_historica_municipio;
                         this.$nextTick(async () => {
-                            const editors = [
-                                { id: '#infoAddNombreCientifico', field: 'infoAddNombreCientifico' },
-                                { id: '#resumenEspecie_editor', field: 'resumenEspecie' },
-                                { id: '#descripcionEspecie_editor', field: 'descEspecie' },
-                                { id: '#toxicidad_editor', field: 'toxicidad' },
-                                { id: '#especiesSimilares_editor', field: 'especiesSmilares' },
-                                { id: '#descripcionOrigen_editor', field: 'descripcionOrigen' },
-                                { id: '#infoUICN_editor', field: 'infoUICN' },
-                                { id: '#infoCITES_editor', field: 'infoCITES' },
-                                { id: '#vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
-                                { id: '#especies_asociadas_info_editor', field: 'especies_asociadas_info' },
-                                { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
-                                { id: '#infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
-                                { id: '#infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
-                                { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' },
-                                { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
-                                { id: '#tiny-clima', field: 'clima_info' },
-                                { id: '#tiny-temp', field: 'infoaddtemperatura' },
-                                { id: '#tiny-precip', field: 'infoaddprecipitacion' },
-                                { id: '#tiny-humedad', field: 'infoaddhumedad' },
-                                { id: '#tiny-suelo', field: 'suelo_info' },
-                                { id: '#tiny-geoforma', field: 'geoforma_info' },
-                                { id: '#tiny-temperatura', field: 'infoaddtemperatura' },
-                                { id: '#tiny-precipitacion', field: 'infoaddprecipitacion' },
-                                { id: '#tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
-                                { id: '#tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
-                                { id: '#tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
-                                { id: '#tiny-batimetria', field: 'infoaddinterbatimetrico' },
-                                { id: '#tiny-mareas', field: 'infoaddamplitudmareas' },
-                                { id: '#tiny-corrientes', field: 'corrientes' },
-                                { id: '#tiny-agua', field: 'infoaddcaracagua' },
-                            ];
-
-                            for (const item of editors) {
-                                if (document.querySelector(item.id)) {
-                                    this.initEditor(item.id, item.field);
-                                }
-                            }
-
-                            ['2001', '2010', '2019'].forEach(year => {
-                                const selector = '#nom059_info_' + year;
-                                if (document.querySelector(selector)) {
-                                    this.initEditorNom059(selector, year);
-                                }
-                            });
-
-                            if (this.form.siNoPotencial == '1') {
-                                this.initEditor('#infoAddDistPotMex', 'potencial_info');
-                            }
-                            if (this.form.siNoEndemismo == '1') {
-                                this.initEditor('#infoAddEndemismo', 'endemismo_info');
-                            }
-
+                            this.initSeccionEditors(this.step);
                             if (this.form.dist_historica_estado) {
                                 await this.cargarMunicipios(this.form.dist_historica_estado);
                                 this.form.dist_historica_municipio = municipioGuardado;
                             }
+                            if (this.form.estados_seleccionados && this.form.estados_seleccionados.length > 0) {
+                                this.municipiosOptions = [];
+                                for (const estado of this.form.estados_seleccionados) {
+                                    await this.cargarMunicipios(estado, true);
+                                }
+                            }
+                        });
+
+                        this.$watch('step', (value) => {
+                            if (value >= 2) this.yaAvanzo = true;
+                            this.$nextTick(() => {
+                                this.initSeccionEditors(value);
+                            });
                         });
 
                         this.$watch('form.siNoToxicidad', v => {
                             if (v === '1') {
-                                this.$nextTick(() => this.initEditor('#toxicidad_editor',
-                                    'toxicidad'));
+                                this.$nextTick(() => this.initEditor('#toxicidad_editor', 'toxicidad'));
                             } else {
                                 tinymce.remove('#toxicidad_editor');
                                 this.form.toxicidad = '';
@@ -263,8 +222,7 @@
 
                         this.$watch('showModalNombre', v => {
                             if (v) {
-                                this.$nextTick(() => this.initEditor('#bibliografia_editor',
-                                    'bibliografia', 'tempNombre'));
+                                this.$nextTick(() => this.initEditor('#bibliografia_editor', 'bibliografia', 'tempNombre'));
                             } else {
                                 tinymce.remove('#bibliografia_editor');
                             }
@@ -274,9 +232,7 @@
                             if (v === '1') {
                                 this.$nextTick(() => this.initEditor('#infoAddDistPotMex', 'potencial_info'));
                             } else {
-                                if (tinymce.get('infoAddDistPotMex')) {
-                                    tinymce.remove('#infoAddDistPotMex');
-                                }
+                                tinymce.remove('#infoAddDistPotMex');
                                 this.form.potencial_info = '';
                             }
                         });
@@ -285,146 +241,168 @@
                             if (v === '1') {
                                 this.$nextTick(() => this.initEditor('#infoAddEndemismo', 'endemismo_info'));
                             } else {
-                                if (tinymce.get('infoAddEndemismo')) {
-                                    tinymce.remove('#infoAddEndemismo');
-                                }
+                                tinymce.remove('#infoAddEndemismo');
                                 this.form.endemismo_info = '';
                             }
                         });
 
-                         this.$watch('selectedIndex', index => {
+                        this.$watch('selectedIndex', index => {
                             if (index >= 0 && this.$refs.especiesContainer) {
                                 this.$nextTick(() => {
                                     const container = this.$refs.especiesContainer;
                                     const activeItem = container.querySelectorAll('.especie-item')[index];
                                     if (activeItem) {
-                                        activeItem.scrollIntoView({
-                                            block: 'nearest',
-                                            behavior: 'smooth'
-                                        });
+                                        activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                                     }
                                 });
                             }
                         });
 
-                        this.$watch('step', value => {
-                            if (value >= 2) {
-                                this.yaAvanzo = true;
+
+                         this.$watch('form.estados_seleccionados', async (nuevosEstados) => {
+                            if (nuevosEstados.length === 0) {
+                                this.municipiosOptions = [];
+                                return;
                             }
+
+                            const response = await fetch('/obtener-municipios-multiple', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({ estados: nuevosEstados })
+                            });
+                            this.municipiosOptions = await response.json();
                         });
+                    },
 
-                        this.$watch('step', value => {
-                            if (value === 3) {
-                                this.$nextTick(() => {
-                                    const seccion3Editors = [
-                                        { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
-                                        { id: '#tiny-clima', field: 'clima_info' },
-                                        { id: '#tiny-temp', field: 'infoaddtemperatura' },
-                                        { id: '#tiny-precip', field: 'infoaddprecipitacion' },
-                                        { id: '#tiny-humedad', field: 'infoaddhumedad' },
-                                        { id: '#tiny-suelo', field: 'suelo_info' },
-                                        { id: '#tiny-geoforma', field: 'geoforma_info' },
-                                        { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
-                                        { id: '#vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
-                                        { id: '#especies_asociadas_info_editor', field: 'especies_asociadas_info' },
-                                        { id: '#tiny-batimetria', field: 'infoaddinterbatimetrico' },
-                                        { id: '#tiny-mareas', field: 'infoaddamplitudmareas' },
-                                        { id: '#tiny-corrientes', field: 'corrientes' },
-                                        { id: '#tiny-agua', field: 'infoaddcaracagua' }
-                                    ];
+                    initSeccionEditors(step) {
+                        const config = {
+                            1: [
+                                { id: '#infoAddNombreCientifico', field: 'infoAddNombreCientifico' },
+                                { id: '#resumenEspecie_editor', field: 'resumenEspecie' },
+                                { id: '#descripcionEspecie_editor', field: 'descEspecie' },
+                                { id: '#especiesSimilares_editor', field: 'especiesSmilares' },
+                                { id: '#descripcionOrigen_editor', field: 'descripcionOrigen' },
+                                { id: '#infoUICN_editor', field: 'infoUICN' },
+                                { id: '#infoCITES_editor', field: 'infoCITES' },
+                                { id: '#toxicidad_editor', field: 'toxicidad' },
+                            ],
+                            2: [
+                                { id: '#infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
+                                { id: '#infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
+                                { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' },
+                            ],
+                            3: [
+                                { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
+                                { id: '#tiny-clima', field: 'clima_info' },
+                                { id: '#tiny-temp', field: 'infoaddtemperatura' },
+                                { id: '#tiny-precip', field: 'infoaddprecipitacion' },
+                                { id: '#tiny-humedad', field: 'infoaddhumedad' },
+                                { id: '#tiny-suelo', field: 'suelo_info' },
+                                { id: '#tiny-geoforma', field: 'geoforma_info' },
+                                { id: '#ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
+                                { id: '#vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
+                                { id: '#especies_asociadas_info_editor', field: 'especies_asociadas_info' },
+                                { id: '#tiny-batimetria', field: 'infoaddinterbatimetrico' },
+                                { id: '#tiny-mareas', field: 'infoaddamplitudmareas' },
+                                { id: '#tiny-corrientes', field: 'corrientes' },
+                                { id: '#tiny-agua', field: 'infoaddcaracagua' },
+                                { id: '#tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
+                                { id: '#tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
+                                { id: '#tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
+                            ]
+                        };
 
-                                    setTimeout(() => {
-                                        seccion3Editors.forEach(item => {
-                                            if (document.querySelector(item.id)) {
-                                                this.initEditor(item.id, item.field);
-                                            }
-                                        });
-                                    }, 100);
-                                });
-                            }
-                        });
+                        if (config[step]) {
+                            config[step].forEach(item => {
+                                if (document.querySelector(item.id)) {
+                                    this.initEditor(item.id, item.field);
+                                }
+                            });
+                        }
 
-                        if (this.form.estados_seleccionados && this.form.estados_seleccionados.length >
-                            0) {
-                            this.municipiosOptions = [];
-                            for (const estado of this.form.estados_seleccionados) {
-                                await this.cargarMunicipios(estado,
-                                    true);
-                            }
+                        if (step === 1) {
+                            ['2001', '2010', '2019'].forEach(year => {
+                                const selector = '#nom059_info_' + year;
+                                if (document.querySelector(selector)) {
+                                    this.initEditorNom059(selector, year);
+                                }
+                            });
                         }
                     },
 
                     syncAllEditors() {
                         if (!window.tinymce) return;
-                        const editorConfig = [
-                            { id: 'infoAddNombreCientifico', field: 'infoAddNombreCientifico' },
-                            { id: 'resumenEspecie_editor', field: 'resumenEspecie' },
-                            { id: 'descripcionEspecie_editor', field: 'descEspecie' },
-                            { id: 'toxicidad_editor', field: 'toxicidad' },
-                            { id: 'especiesSimilares_editor', field: 'especiesSmilares' },
-                            { id: 'descripcionOrigen_editor', field: 'descripcionOrigen' },
-                            { id: 'infoUICN_editor', field: 'infoUICN' },
-                            { id: 'infoCITES_editor', field: 'infoCITES' },
-                            { id: 'infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
-                            { id: 'infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
-                            { id: 'infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' },
-                            { id: 'infoAddDistPotMex', field: 'potencial_info' },
-                            { id: 'infoAddEndemismo', field: 'endemismo_info' },
-                            { id: 'ecorregiones_info_adicional_editor', field: 'ecorregiones_info_adicional' },
-                            { id: 'vegetacion_info_adicional_a_editor', field: 'vegetacion_info_adicional_a' },
-                            { id: 'especies_asociadas_info_editor', field: 'especies_asociadas_info' },
-                            { id: 'tiny-altitud', field: 'infoAddintervaloaltitudinal' },
-                            { id: 'tiny-clima', field: 'clima_info' },
-                            { id: 'tiny-temp', field: 'infoaddtemperatura' },
-                            { id: 'tiny-precip', field: 'infoaddprecipitacion' },
-                            { id: 'tiny-humedad', field: 'infoaddhumedad' },
-                            { id: 'tiny-suelo', field: 'suelo_info' },
-                            { id: 'tiny-geoforma', field: 'geoforma_info' },
-                            { id: '#tiny-temperatura', field: 'infoaddtemperatura' },
-                            { id: '#tiny-precipitacion', field: 'infoaddprecipitacion' },
-                            { id: 'tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
-                            { id: 'tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
-                            { id: 'tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
-                            { id: 'tiny-batimetria', field: 'infoaddinterbatimetrico' },
-                            { id: 'tiny-mareas', field: 'infoaddamplitudmareas' },
-                            { id: 'tiny-agua', field: 'infoaddcaracagua' },
-                            { id: 'tiny-corrientes', field: 'corrientes' },
-                        ];
+                        const editoresPorSeccion = {
+                            1: [
+                                'infoAddNombreCientifico', 'resumenEspecie_editor', 'descEspecie_editor',
+                                'toxicidad_editor', 'especiesSimilares_editor', 'descripcionOrigen_editor',
+                                'infoUICN_editor', 'infoCITES_editor'
+                            ],
+                            2: [
+                                'infoAddDistribucionMundialPais', 'infoAddDistribucionMundialEstado',
+                                'infoAddDistribucionMundialMunicipio', 'infoAddDistPotMex', 'infoAddEndemismo'
+                            ],
+                            3: [
+                                'tiny-altitud', 'tiny-clima', 'tiny-temp', 'tiny-precip', 'tiny-humedad',
+                                'tiny-suelo', 'tiny-geoforma', 'ecorregiones_info_adicional_editor',
+                                'vegetacion_info_adicional_a_editor', 'especies_asociadas_info_editor',
+                                'tiny-batimetria', 'tiny-mareas', 'tiny-corrientes', 'tiny-agua',
+                                'tiny-marino-vh', 'tiny-marino-especies', 'tiny-marino-disturbios'
+                            ]
+                        };
 
-                        editorConfig.forEach(item => {
-                            const ed = tinymce.get(item.id);
+                        const mapaCampos = {
+                            'infoAddDistribucionMundialPais': 'dist_mundial_info',
+                            'infoAddDistribucionMundialEstado': 'info_adicional_estado',
+                            'infoAddDistribucionMundialMunicipio': 'info_adicional_municipio',
+                            'infoAddDistPotMex': 'potencial_info',
+                            'infoAddEndemismo': 'endemismo_info',
+                            'tiny-altitud': 'infoAddintervaloaltitudinal',
+                            'tiny-clima': 'clima_info',
+                            'tiny-temp': 'infoaddtemperatura',
+                        };
+
+                        const activos = editoresPorSeccion[this.step] || [];
+                        activos.forEach(id => {
+                            const ed = tinymce.get(id);
                             if (ed) {
-                                this.form[item.field] = ed.getContent();
+                                const campo = mapaCampos[id] || id.replace('_editor', '');
+                                this.form[campo] = ed.getContent();
                             }
                         });
 
-                        ['2001', '2010', '2019'].forEach(year => {
-                            const ed = tinymce.get('nom059_info_' + year);
-                            if (ed) {
-                                this.form.nom059[year].info = ed.getContent();
-                            }
-                        });
+                        if (this.step === 1 && this.form.nom059) {
+                            ['2001', '2010', '2019'].forEach(year => {
+                                const ed = tinymce.get('nom059_info_' + year);
+                                if (ed) {
+                                    this.form.nom059[year].info = ed.getContent();
+                                }
+                            });
+                        }
                     },
 
                     initEditor(selector, field, parent = 'form') {
                         tinymce.remove(selector);
                         tinymce.init({
-                            selector: selector,
-                            plugins: 'lists link contextmenu paste',
-                            toolbar: 'bold italic | link',
-                            height: 200,
-                            menubar: false,
-                            branding: false,
-                            statusbar: false,
-                            contextmenu: false,
-                            content_style: `
-                                body {
-                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                                    font-size: 18px;
-                                    margin: 4px;
-                                }
-                                p { margin: 0; padding: 0; }
-                            `,
+                        selector: selector,
+                        plugins: 'lists link',
+                        toolbar: 'bold italic | link',
+                        height: 200,
+                        menubar: false,
+                        branding: false,
+                        statusbar: false,
+                        contextmenu: false,
+                        content_style: `
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                font-size: 18px;
+                                margin: 4px;
+                            }
+                            p { margin: 0; padding: 0; }
+                        `,
 
                             setup: (editor) => {
                                 editor.on('init', () => {
@@ -444,12 +422,13 @@
                         tinymce.remove(selector);
                         tinymce.init({
                             selector: selector,
-                            plugins: 'lists link contextmenu paste',
+                            plugins: 'lists link',
                             toolbar: 'bold italic | link',
                             height: 180,
                             menubar: false,
                             branding: false,
                             statusbar: false,
+                            contextmenu: false,
                             setup: (editor) => {
                                 editor.on('init', () => {
                                     const content = this.form.nom059[year].info;
@@ -463,7 +442,6 @@
                             }
                         });
                     },
-
                     abrirModalNombre() {
                         if (!this.form.especieId) {
                             Swal.fire({
@@ -724,17 +702,6 @@
 
 
                     async avanzarSeccion() {
-                        if (this.step === 1 && !this.form.especieId) {
-                            Swal.fire({
-                                title: 'Atención',
-                                text: 'Por favor, seleccione una especie antes de continuar.',
-                                icon: 'warning',
-                                confirmButtonColor: '#4f46e5',
-                                confirmButtonText: 'Aceptar'
-                            });
-                            return;
-                        }
-
                         this.syncAllEditors();
 
                         Swal.fire({
@@ -743,11 +710,61 @@
                             allowOutsideClick: false
                         });
 
+                        const camposPorSeccion = {
+                            1: [
+                                'especieId', 'Reino', 'Divisionphylum', 'Clase', 'Orden', 'Familia', 'Genero',
+                                'Especie_epiteto', 'Nombreinfra', 'Categinfra', 'EstatusTaxon', 'AutorTaxon',
+                                'IdCAT', 'especiesSmilares', 'descripcionOrigen', 'resumenEspecie',
+                                'infoAddNombreCientifico', 'infoUICN', 'infoCITES', 'descEspecie', 'origen',
+                                'nombres_comunes', 'sinonimos', 'siNoToxicidad', 'toxicidad',
+                                'nom059',
+                                'largoinicialhembras', 'largofinalhembras', 'largoinicialmachos', 'largofinalmachos',
+                                'pesoinicialhembras', 'pesofinalhembras', 'pesoinicialmachos', 'pesofinalmachos',
+                                'promedioLargoHembras', 'unidadLargoHembras', 'promedioLargoMachos', 'unidadLargoMachos',
+                                'promedioPesoHembras', 'unidadPesoHembras', 'promedioPesoMachos', 'unidadPesoMachos'
+                            ],
+                            2: [
+                                'especieId', 'paises_seleccionados', 'estados_seleccionados', 'municipios_seleccionados',
+                                'dist_mundial_info', 'info_adicional_estado', 'info_adicional_municipio',
+                                'siNoPotencial', 'potencial_info', 'siNoEndemismo', 'endemica_a', 'endemismo_info'
+                            ],
+                            3: [
+                                'especieId', 'tipoAmbiente', 'suelo_tipo', 'suelo_info', 'clima_tipo', 'clima_info',
+                                'ecorregiones_terrestres', 'ecosistemas', 'ecorregiones_marinas_ids',
+                                'ecorregiones_info_adicional', 'tipo_vegetacion_a', 'vegetacion_info_adicional_a',
+                                'especies_asociadas_info', 'habitats_antropicos', 'habitatAgropecuario',
+                                'zonaUrbana', 'VegetacionSecundaria', 'vegetacion_secundaria',
+                                'intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'infoAddintervaloaltitudinal',
+                                'temperaturainicial', 'temperaturafinal', 'infoaddtemperatura',
+                                'precipitacioninicial', 'precipitacionfinal', 'infoaddprecipitacion',
+                                'humedadinicial', 'humedadfinal', 'infoaddhumedad',
+                                'geoforma_tipo', 'geoforma_info', 'habitat_marino_vertical', 'habitat_marino_horizontal',
+                                'habitat_marino_infoAddVH', 'habitat_marino_especiesAsociadas',
+                                'habitat_marino_disturbiosAntropicos', 'habitat_marino_infoAddDisturbiosAntropicos',
+                                'interbatimetricoinicial', 'interbatimetricofinal', 'interbatimetricopromedio', 'infoaddinterbatimetrico',
+                                'amplitudmareasinicial', 'amplitudmareasfinal', 'amplitudmareaspromedio', 'infoaddamplitudmareas',
+                                'salinidadinicial', 'salinidadfinal', 'salinidadpromedio', 'unidadsalinidad',
+                                'oxigenoinicial', 'oxigenofinal', 'oxigenopromedio', 'phinicial', 'phfinal', 'phpromedio',
+                                'temeperaturainicial', 'temeperaturafinal', 'temeperaturapromedio', 'corrientes', 'infoaddcaracagua'
+                            ]
+                        };
+
+                        const datosSeccion = {};
+                        const camposInteres = camposPorSeccion[this.step] || [];
+
+                        if (camposInteres.length === 0) {
+                            Object.assign(datosSeccion, JSON.parse(JSON.stringify(Alpine.raw(this.form))));
+                        } else {
+                            camposInteres.forEach(campo => {
+                                if (this.form.hasOwnProperty(campo)) {
+                                    datosSeccion[campo] = JSON.parse(JSON.stringify(Alpine.raw(this.form[campo])));
+                                }
+                            });
+                        }
+
                         try {
-                            const token = document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content');
-                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
-                                '/guardar_seccion';
+                            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` : '/guardar_seccion';
 
                             const res = await fetch(url, {
                                 method: this.form.id ? 'PUT' : 'POST',
@@ -757,42 +774,36 @@
                                     'Accept': 'application/json'
                                 },
                                 body: JSON.stringify({
-                                    form: {
-                                        ...this.form,
-                                        origen: Array.isArray(this.form.origen) ? this
-                                            .form.origen.join(', ') : this.form.origen
-                                    },
+                                    form: datosSeccion,
                                     seccion: this.step
                                 })
                             });
 
                             const result = await res.json();
-
                             if (result.success) {
                                 if (result.id) this.form.id = result.id;
-                                Swal.fire({
+                                if (this.step === 3) {
+                                    this.form.bloquearAmbiente = true;
+                                }
+                                await Swal.fire({
                                     title: '¡Guardado!',
                                     text: 'Progreso guardado correctamente.',
                                     icon: 'success',
                                     timer: 1500,
                                     showConfirmButton: false
                                 });
+
                                 this.yaAvanzo = true;
                                 this.step++;
-                                window.scrollTo({
-                                    top: 0,
-                                    behavior: 'smooth'
-                                });
-
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                             } else {
                                 throw new Error(result.error);
                             }
                         } catch (error) {
-                            console.error(error);
-                            Swal.fire('Error', 'No se pudo guardar la información de esta sección.',
-                                'error');
+                            Swal.fire('¡Error!', error.message, 'error');
                         }
                     },
+
 
                     async guardarAvance() {
                         if (!this.form.especieId) {
@@ -861,24 +872,37 @@
                         tinymce.editors.forEach(ed => ed.setContent(''));
                     },
 
-                    calcularPromedio(min, max) {
-                        const n1 = parseFloat(min),
-                            n2 = parseFloat(max);
-                        return (isNaN(n1) || isNaN(n2)) ? '' : ((n1 + n2) / 2).toFixed(2);
+                    actualizarPromedio(keyMin, keyMax, keyPromedio) {
+                        let min = parseFloat(this.form[keyMin]);
+                        let max = parseFloat(this.form[keyMax]);
+                        if (!isNaN(min) && !isNaN(max)) {
+                            if (max < min) {
+                                this.form[keyPromedio] = "";
+                                return;
+                            }
+                            let promedio = (min + max) / 2;
+                            this.form[keyPromedio] = promedio.toFixed(2);
+                        } else {
+                            this.form[keyPromedio] = "";
+                        }
                     },
 
-                    validarRango(keyInicio, keyFin, etiqueta) {
+                    validarRango(keyInicio, keyFin, etiqueta, keyPromedio) {
                         let inicio = parseFloat(this.form[keyInicio]);
                         let fin = parseFloat(this.form[keyFin]);
+
                         if (!isNaN(inicio) && !isNaN(fin) && fin < inicio) {
                             Swal.fire({
                                 title: 'Valor inválido',
-                                text: `El valor final no puede ser menor al inicial.`,
+                                text: `En ${etiqueta}, el valor máximo no puede ser menor al inicial (${inicio}).`,
                                 icon: 'error',
                                 confirmButtonColor: '#4f46e5',
                                 confirmButtonText: 'Corregir'
                             });
                             this.form[keyFin] = '';
+                            if (keyPromedio) {
+                                this.form[keyPromedio] = '';
+                            }
                         }
                     },
 
