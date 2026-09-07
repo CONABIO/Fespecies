@@ -45,10 +45,10 @@
                     <label class="text-[16px] font-bold text-slate-800 mb-2">b) Municipio(s):</label>
 
                     @include('components.multi-select', [
-                        'model' => 'form.municipios_seleccionados',
-                        'options' => 'municipiosOptions',
-                        'placeholder' => 'Selecciona municipio(s)'
-                    ])
+                    'model' => 'form.municipios_seleccionados',
+                    'options' => 'municipiosOptions',
+                    'placeholder' => 'Selecciona municipio(s)'
+                ])
 
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight mt-6 mb-2">Información adicional</label>
                     <textarea id="infoAddDistribucionMundialMunicipio" class="w-full rounded-2xl border border-slate-200 p-4 text-sm" placeholder="Información adicional de municipio(s)"></textarea>

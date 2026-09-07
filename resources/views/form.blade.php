@@ -259,8 +259,8 @@
                         });
 
 
-                         this.$watch('form.estados_seleccionados', async (nuevosEstados) => {
-                            if (nuevosEstados.length === 0) {
+                        this.$watch('form.estados_seleccionados', async (nuevosEstados) => {
+                            if (!nuevosEstados || nuevosEstados.length === 0) {
                                 this.municipiosOptions = [];
                                 return;
                             }
@@ -273,7 +273,8 @@
                                 },
                                 body: JSON.stringify({ estados: nuevosEstados })
                             });
-                            this.municipiosOptions = await response.json();
+                            const data = await response.json();
+                            this.municipiosOptions = data;
                         });
                     },
 
@@ -1191,10 +1192,8 @@
                     <div x-show="step === 1" class="pt-10">
                         <x-seccion1 />
                     </div>
-                   <div x-show="step === 2" x-cloak class="pt-10">
-                        <template x-if="step === 2">
-                            <x-seccion2 />
-                        </template>
+                    <div x-show="step === 2" x-cloak class="pt-10">
+                        <x-seccion2 />
                     </div>
                     <div x-show="step === 3" x-cloak class="pt-10">
                         <x-seccion3 :tipos-suelo="$tiposSuelo" />
