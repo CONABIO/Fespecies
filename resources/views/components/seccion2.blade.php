@@ -46,7 +46,7 @@
 
                     @include('components.multi-select', [
                         'model' => 'form.municipios_seleccionados',
-                        'options' => "municipiosOptions",
+                        'options' => 'municipiosOptions',
                         'placeholder' => 'Selecciona municipio(s)'
                     ])
 
