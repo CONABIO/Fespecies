@@ -40,11 +40,11 @@
         },
 
         get filteredOptions() {
-            if (!this.filter) return this.optionsList.slice(0, 80);
             let f = this.filter.toLowerCase();
-            return this.optionsList.filter(i =>
-                i.t.toLowerCase().includes(f) || (i.g && i.g.toLowerCase().includes(f))
-            ).slice(0, 100);
+            return this.optionsList
+                .filter(i => !this.selectedIds.includes(i.v))
+                .filter(i => !f || i.t.toLowerCase().includes(f) || (i.g && i.g.toLowerCase().includes(f)))
+                .slice(0, 100);
         },
 
         toggle(id) {
@@ -54,6 +54,11 @@
             {{ $model }} = current;
             this.filter = '';
             this.$refs.searchInput.focus();
+            this.$nextTick(() => {
+                if (this.activeIndex >= this.filteredOptions.length) {
+                    this.activeIndex = Math.max(0, this.filteredOptions.length - 1);
+                }
+            });
         },
 
         remove(id) {
