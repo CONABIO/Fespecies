@@ -36,25 +36,25 @@
             <div x-show="form.tipoAmbiente === 'Ambiente terrestre' || form.tipoAmbiente === 'Ambiente terrestre-acuático'"
                 x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones terrestres </label>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.ecorregiones_terrestres',
                     'options' => 'ecorregionOptions.map(o => o.descripcion)',
-                    'placeholder' => 'SELECCIONAR ECORREGIÓN TERRESTRE...'
+                    'placeholder' => 'Seleccione ecorregion terrestre'
                 ])
             </div>
 
             <div x-show="form.tipoAmbiente === 'Ambiente acuático'" x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones marinas </label>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.ecorregiones_marinas_ids',
                     'options' => 'marinasOptions.map(o => o.descn1)',
-                    'placeholder' => 'SELECCIONAR ECORREGIÓN MARINA...'
+                    'placeholder' => 'Seleccione ecorregion marina'
                 ])
             </div>
 
             <div x-show="form.tipoAmbiente" x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> b) Ecosistemas </label>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.ecosistemas',
                     'options' => "ecosistemaOptions.filter(o => {
                         const grupoA = ['Selvas húmedas', 'Selvas secas', 'Bosques mesófilos de montaña', 'Bosques templados de coníferas y latifoliadas', 'Matorrales xerófilos', 'Pastizales'];
@@ -65,7 +65,7 @@
                         if (form.tipoAmbiente === 'Ambiente terrestre-acuático') return grupoC.includes(o.tipoecosistema);
                         return false;
                     }).map(o => o.tipoecosistema)",
-                    'placeholder' => 'SELECCIONAR ECOSISTEMA...'
+                    'placeholder' => 'Seleccione ecosistema'
                 ])
             </div>
 
@@ -87,10 +87,10 @@
             <div class="space-y-4">
                 <div class="flex flex-col">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">a) Indicar el o los tipos de vegetación en los que se desarrolla la especie </label>
-                    @include('components.multi-select', [
+                    @include('components.multi-select-2', [
                         'model' => 'form.tipo_vegetacion_a',
                         'options' => 'vegetacionOptions.map(o => o.descripcionSubVegetacion)',
-                        'placeholder' => 'SELECCIONAR TIPO DE VEGETACIÓN...'
+                        'placeholder' => 'Seleccione tipo de vegetación'
                     ])
                     <div class="mt-4">
                         <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">Información adicional</label>
@@ -108,10 +108,10 @@
 
             <div class="space-y-6">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">c) Hábitats antrópicos</label>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.habitats_antropicos',
                     'options' => 'habitatsAntropicosOptions.map(o => o.descn1)',
-                    'placeholder' => 'INDICAR SI SE ENCUENTRA PRESENTE...'
+                    'placeholder' => 'Indicar si se encuantra presente'
                 ])
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-6">
                     <template x-for="(label, key) in { habitatAgropecuario: 'i. ¿Hábitat agropecuario?', zonaUrbana: 'ii. ¿Zonas urbanas?', VegetacionSecundaria: 'iii. ¿Vegetación secundaria?' }">
@@ -128,10 +128,10 @@
 
             <div class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">d) Tipo de vegetación secundaria</label>
-                @include('components.multi-select', [
-                    'model' => 'form.vegetacion_secondary',
+                @include('components.multi-select-2', [
+                    'model' => 'form.vegetacion_secundaria', {{-- CORREGIDO --}}
                     'options' => 'vegSecundariaOptions.map(o => o.descn1)',
-                    'placeholder' => 'SELECCIONAR VEGETACIÓN SECUNDARIA...'
+                    'placeholder' => 'Seleccione vegetación secundaria'
                 ])
             </div>
         </div>
@@ -170,10 +170,10 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
                 <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">4. Clima</h3>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.clima_tipo',
                     'options' => 'climaOptions.map(o => o.descn2)',
-                    'placeholder' => 'SELECCIONAR CLIMA...'
+                    'placeholder' => 'Seleccione clima'
                 ])
                 <div class="flex-grow mt-6">
                     <label class="text-[11px] font-black text-slate-400  tracking-wider mb-2 block ml-1">Información adicional clima</label>
@@ -222,10 +222,10 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
                 <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">8. Tipo de Suelo</h3>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.suelo_tipo',
                     'options' => 'suelosOptions.map(o => o.descn1)',
-                    'placeholder' => 'SELECCIONAR TIPO DE SUELO...'
+                    'placeholder' => 'Seleccione tipo de suelo'
                 ])
                 <div class="flex-grow mt-6">
                     <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2 block ml-1">Información adicional suelo</label>
@@ -236,10 +236,10 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6 col-span-1 lg:col-span-2">
                 <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">9. Geoforma </h3>
-                @include('components.multi-select', [
+                @include('components.multi-select-2', [
                     'model' => 'form.geoforma_tipo',
                     'options' => 'geoformaOptions.map(o => o.descn1)',
-                    'placeholder' => 'SELECCIONAR GEOFORMA...'
+                    'placeholder' => 'Seleccione geoforma'
                 ])
                 <textarea id="tiny-geoforma"
                     class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none focus:border-indigo-400 min-h-[80px] shadow-inner"></textarea>
@@ -255,18 +255,18 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">a) Vertical:</label>
-                    @include('components.multi-select', [
+                    @include('components.multi-select-2', [
                         'model' => 'form.habitat_marino_vertical',
                         'options' => "['Bentónico', 'Demersal', 'Epipelágico', 'Mesopelágico', 'Bathipelágico']",
-                        'placeholder' => 'SELECCIONAR...'
+                        'placeholder' => 'Seleccionar vertical'
                     ])
                 </div>
                 <div class="space-y-2">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">b) Horizontal:</label>
-                    @include('components.multi-select', [
+                    @include('components.multi-select-2', [
                         'model' => 'form.habitat_marino_horizontal',
                         'options' => "['Asociado a arrecifes', 'Costero', 'Plataforma continental', 'Talud continental', 'Oceánico']",
-                        'placeholder' => 'SELECCIONAR...'
+                        'placeholder' => 'Seleccione horizontal'
                     ])
                 </div>
             </div>

@@ -288,12 +288,35 @@ public function guardarSeccion(Request $request, $id = null) {
                 }
             };
 
+            $saveObservacion = function($idPregunta, $texto) use ($especieId) {
+                if (!empty($texto)) {
+                    DB::table('observacionescarac')->updateOrInsert(
+                        ['especieId' => $especieId, 'idpregunta' => $idPregunta],
+                        ['infoadicional' => $texto]
+                    );
+                }
+            };
+
             $saveMultiSelect(6, $f['suelo_tipo'] ?? []);
             $saveMultiSelect(1, $f['habitats_antropicos'] ?? []);
             $saveMultiSelect(2, $f['vegetacion_secundaria'] ?? []);
             $saveMultiSelect(4, $f['clima_tipo'] ?? [], 'descn2');
             $saveMultiSelect(7, $f['geoforma_tipo'] ?? []);
             $saveMultiSelect(44, $f['ecorregiones_marinas_ids'] ?? []);
+
+            DB::table('caracteristicasespecie')->where('especieId', $especieId)->where('idpregunta', 3)->delete();
+            if (!empty($f['tipo_vegetacion_a'])) {
+                $vegIds = DB::table('vegetacion')->whereIn('descripcionSubVegetacion', (array)$f['tipo_vegetacion_a'])->pluck('vegetacionId');
+                $vegData = $vegIds->map(fn($id) => ['especieId' => $especieId, 'idpregunta' => 3, 'idopcion' => $id])->toArray();
+                if(!empty($vegData)) DB::table('caracteristicasespecie')->insert($vegData);
+            }
+
+            $saveObservacion(6, $f['suelo_info'] ?? null);
+            $saveObservacion(4, $f['clima_info'] ?? null);
+            $saveObservacion(7, $f['geoforma_info'] ?? null);
+            $saveObservacion(2, $f['especies_asociadas_info'] ?? null);
+            $saveObservacion(3, $f['vegetacion_info_adicional_a'] ?? null);
+
             $vertical = is_array($f['habitat_marino_vertical'] ?? null)
                 ? implode(', ', $f['habitat_marino_vertical'])
                 : ($f['habitat_marino_vertical'] ?? null);
@@ -472,8 +495,11 @@ foreach ($legisRows as $row) {
     $distId = $dist['distribucionid'] ?? $dist['distribucionId'] ?? null;
     $paisesS = $distId ? DB::table('reldistribucionpais')->join('pais','reldistribucionpais.paisId','=','pais.paisId')->where('distribucionid', $distId)->pluck('nombrepais')->toArray() : [];
     $edosS   = $distId ? DB::table('reldistribucionestado')->join('estado','reldistribucionestado.estadoId','=','estado.estadoId')->where('distribucionid', $distId)->pluck('nombreEstado')->toArray() : [];
-    $munsS   = $distId ? DB::table('reldistribucionmunicipio')->join('municipio','reldistribucionmunicipio.municipioId','=','municipio.municipioId')->where('distribucionid', $distId)->pluck('nombreMunicipio')->toArray() : [];
 
+     $munsS   = $distId ? DB::table('reldistribucionmunicipio')
+                ->where('distribucionid', $distId)
+                ->pluck('municipioId')
+                ->toArray() : [];
     $endemismo = (array)DB::table('endemica')->where('especieId', $id)->first();
     $habitat = DB::table('habitat')->where('especieId', $id)->first();
     $bloquearAmbiente = ($habitat && !empty($habitat->tipoAmbiente) && strlen($habitat->tipoAmbiente) > 2) ? true : false;
@@ -534,7 +560,7 @@ foreach ($legisRows as $row) {
         'origen'     => ($t['origen'] ?? '') ? explode(', ', $t['origen']) : [],
         'paises_seleccionados'     => $paisesS,
         'estados_seleccionados'    => $edosS,
-        'municipios_seleccionados' => $munsS,
+         'municipios_seleccionados' => $munsS,
         'suelo_tipo'            => $getOpNombres(6, 'descn1'),
         'habitats_antropicos'   => $getOpNombres(1, 'descn1'),
         'vegetacion_secundaria' => $getOpNombres(2, 'descn1'),
@@ -604,6 +630,23 @@ foreach ($legisRows as $row) {
         'unidadPesoHembras'    => $t['unidadPesoHembras'] ?? 'g',
         'promedioPesoMachos'   => $t['promedioPesoMachos'] ?? '',
         'unidadPesoMachos'     => $t['unidadPesoMachos'] ?? 'g',
+
+        'dist_mundial_info'        => $dist['InfoAdicionalPais'] ?? '',
+        'info_adicional_estado'    => $dist['InfoAdicionalEdo'] ?? '',
+        'info_adicional_municipio' => $dist['infoAdicionalMun'] ?? '',
+        'potencial_info'           => $dist['historicaPotencial'] ?? '',
+        'siNoPotencial'            => (!empty($dist['historicaPotencial'])) ? '1' : '0',
+
+        'siNoEndemismo'            => ($endemismo['endemicaMexico'] ?? 'NO') === 'SÍ' ? '1' : '0',
+        'endemica_a'               => $endemismo['endemicaA'] ?? '',
+        'endemismo_info'           => $endemismo['infoAdicionalEndemica'] ?? '',
+
+
+        'infoAddintervaloaltitudinal' => $habitat->infoAddintervaloaltitudinal ?? '', // CORREGIDO: Leer de $habitat
+        'infoaddtemperatura' => $habitat->infoaddtemperatura ?? '',
+        'infoaddprecipitacion' => $habitat->infoaddprecipitacion ?? '',
+        'infoaddhumedad' => $habitat->infoaddhumedad ?? '',
+
     ];
 
     return view('form', [
@@ -638,10 +681,10 @@ public function obtenerMunicipiosMultiple(Request $request) {
     if (empty($estados)) return response()->json([]);
 
     return DB::table('municipio')
-            ->whereIn('nombreEstado', $estados)
-            ->select('municipioId as v', 'nombreMunicipio as t', 'nombreEstado as g')
-            ->orderBy('g')
-            ->orderBy('t')
-            ->get();
+        ->whereIn('nombreEstado', $estados)
+        ->select('municipioId as v', 'nombreMunicipio as t', 'nombreEstado as g') // Solo lo estrictamente necesario
+        ->orderBy('g')
+        ->orderBy('t')
+        ->get();
 }
 }

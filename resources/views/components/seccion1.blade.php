@@ -456,7 +456,8 @@
                     <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center" style="margin-bottom: 20px">
                         10. Origen en relación con México:
                     </label>
-                    @include('components.multi-select', [
+
+                    @include('components.multi-select-2', [
                         'model' => 'form.origen',
                         'options' => "['Exótica/No nativa', 'Nativa', 'Criptogénica']",
                         'placeholder' => 'Selecciona el origen...'

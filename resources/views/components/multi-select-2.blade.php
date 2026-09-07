@@ -7,36 +7,22 @@
         optionsMap: {},
         id: 'select-' + Math.random().toString(36).substr(2, 9),
 
-        refresh(dataKey) {
-            let rawItems = [];
-            try {
-                if (dataKey.includes('.map')) {
-                    rawItems = new Function('return ' + 'this.' + dataKey).call(this.$data) || [];
-                } else {
-                    rawItems = this.$data[dataKey] || [];
-                }
-            } catch(e) { rawItems = []; }
-
-            const newList = [];
-            const newMap = {};
-            for (let i = 0; i < rawItems.length; i++) {
-                const o = rawItems[i];
-                const v = o.v ?? o.municipioId ?? o.id ?? String(o);
-                const t = o.t ?? o.nombreMunicipio ?? o.nombre ?? String(o);
-                const item = { v, t, g: o.g ?? o.nombreEstado ?? null };
-                newList.push(item);
-                newMap[v] = t;
-            }
-            this.optionsList = newList;
-            this.optionsMap = newMap;
-        },
-
         init() {
-            this.refresh('{{ $options }}');
-
-            if ('{{ $options }}'.includes('municipiosOptions')) {
-                this.$watch('municipiosOptions', () => this.refresh('municipiosOptions'));
+            let raw = {{ is_string($options) ? $options : json_encode($options) }};
+            if (typeof raw === 'string') {
+                raw = this.$data[raw] || window[raw] || [];
             }
+
+            raw.forEach(o => {
+                let item = {
+                    v: o.v ?? o.municipioId ?? o.id ?? String(o),
+                    t: o.t ?? o.nombreMunicipio ?? o.nombre ?? String(o),
+                    g: o.g ?? o.nombreEstado ?? null
+                };
+                this.optionsList.push(item);
+                this.optionsMap[item.v] = item.t;
+            });
+
             this.$watch('activeIndex', (val) => {
                 if (!this.open) return;
                 this.$nextTick(() => {
@@ -47,51 +33,39 @@
                 });
             });
 
-            this.$watch('filter', () => { this.activeIndex = 0; });
+            this.$watch('filter', () => this.activeIndex = 0);
         },
 
         get selectedIds() {
-            const val = {{ $model }};
+            let val = {{ $model }};
             return Array.isArray(val) ? val : [];
         },
 
         get filteredOptions() {
-            if (!this.open) return [];
-            const f = this.filter.toLowerCase();
-            const selectedSet = new Set(this.selectedIds);
-            const results = [];
-            let count = 0;
-
-            for (let i = 0; i < this.optionsList.length; i++) {
-                const item = this.optionsList[i];
-                if (selectedSet.has(item.v)) continue;
-
-                if (!f || item.t.toLowerCase().includes(f) || (item.g && item.g.toLowerCase().includes(f))) {
-                    results.push(item);
-                    count++;
-                }
-                if (count >= 40) break;
-            }
-            return results;
+            let f = this.filter.toLowerCase();
+            return this.optionsList
+                .filter(i => !this.selectedIds.includes(i.v))
+                .filter(i => !f || i.t.toLowerCase().includes(f) || (i.g && i.g.toLowerCase().includes(f)))
+                .slice(0, 50);
         },
 
         toggle(id) {
             let current = [...this.selectedIds];
-            const index = current.indexOf(id);
-            if (index === -1) {
-                current.push(id);
-            } else {
-                current.splice(index, 1);
-            }
+            if (current.includes(id)) return;
+            current.push(id);
             {{ $model }} = current;
+            this.filter = '';
+            this.$refs.searchInput.focus();
         },
 
         remove(id) {
-            {{ $model }} = this.selectedIds.filter(i => i != id);
+            let current = [...this.selectedIds];
+            {{ $model }} = current.filter(i => i != id);
         }
     }"
     class="relative w-full"
     @click.away="open = false"
+    @keydown.escape="open = false"
 >
     <div @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus());"
          class="min-h-[50px] p-3 rounded-2xl border-2 border-slate-100 bg-slate-50 flex flex-wrap gap-2 cursor-pointer shadow-inner hover:border-indigo-300 transition-all">
@@ -114,32 +88,28 @@
         <div class="p-2 border-b border-slate-100 bg-slate-50">
             <input x-ref="searchInput"
                    type="text"
-                   x-model.debounce.250ms="filter"
+                   x-model.debounce.200ms="filter"
                    @keydown.down.prevent="activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1)"
                    @keydown.up.prevent="activeIndex = Math.max(activeIndex - 1, 0)"
                    @keydown.enter.prevent="if(filteredOptions[activeIndex]) toggle(filteredOptions[activeIndex].v)"
-                   placeholder="Buscar municipio..."
+                   placeholder="Buscar..."
                    class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
         </div>
 
-        <div class="max-h-64 overflow-y-auto">
+        <div class="max-h-80 overflow-y-auto">
             <template x-for="(opt, index) in filteredOptions" :key="opt.v">
                 <div>
                     <template x-if="opt.g && (index === 0 || opt.g !== filteredOptions[index-1].g)">
-                        <div class="bg-slate-100 px-4 py-1 text-[10px] font-black text-indigo-500 tracking-widest sticky top-0 z-10">
+                        <div class="bg-slate-100 px-4 py-1.5 text-[10px] font-black text-indigo-500  tracking-widest border-y border-slate-200 sticky top-0 z-10">
                             <span x-text="opt.g"></span>
                         </div>
                     </template>
-
                     <div :id="id + '-opt-' + index"
                          @click="toggle(opt.v)"
                          @mouseenter="activeIndex = index"
-                         class="px-8 py-2 text-[13px] flex justify-between items-center border-b border-slate-50 transition-colors cursor-pointer"
-                         :class="{
-                            'bg-indigo-600 text-white font-black': activeIndex === index,
-                            'text-slate-700 hover:bg-slate-50': activeIndex !== index
-                         }">
-                        <span x-text="opt.t" class="font-medium"></span>
+                         class="px-8 py-2.5 text-[13px] flex justify-between items-center border-b border-slate-50 transition-colors cursor-pointer"
+                         :class="{'bg-indigo-600 text-white font-black': activeIndex === index, 'text-slate-700': activeIndex !== index}">
+                        <span x-text="opt.t" class="font-bold"></span>
                     </div>
                 </div>
             </template>
