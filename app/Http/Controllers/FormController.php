@@ -476,7 +476,7 @@ foreach ($legisRows as $row) {
 
     $endemismo = (array)DB::table('endemica')->where('especieId', $id)->first();
     $habitat = DB::table('habitat')->where('especieId', $id)->first();
-    $bloquearAmbiente = ($habitat && !empty($habitat->tipoAmbiente)) ? true : false;
+    $bloquearAmbiente = ($habitat && !empty($habitat->tipoAmbiente) && strlen($habitat->tipoAmbiente) > 2) ? true : false;
 
     $getOpNombres = function($pId, $columna = 'descn1') use ($id) {
         return DB::table('caracteristicasespecie')
@@ -504,6 +504,7 @@ foreach ($legisRows as $row) {
         'id'        => $id,
         'especieId' => $id,
         'bloquearAmbiente' => $bloquearAmbiente,
+        'tipoAmbiente' => $habitat->tipoAmbiente ?? '',
         'taxon'     => trim(($t['genero'] ?? '') . ' ' . ($t['especie'] ?? '') . ' ' . ($t['infraespecie'] ?? '')),
         'Reino'     => $t['reino'] ?? '',
         'Divisionphylum' => $t['divisionphylum'] ?? '',
@@ -548,7 +549,6 @@ foreach ($legisRows as $row) {
         'geoforma_info' => DB::table('observacionescarac')->where('especieId', $id)->where('idpregunta', 7)->value('infoadicional') ?? '',
         'especies_asociadas_info' => DB::table('observacionescarac')->where('especieId', $id)->where('idpregunta', 2)->value('infoadicional') ?? '',
         'vegetacion_info_adicional_a' => DB::table('observacionescarac')->where('especieId', $id)->where('idpregunta', 3)->value('infoadicional') ?? '',
-        'tipoAmbiente' => $habitat->tipoAmbiente ?? '',
         'habitatAgropecuario' => $habitat->habitatAgropecuario ?? '',
         'zonaUrbana' => $habitat->zonaUrbana ?? '',
         'VegetacionSecundaria' => $habitat->VegetacionSecundaria ?? '',
@@ -635,11 +635,13 @@ public function verificarExistencia($idCAT) {
 
 public function obtenerMunicipiosMultiple(Request $request) {
     $estados = $request->input('estados', []);
+    if (empty($estados)) return response()->json([]);
+
     return DB::table('municipio')
             ->whereIn('nombreEstado', $estados)
-            ->select('municipioId as v', DB::raw("CONCAT(nombreMunicipio, ' (', nombreEstado, ')') as t"))
-            ->orderBy('nombreMunicipio')
+            ->select('municipioId as v', 'nombreMunicipio as t', 'nombreEstado as g')
+            ->orderBy('g')
+            ->orderBy('t')
             ->get();
 }
-
 }

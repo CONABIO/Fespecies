@@ -1191,8 +1191,10 @@
                     <div x-show="step === 1" class="pt-10">
                         <x-seccion1 />
                     </div>
-                    <div x-show="step === 2" x-cloak class="pt-10">
-                        <x-seccion2 />
+                   <div x-show="step === 2" x-cloak class="pt-10">
+                        <template x-if="step === 2">
+                            <x-seccion2 />
+                        </template>
                     </div>
                     <div x-show="step === 3" x-cloak class="pt-10">
                         <x-seccion3 :tipos-suelo="$tiposSuelo" />
