@@ -38,7 +38,7 @@
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">
                     <span>Aspectos relevantes del ciclo de vida</span>
                 </label>
-                <textarea id="tiny-aspectos" x-model="form.aspectos" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50" placeholder="Entra cuadro de texto..."></textarea>
+                <textarea id="tiny-aspectos" x-model="form.aspectos" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50" placeholder="Aspectos relevantes del ciclo de vida"></textarea>
             </div>
         </div>
 
@@ -240,7 +240,7 @@
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">a) Generalidades</label>
-                <textarea id="tiny-descripcion-reproduccion" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Entra cuadro de texto..."></textarea>
+                <textarea id="tiny-descripcion-reproduccion" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Generalidades"></textarea>
             </div>
 
             <div class="space-y-4">
@@ -286,7 +286,7 @@
                             <option value="Hercogamia">Hercogamia</option>
                         </select>
                     </div>
-                    <textarea id="tiny-aislamiento-temporal-ia" x-model="form.aislamiento_temporal_ia" placeholder="Información adicional de aislamiento..." class="w-full rounded-xl border border-slate-200 p-2.5 text-xs bg-indigo-50/20"></textarea>
+                    <textarea id="tiny-aislamiento-temporal-ia" x-model="form.aislamiento_temporal_ia" placeholder="Aislamiento temporal de órganos reproductores" class="w-full rounded-xl border border-slate-200 p-2.5 text-xs bg-indigo-50/20"></textarea>
                 </div>
 
                 <div>
@@ -335,7 +335,7 @@
 
                     <div>
                         <span class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">ii. Longevidad de la flor</span>
-                        <textarea id="tiny-flor-longevidad" x-model="form.flor_longevidad" placeholder="Sin cambios..." class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
+                        <textarea id="tiny-flor-longevidad" x-model="form.flor_longevidad" placeholder="Longevidad de la flor" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
                     </div>
                 </div>
 
@@ -371,7 +371,7 @@
 
                     <div class="space-y-1 pt-1">
                         <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                        <textarea id="tiny-floracion-ia" x-model="form.floracion_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[70px]" placeholder="Entra cuadro de texto..."></textarea>
+                        <textarea id="tiny-floracion-ia" x-model="form.floracion_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[70px]" placeholder="Información adicional"></textarea>
                     </div>
                 </div>
 
@@ -384,13 +384,13 @@
                     ])
                     <div class="space-y-1 pt-2">
                         <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                        <textarea id="tiny-nectar-ia" x-model="form.cantidad_nectar_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]" placeholder="Información adicional sobre cantidad de néctar..."></textarea>
+                        <textarea id="tiny-nectar-ia" x-model="form.cantidad_nectar_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]" placeholder="Información adicional"></textarea>
                     </div>
                 </div>
 
                 <div class="space-y-2 pt-4 border-t border-slate-200/60">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">v. Cantidad de polen</label>
-                    <textarea id="tiny-polen" x-model="form.cantidad_polen" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[110px]" placeholder="Indicar la cantidad de polen producido por cada antera..."></textarea>
+                    <textarea id="tiny-polen" x-model="form.cantidad_polen" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[110px]" placeholder="Cantidad de polen"></textarea>
                 </div>
             </div>
 
@@ -431,7 +431,7 @@
 
                     <div class="space-y-1 pt-1">
                         <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                        <textarea id="tiny-fructificacion-ia" x-model="form.fructificacion_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[70px]" placeholder="Entra cuadro de texto..."></textarea>
+                        <textarea id="tiny-fructificacion-ia" x-model="form.fructificacion_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[70px]" placeholder="Época de fructificación"></textarea>
                     </div>
                 </div>
 
@@ -460,7 +460,7 @@
                         <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
                         <textarea id="tiny-fruto-ia" x-model="form.frutos_ia"
                             class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
-                            placeholder="Información adicional sobre frutos..."></textarea>
+                            placeholder="Información adicional"></textarea>
                     </div>
                 </div>
             </div>
@@ -482,7 +482,7 @@
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
                     <textarea id="tiny-eventos-ia" x-model="form.estrategia_reproductiva_planta_ia"
                               class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
-                              placeholder="Información adicional sobre el modo de reproducción y tiempo entre eventos reproductivos..."></textarea>
+                              placeholder="Información adicional"></textarea>
                 </div>
             </div>
 
@@ -538,7 +538,7 @@
                         'modelPromedio' => 'form.germinacion_promedio'
                     ])
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-germinacion-ia" x-model="form.germinacion_ia" placeholder="Mantener su cuadro de texto para IA..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
+                    <textarea id="tiny-germinacion-ia" x-model="form.germinacion_ia" placeholder="Información adicional" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
                 </div>
 
                 <div>
@@ -549,7 +549,7 @@
                         'modelPromedio' => 'form.supervivencia_promedio'
                     ])
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-supervivencia-ia" x-model="form.supervivencia_ia" placeholder="Mantener su cuadro de texto para IA..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
+                    <textarea id="tiny-supervivencia-ia" x-model="form.supervivencia_ia" placeholder="Información adicional" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
                 </div>
             </div>
         </div>
