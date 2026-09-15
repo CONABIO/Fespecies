@@ -10,22 +10,30 @@
         refresh(dataKey) {
             let rawItems = [];
             try {
-                if (dataKey.includes('.map')) {
+                if (typeof dataKey === 'string' && dataKey.includes('.map')) {
                     rawItems = new Function('return ' + 'this.' + dataKey).call(this.$data) || [];
-                } else {
-                    rawItems = this.$data[dataKey] || [];
+                } else if (typeof dataKey === 'string') {
+                    rawItems = this.$data[dataKey] || this[dataKey] || window[dataKey] || [];
+                } else if (Array.isArray(dataKey)) {
+                    rawItems = dataKey;
                 }
             } catch(e) { rawItems = []; }
 
             const newList = [];
             const newMap = {};
+
             for (let i = 0; i < rawItems.length; i++) {
                 const o = rawItems[i];
-                const v = o.v ?? o.municipioId ?? o.id ?? String(o);
-                const t = o.t ?? o.nombreMunicipio ?? o.nombre ?? String(o);
-                const item = { v, t, g: o.g ?? o.nombreEstado ?? null };
-                newList.push(item);
+                if (!o) continue;
+
+                const v = String(o.v ?? o.idopcion ?? o.id ?? o);
+                const t = String(o.t ?? o.descn1 ?? o.descripcion ?? o.nombre ?? o);
+                const g = o.g ?? o.nombreEstado ?? null;
+
+                newList.push({ v, t, g });
                 newMap[v] = t;
+                newMap[Number(v)] = t;
+                newMap[String(v)] = t;
             }
             this.optionsList = newList;
             this.optionsMap = newMap;
@@ -37,6 +45,11 @@
             if ('{{ $options }}'.includes('municipiosOptions')) {
                 this.$watch('municipiosOptions', () => this.refresh('municipiosOptions'));
             }
+
+            if (typeof '{{ $options }}' === 'string' && this.$data['{{ $options }}']) {
+                this.$watch('$data.{{ $options }}', () => this.refresh('{{ $options }}'));
+            }
+
             this.$watch('activeIndex', (val) => {
                 if (!this.open) return;
                 this.$nextTick(() => {
@@ -52,7 +65,7 @@
 
         get selectedIds() {
             const val = {{ $model }};
-            return Array.isArray(val) ? val : [];
+            return Array.isArray(val) ? val.map(String) : (val ? [String(val)] : []);
         },
 
         get filteredOptions() {
@@ -76,7 +89,8 @@
         },
 
         toggle(id) {
-            let current = [...this.selectedIds];
+            id = String(id);
+            let current = [...this.selectedIds].map(String);
             const index = current.indexOf(id);
             if (index === -1) {
                 current.push(id);
@@ -87,7 +101,8 @@
         },
 
         remove(id) {
-            {{ $model }} = this.selectedIds.filter(i => i != id);
+            id = String(id);
+            {{ $model }} = this.selectedIds.filter(i => String(i) !== id);
         }
     }"
     class="relative w-full"
@@ -102,7 +117,7 @@
 
         <template x-for="id in selectedIds" :key="id">
             <div class="bg-indigo-600 text-white text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center shadow-md">
-                <span x-text="optionsMap[id] || id"></span>
+                <span x-text="optionsMap[id] || optionsMap[Number(id)] || optionsMap[String(id)] || id"></span>
                 <button type="button" @click.stop="remove(id)" class="ml-2 hover:text-indigo-200 font-black text-lg">&times;</button>
             </div>
         </template>
@@ -118,7 +133,7 @@
                    @keydown.down.prevent="activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1)"
                    @keydown.up.prevent="activeIndex = Math.max(activeIndex - 1, 0)"
                    @keydown.enter.prevent="if(filteredOptions[activeIndex]) toggle(filteredOptions[activeIndex].v)"
-                   placeholder="Buscar municipio..."
+                   placeholder="Buscar..."
                    class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
         </div>
 

@@ -1,4 +1,4 @@
-    @php
+@php
         $defaultForm = [
             'id' => null,
             'especieId' => null,
@@ -118,6 +118,110 @@
             'temeperaturainicial' => '', 'temeperaturafinal' => '', 'temeperaturapromedio' => '',
             'corrientes' => '',
             'infoaddcaracagua' => '',
+            'tipoCiclo' => '',
+            'aspectos' => '',
+            'uso_habitat' => '',
+            'habito_planta' => [],
+            'forma_vida_planta' => [],
+            'forma_vida_otros' => [],
+            'forma_vida_ia' => '',
+            'alimentacion' => [],
+            'estrategia_trofica' => [],
+            'caracteristicas_conductuales' => '',
+            'estatus_migratorio' => '',
+            'tipo_migracion' => '',
+            'localidades_migracion' => [['localidad' => '', 'mes_inicio' => 'enero', 'mes_fin' => 'diciembre']],
+            'migracion_ia' => '',
+            'periodo_actividad' => '',
+            'hibernacion' => '',
+            'torpor' => '',
+            'hibernacion_torpor_ia' => '',
+            'ambito_hogareno_min' => '',
+            'ambito_hogareno_max' => '',
+            'ambito_hogareno_promedio' => '',
+            'ambito_hogareno_unidad' => '',
+            'mecanismos_defensa' => '',
+            'organizacion_social' => '',
+            'descripcion_reproduccion' => '',
+            'expresion_flores' => '',
+            'expresion_individuos' => '',
+            'expresion_poblaciones' => '',
+            'aislamiento_temporal' => '',
+            'aislamiento_temporal_ia' => '',
+            'sistemas_reproductivos_asexuales' => '',
+            'tipo_fecundacion_plantae' => '',
+            'tipo_polinizacion' => '',
+            'flor_horario_apertura' => '',
+            'flor_longevidad' => '',
+            'floracion_meses' => [],
+            'floracion_ia' => '',
+            'cantidad_nectar' => '',
+            'cantidad_polen' => '',
+            'fructificacion_meses' => [],
+            'fructificacion_ia' => '',
+            'frutos_min' => '',
+            'frutos_max' => '',
+            'frutos_promedio' => '',
+            'fruto_caracteristicas' => '',
+            'estrategia_reproductiva_planta' => '',
+            'estrategia_reproductiva_planta_ia' => '',
+            'semillas_latencia' => '',
+            'semillas_toxicidad' => '',
+            'semillas_caracteristicas_ia' => '',
+            'semillas_num_min' => '',
+            'semillas_num_max' => '',
+            'semillas_num_promedio' => '',
+            'semillas_tam_min' => '',
+            'semillas_tam_max' => '',
+            'semillas_tam_promedio' => '',
+            'semillas_tam_ia' => '',
+            'germinacion_min' => '',
+            'germinacion_max' => '',
+            'germinacion_promedio' => '',
+            'germinacion_ia' => '',
+            'supervivencia_min' => '',
+            'supervivencia_max' => '',
+            'supervivencia_promedio' => '',
+            'supervivencia_ia' => '',
+            'repro_sexual' => false,
+            'repro_asexual' => false,
+            'tipo_fecundacion_animal' => '',
+            'tipo_reproduccion_asexual_animal' => '',
+            'sistema_repro_animal_ia' => '',
+            'hay_dimorfismo' => '',
+            'tipo_dimorfismo' => '',
+            'dimorfismo_ia' => '',
+            'sistemas_apareamiento' => '',
+            'estrategia_reproductiva_animal' => '',
+            'tiempo_eventos_min' => '',
+            'tiempo_eventos_max' => '',
+            'tiempo_eventos_unidad' => '',
+            'tiempo_eventos_ia' => '',
+            'edad_primera_reproduccion' => '',
+            'duracion_vida_reproductiva' => '',
+            'sitios_anidacion' => '',
+            'tipo_estructura_anidacion' => '',
+            'anidacion_ia' => '',
+            'crias_min' => '',
+            'crias_max' => '',
+            'crias_promedio' => '',
+            'cuidado_parental' => '',
+            'cuidado_parental_vc' => '',
+            'tiempo_cuidado_parental' => '',
+            'cantidad_nectar_min' => '',
+            'cantidad_nectar_max' => '',
+            'cantidad_nectar_ia'  => '',
+            'cantidad_polen'      => '',
+            'dispersion_tipo' => '',
+            'dispersion_estructura' => '',
+            'dispersion_dist_min' => '',
+            'dispersion_dist_max' => '',
+            'dispersion_dist_promedio' => '',
+            'dispersion_unidad' => '',
+            'semillas_num_promedio' => '',
+            'semillas_tam_promedio' => '',
+            'supervivencia_promedio' => '',
+            'germinacion_promedio' => '',
         ];
         $formData = $especie ?? $defaultForm;
     @endphp
@@ -187,9 +291,61 @@
                         anio: ''
                     },
                     selectedIndex: -1,
+                    alimentacionOptions: @json($alimentacionOptions ?? []),
+                    habitoOptions: @json($habitoOptions ?? []),
+                    formaVidaOptions: @json($formaVidaOptions ?? []),
+                    estrategiaTroficaOptions: @json($estrategiaTroficaOptions ?? []),
+                    expresionFloresOptions: @json($expresionFloresOptions ?? []),
+                    expresionIndividuosOptions: @json($expresionIndividuosOptions ?? []),
+                    expresionPoblacionesOptions: @json($expresionPoblacionesOptions ?? []),
+                    polinizacionOptions: @json($polinizacionOptions ?? []),
+                    meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    aislamientoOptions: ['Dicogamia', 'Protandria', 'Protoginia', 'Hercogamia'],
+                    sistemasAsexualesOptions: ['Multiplicación vegetativa', 'Esporulación', 'Apomixis'],
+                    fecundacionPlantaeOptions: ['Alogamia', 'Autogamia', 'Cleistogamia'],
+                    horarioAperturaOptions: ['Diurno', 'Crepuscular', 'Nocturno'],
+                    caracFrutoOptions: @json($caracFrutoOptions ?? []),
+                    tipoDispersionOptions: @json($tipoDispersionOptions ?? []),
+                    estructuraDispersionOptions: @json($estructuraDispersionOptions ?? []),
+
+
+                    toggleMes(arrayRef, mes) {
+                        if (!Array.isArray(arrayRef)) return;
+                        const index = arrayRef.indexOf(mes);
+                        if (index > -1) {
+                            arrayRef.splice(index, 1);
+                        } else {
+                            arrayRef.push(mes);
+                        }
+                        const ordenMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                        arrayRef.sort((a, b) => ordenMeses.indexOf(a) - ordenMeses.indexOf(b));
+                    },
+                    agregarLocalidad() {
+                        if (!this.form.localidades_migracion) this.form.localidades_migracion = [];
+                        if (this.form.localidades_migracion.length < 10) {
+                            this.form.localidades_migracion.push({ localidad: '', mes_inicio: 'enero', mes_fin: 'diciembre' });
+                        }
+                    },
+                    eliminarLocalidad(index) {
+                        this.form.localidades_migracion.splice(index, 1);
+                    },
 
                     async init() {
                         const municipioGuardado = this.form.dist_historica_municipio;
+
+                        [
+                            'alimentacion', 'habito_planta', 'forma_vida_planta', 'forma_vida_otros',
+                            'estrategia_trofica', 'expresion_flores', 'expresion_individuos',
+                            'expresion_poblaciones',  'aislamiento_temporal', 'sistemas_reproductivos_asexuales',
+                            'tipo_fecundacion_plantae','tipo_polinizacion','dispersion_tipo', 'dispersion_estructura'
+                        ].forEach(k => {
+                            if (!Array.isArray(this.form[k])) {
+                                this.form[k] = this.form[k] ? [String(this.form[k])] : [];
+                            } else {
+                                this.form[k] = this.form[k].map(String);
+                            }
+                        });
+
                         this.$nextTick(async () => {
                             this.initSeccionEditors(this.step);
                             if (this.form.dist_historica_estado) {
@@ -258,7 +414,6 @@
                             }
                         });
 
-
                         this.$watch('form.estados_seleccionados', async (nuevosEstados) => {
                             if (!nuevosEstados || nuevosEstados.length === 0) {
                                 this.municipiosOptions = [];
@@ -313,6 +468,48 @@
                                 { id: '#tiny-marino-vh', field: 'habitat_marino_infoAddVH' },
                                 { id: '#tiny-marino-especies', field: 'habitat_marino_especiesAsociadas' },
                                 { id: '#tiny-marino-disturbios', field: 'habitat_marino_infoAddDisturbiosAntropicos' },
+                            ],
+                            4: [
+                                { id: '#tiny-aspectos', field: 'aspectos' },
+                                { id: '#tiny-uso-habitat', field: 'uso_habitat' },
+                                { id: '#tiny-forma-vida-ia', field: 'forma_vida_ia' },
+                                { id: '#tiny-caracteristicas-conductuales', field: 'caracteristicas_conductuales' },
+                                { id: '#tiny-estatus-migratorio', field: 'estatus_migratorio' },
+                                { id: '#tiny-tipo-migracion', field: 'tipo_migracion' },
+                                { id: '#tiny-migracion-ia', field: 'migracion_ia' },
+                                { id: '#tiny-periodo-actividad', field: 'periodo_actividad' },
+                                { id: '#tiny-hibernacion-torpor-ia', field: 'hibernacion_torpor_ia' },
+                                { id: '#tiny-mecanismos-defensa', field: 'mecanismos_defensa' },
+                                { id: '#tiny-organizacion-social', field: 'organizacion_social' },
+                                { id: '#tiny-descripcion-reproduccion', field: 'descripcion_reproduccion' },
+                                { id: '#tiny-aislamiento-temporal-ia', field: 'aislamiento_temporal_ia' },
+                                { id: '#tiny-flor-longevidad', field: 'flor_longevidad' },
+                                { id: '#tiny-floracion-ia', field: 'floracion_ia' },
+                                { id: '#tiny-nectar-ia', field: 'cantidad_nectar_ia' },
+                                { id: '#tiny-polen', field: 'cantidad_polen' },
+                                { id: '#tiny-fructificacion-ia', field: 'fructificacion_ia' },
+                                { id: '#tiny-fruto-ia', field: 'frutos_ia' },
+                                { id: '#tiny-eventos-ia', field: 'estrategia_reproductiva_planta_ia' },
+                                { id: '#tiny-semillas-ia', field: 'semillas_caracteristicas_ia' },
+                                { id: '#tiny-semillas-tam-ia', field: 'semillas_tam_ia' },
+                                { id: '#tiny-germinacion-ia', field: 'germinacion_ia' },
+                                { id: '#tiny-supervivencia-ia', field: 'supervivencia_ia' },
+                                { id: '#tiny-repro-animal-gen', field: 'descripcion_reproduccion' },
+                                { id: '#tiny-tipo-fecundacion-animal', field: 'tipo_fecundacion_animal' },
+                                { id: '#tiny-tipo-repro-asexual-animal', field: 'tipo_reproduccion_asexual_animal' },
+                                { id: '#tiny-sistema-repro-animal-ia', field: 'sistema_repro_animal_ia' },
+                                { id: '#tiny-tipo-dimorfismo', field: 'tipo_dimorfismo' },
+                                { id: '#tiny-dimorfismo-ia', field: 'dimorfismo_ia' },
+                                { id: '#tiny-sistemas-apareamiento', field: 'sistemas_apareamiento' },
+                                { id: '#tiny-estrategia-reproductiva-animal', field: 'estrategia_reproductiva_animal' },
+                                { id: '#tiny-tiempo-eventos-ia', field: 'tiempo_eventos_ia' },
+                                { id: '#tiny-edad-primera-reproduccion', field: 'edad_primera_reproduccion' },
+                                { id: '#tiny-duracion-vida-reproductiva', field: 'duracion_vida_reproductiva' },
+                                { id: '#tiny-sitios-anidacion', field: 'sitios_anidacion' },
+                                { id: '#tiny-tipo-estructura-anidacion', field: 'tipo_estructura_anidacion' },
+                                { id: '#tiny-anidacion-ia', field: 'anidacion_ia' },
+                                { id: '#tiny-cuidado-parental-vc', field: 'cuidado_parental_vc' },
+                                { id: '#tiny-tiempo-cuidado-parental', field: 'tiempo_cuidado_parental' }
                             ]
                         };
 
@@ -352,6 +549,24 @@
                                 'vegetacion_info_adicional_a_editor', 'especies_asociadas_info_editor',
                                 'tiny-batimetria', 'tiny-mareas', 'tiny-corrientes', 'tiny-agua',
                                 'tiny-marino-vh', 'tiny-marino-especies', 'tiny-marino-disturbios'
+                            ],
+                            4: [
+                                'tiny-aspectos', 'tiny-uso-habitat', 'tiny-forma-vida-ia',
+                                'tiny-caracteristicas-conductuales', 'tiny-estatus-migratorio',
+                                'tiny-tipo-migracion', 'tiny-migracion-ia', 'tiny-periodo-actividad',
+                                'tiny-hibernacion-torpor-ia', 'tiny-mecanismos-defensa',
+                                'tiny-organizacion-social', 'tiny-descripcion-reproduccion',
+                                'tiny-aislamiento-temporal-ia', 'tiny-flor-longevidad',
+                                'tiny-floracion-ia', 'tiny-nectar-ia', 'tiny-polen',
+                                'tiny-fructificacion-ia', 'tiny-fruto-ia', 'tiny-eventos-ia',
+                                'tiny-semillas-ia', 'tiny-semillas-tam-ia', 'tiny-germinacion-ia',
+                                'tiny-supervivencia-ia', 'tiny-repro-animal-gen', 'tiny-tipo-fecundacion-animal',
+                                'tiny-tipo-repro-asexual-animal', 'tiny-sistema-repro-animal-ia',
+                                'tiny-tipo-dimorfismo', 'tiny-dimorfismo-ia', 'tiny-sistemas-apareamiento',
+                                'tiny-estrategia-reproductiva-animal', 'tiny-tiempo-eventos-ia',
+                                'tiny-edad-primera-reproduccion', 'tiny-duracion-vida-reproductiva',
+                                'tiny-sitios-anidacion', 'tiny-tipo-estructura-anidacion',
+                                'tiny-anidacion-ia', 'tiny-cuidado-parental-vc', 'tiny-tiempo-cuidado-parental'
                             ]
                         };
 
@@ -364,13 +579,54 @@
                             'tiny-altitud': 'infoAddintervaloaltitudinal',
                             'tiny-clima': 'clima_info',
                             'tiny-temp': 'infoaddtemperatura',
+                            'tiny-aspectos': 'aspectos',
+                            'tiny-uso-habitat': 'uso_habitat',
+                            'tiny-forma-vida-ia': 'forma_vida_ia',
+                            'tiny-caracteristicas-conductuales': 'caracteristicas_conductuales',
+                            'tiny-estatus-migratorio': 'estatus_migratorio',
+                            'tiny-tipo-migracion': 'tipo_migracion',
+                            'tiny-migracion-ia': 'migracion_ia',
+                            'tiny-periodo-actividad': 'periodo_actividad',
+                            'tiny-hibernacion-torpor-ia': 'hibernacion_torpor_ia',
+                            'tiny-mecanismos-defensa': 'mecanismos_defensa',
+                            'tiny-organizacion-social': 'organizacion_social',
+                            'tiny-descripcion-reproduccion': 'descripcion_reproduccion',
+                            'tiny-aislamiento-temporal-ia': 'aislamiento_temporal_ia',
+                            'tiny-flor-longevidad': 'flor_longevidad',
+                            'tiny-floracion-ia': 'floracion_ia',
+                            'tiny-nectar-ia': 'cantidad_nectar_ia',
+                            'tiny-polen': 'cantidad_polen',
+                            'tiny-fructificacion-ia': 'fructificacion_ia',
+                            'tiny-fruto-ia': 'frutos_ia',
+                            'tiny-eventos-ia': 'estrategia_reproductiva_planta_ia',
+                            'tiny-semillas-ia': 'semillas_caracteristicas_ia',
+                            'tiny-semillas-tam-ia': 'semillas_tam_ia',
+                            'tiny-germinacion-ia': 'germinacion_ia',
+                            'tiny-supervivencia-ia': 'supervivencia_ia',
+                            'tiny-repro-animal-gen': 'descripcion_reproduccion',
+                            'tiny-tipo-fecundacion-animal': 'tipo_fecundacion_animal',
+                            'tiny-tipo-repro-asexual-animal': 'tipo_reproduccion_asexual_animal',
+                            'tiny-sistema-repro-animal-ia': 'sistema_repro_animal_ia',
+                            'tiny-tipo-dimorfismo': 'tipo_dimorfismo',
+                            'tiny-dimorfismo-ia': 'dimorfismo_ia',
+                            'tiny-sistemas-apareamiento': 'sistemas_apareamiento',
+                            'tiny-estrategia-reproductiva-animal': 'estrategia_reproductiva_animal',
+                            'tiny-tiempo-eventos-ia': 'tiempo_eventos_ia',
+                            'tiny-edad-primera-reproduccion': 'edad_primera_reproduccion',
+                            'tiny-duracion-vida-reproductiva': 'duracion_vida_reproductiva',
+                            'tiny-sitios-anidacion': 'sitios_anidacion',
+                            'tiny-tipo-estructura-anidacion': 'tipo_estructura_anidacion',
+                            'tiny-anidacion-ia': 'anidacion_ia',
+                            'tiny-cuidado-parental-vc': 'cuidado_parental_vc',
+                            'tiny-tiempo-cuidado-parental': 'tiempo_cuidado_parental'
                         };
 
                         const activos = editoresPorSeccion[this.step] || [];
-                        activos.forEach(id => {
-                            const ed = tinymce.get(id);
+                        activos.forEach(selectorId => {
+                            const cleanId = selectorId.replace('#', '');
+                            const ed = tinymce.get(cleanId);
                             if (ed) {
-                                const campo = mapaCampos[id] || id.replace('_editor', '');
+                                const campo = mapaCampos[selectorId] || cleanId.replace('tiny-', '').replace(/-/g, '_');
                                 this.form[campo] = ed.getContent();
                             }
                         });
@@ -388,23 +644,22 @@
                     initEditor(selector, field, parent = 'form') {
                         tinymce.remove(selector);
                         tinymce.init({
-                        selector: selector,
-                        plugins: 'lists link',
-                        toolbar: 'bold italic | link',
-                        height: 200,
-                        menubar: false,
-                        branding: false,
-                        statusbar: false,
-                        contextmenu: false,
-                        content_style: `
-                            body {
-                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                                font-size: 18px;
-                                margin: 4px;
-                            }
-                            p { margin: 0; padding: 0; }
-                        `,
-
+                            selector: selector,
+                            plugins: 'lists link',
+                            toolbar: 'bold italic | link',
+                            height: 200,
+                            menubar: false,
+                            branding: false,
+                            statusbar: false,
+                            contextmenu: false,
+                            content_style: `
+                                body {
+                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                    font-size: 18px;
+                                    margin: 4px;
+                                }
+                                p { margin: 0; padding: 0; }
+                            `,
                             setup: (editor) => {
                                 editor.on('init', () => {
                                     const content = this[parent][field];
@@ -443,6 +698,7 @@
                             }
                         });
                     },
+
                     abrirModalNombre() {
                         if (!this.form.especieId) {
                             Swal.fire({
@@ -467,21 +723,17 @@
                         }
                     },
 
-
                     async cargarMunicipios(nombreEdo, acumular = false) {
                         if (!nombreEdo) return;
                         try {
-                            const response = await fetch(
-                                `/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
+                            const response = await fetch(`/obtener-municipios/${encodeURIComponent(nombreEdo)}`);
                             const data = await response.json();
                             if (acumular) {
                                 this.municipiosOptions = [...this.municipiosOptions, ...data];
                             } else {
                                 this.municipiosOptions = [...this.municipiosOptions, ...data];
                             }
-                            this.municipiosOptions = Array.from(new Map(this.municipiosOptions.map(
-                                m => [m.municipioId, m])).values());
-
+                            this.municipiosOptions = Array.from(new Map(this.municipiosOptions.map(m => [m.municipioId, m])).values());
                         } catch (error) {
                             console.error("Error:", error);
                         }
@@ -491,9 +743,7 @@
                         const nombreRef = this.form.nombres_comunes[index];
                         if (!nombreRef.editable) return;
                         this.editandoIndice = index;
-                        this.tempNombre = {
-                            ...nombreRef
-                        };
+                        this.tempNombre = { ...nombreRef };
                         if (tinymce.get('bibliografia_editor')) {
                             tinymce.get('bibliografia_editor').setContent(nombreRef.bibliografia || '');
                         }
@@ -517,25 +767,12 @@
                         }
 
                         if (this.editandoIndice === -1) {
-                            this.form.nombres_comunes.push({
-                                ...this.tempNombre,
-                                editable: true
-                            });
+                            this.form.nombres_comunes.push({ ...this.tempNombre, editable: true });
                         } else {
-                            this.form.nombres_comunes[this.editandoIndice] = {
-                                ...this.tempNombre,
-                                editable: true
-                            };
+                            this.form.nombres_comunes[this.editandoIndice] = { ...this.tempNombre, editable: true };
                         }
 
-                        this.tempNombre = {
-                            nombre: '',
-                            lengua: '',
-                            lengua_otra: '',
-                            bibliografia: '',
-                            editable: true
-                        };
-
+                        this.tempNombre = { nombre: '', lengua: '', lengua_otra: '', bibliografia: '', editable: true };
                         this.showModalNombre = false;
                         this.editandoIndice = -1;
                     },
@@ -551,12 +788,7 @@
                             });
                         } else {
                             this.editandoIndiceSinonimo = -1;
-                            this.tempSinonimo = {
-                                sinonimo: '',
-                                autor: '',
-                                anio: '',
-                                editable: true
-                            };
+                            this.tempSinonimo = { sinonimo: '', autor: '', anio: '', editable: true };
                             this.showModalSinonimo = true;
                         }
                     },
@@ -565,9 +797,7 @@
                         const sinonimoRef = this.form.sinonimos[index];
                         if (!sinonimoRef.editable) return;
                         this.editandoIndiceSinonimo = index;
-                        this.tempSinonimo = {
-                            ...sinonimoRef
-                        };
+                        this.tempSinonimo = { ...sinonimoRef };
                         this.showModalSinonimo = true;
                     },
 
@@ -577,22 +807,11 @@
                         }
 
                         if (this.editandoIndiceSinonimo === -1) {
-                            this.form.sinonimos.push({
-                                ...this.tempSinonimo,
-                                editable: true
-                            });
+                            this.form.sinonimos.push({ ...this.tempSinonimo, editable: true });
                         } else {
-                            this.form.sinonimos[this.editandoIndiceSinonimo] = {
-                                ...this.tempSinonimo,
-                                editable: true
-                            };
+                            this.form.sinonimos[this.editandoIndiceSinonimo] = { ...this.tempSinonimo, editable: true };
                         }
-                        this.tempSinonimo = {
-                            nombre: '',
-                            autor: '',
-                            anio: '',
-                            editable: true
-                        };
+                        this.tempSinonimo = { nombre: '', autor: '', anio: '', editable: true };
                         this.showModalSinonimo = false;
                         this.editandoIndiceSinonimo = -1;
                     },
@@ -607,6 +826,7 @@
                             editable: false
                         }));
                     },
+
                     buscarEspecie() {
                         if (this.search.length < 1) {
                             this.especies = [];
@@ -701,7 +921,6 @@
                         this.selectedIndex = -1;
                     },
 
-
                     async avanzarSeccion() {
                         this.syncAllEditors();
 
@@ -710,58 +929,6 @@
                             didOpen: () => Swal.showLoading(),
                             allowOutsideClick: false
                         });
-
-                        const camposPorSeccion = {
-                            1: [
-                                'especieId', 'Reino', 'Divisionphylum', 'Clase', 'Orden', 'Familia', 'Genero',
-                                'Especie_epiteto', 'Nombreinfra', 'Categinfra', 'EstatusTaxon', 'AutorTaxon',
-                                'IdCAT', 'especiesSmilares', 'descripcionOrigen', 'resumenEspecie',
-                                'infoAddNombreCientifico', 'infoUICN', 'infoCITES', 'descEspecie', 'origen',
-                                'nombres_comunes', 'sinonimos', 'siNoToxicidad', 'toxicidad',
-                                'nom059',
-                                'largoinicialhembras', 'largofinalhembras', 'largoinicialmachos', 'largofinalmachos',
-                                'pesoinicialhembras', 'pesofinalhembras', 'pesoinicialmachos', 'pesofinalmachos',
-                                'promedioLargoHembras', 'unidadLargoHembras', 'promedioLargoMachos', 'unidadLargoMachos',
-                                'promedioPesoHembras', 'unidadPesoHembras', 'promedioPesoMachos', 'unidadPesoMachos'
-                            ],
-                            2: [
-                                'especieId', 'paises_seleccionados', 'estados_seleccionados', 'municipios_seleccionados',
-                                'dist_mundial_info', 'info_adicional_estado', 'info_adicional_municipio',
-                                'siNoPotencial', 'potencial_info', 'siNoEndemismo', 'endemica_a', 'endemismo_info'
-                            ],
-                            3: [
-                                'especieId', 'tipoAmbiente', 'suelo_tipo', 'suelo_info', 'clima_tipo', 'clima_info',
-                                'ecorregiones_terrestres', 'ecosistemas', 'ecorregiones_marinas_ids',
-                                'ecorregiones_info_adicional', 'tipo_vegetacion_a', 'vegetacion_info_adicional_a',
-                                'especies_asociadas_info', 'habitats_antropicos', 'habitatAgropecuario',
-                                'zonaUrbana', 'VegetacionSecundaria', 'vegetacion_secundaria',
-                                'intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'infoAddintervaloaltitudinal',
-                                'temperaturainicial', 'temperaturafinal', 'infoaddtemperatura',
-                                'precipitacioninicial', 'precipitacionfinal', 'infoaddprecipitacion',
-                                'humedadinicial', 'humedadfinal', 'infoaddhumedad',
-                                'geoforma_tipo', 'geoforma_info', 'habitat_marino_vertical', 'habitat_marino_horizontal',
-                                'habitat_marino_infoAddVH', 'habitat_marino_especiesAsociadas',
-                                'habitat_marino_disturbiosAntropicos', 'habitat_marino_infoAddDisturbiosAntropicos',
-                                'interbatimetricoinicial', 'interbatimetricofinal', 'interbatimetricopromedio', 'infoaddinterbatimetrico',
-                                'amplitudmareasinicial', 'amplitudmareasfinal', 'amplitudmareaspromedio', 'infoaddamplitudmareas',
-                                'salinidadinicial', 'salinidadfinal', 'salinidadpromedio', 'unidadsalinidad',
-                                'oxigenoinicial', 'oxigenofinal', 'oxigenopromedio', 'phinicial', 'phfinal', 'phpromedio',
-                                'temeperaturainicial', 'temeperaturafinal', 'temeperaturapromedio', 'corrientes', 'infoaddcaracagua'
-                            ]
-                        };
-
-                        const datosSeccion = {};
-                        const camposInteres = camposPorSeccion[this.step] || [];
-
-                        if (camposInteres.length === 0) {
-                            Object.assign(datosSeccion, JSON.parse(JSON.stringify(Alpine.raw(this.form))));
-                        } else {
-                            camposInteres.forEach(campo => {
-                                if (this.form.hasOwnProperty(campo)) {
-                                    datosSeccion[campo] = JSON.parse(JSON.stringify(Alpine.raw(this.form[campo])));
-                                }
-                            });
-                        }
 
                         try {
                             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -775,7 +942,7 @@
                                     'Accept': 'application/json'
                                 },
                                 body: JSON.stringify({
-                                    form: datosSeccion,
+                                    form: JSON.parse(JSON.stringify(Alpine.raw(this.form))),
                                     seccion: this.step
                                 })
                             });
@@ -805,7 +972,6 @@
                         }
                     },
 
-
                     async guardarAvance() {
                         if (!this.form.especieId) {
                             Swal.fire({
@@ -816,7 +982,6 @@
                             });
                             return;
                         }
-
 
                         this.syncAllEditors();
 
@@ -838,7 +1003,7 @@
                                 },
                                 body: JSON.stringify({
                                     form: {
-                                        ...this.form,
+                                        ...JSON.parse(JSON.stringify(Alpine.raw(this.form))),
                                         origen: Array.isArray(this.form.origen) ? this.form.origen.join(', ') : this.form.origen
                                     },
                                     seccion: this.step
@@ -960,10 +1125,8 @@
                         });
 
                         try {
-                            const token = document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content');
-                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` :
-                                '/guardar_seccion';
+                            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                            const url = this.form.id ? `/actualizar_seccion/${this.form.id}` : '/guardar_seccion';
                             const res = await fetch(url, {
                                 method: this.form.id ? 'PUT' : 'POST',
                                 headers: {
@@ -973,12 +1136,10 @@
                                 },
                                 body: JSON.stringify({
                                     form: {
-                                        ...this.form,
-                                        origen: Array.isArray(this.form.origen) ? this
-                                            .form.origen.join(', ') : this.form.origen
+                                        ...JSON.parse(JSON.stringify(Alpine.raw(this.form))),
+                                        origen: Array.isArray(this.form.origen) ? this.form.origen.join(', ') : this.form.origen
                                     },
-                                    seccion: this
-                                        .step
+                                    seccion: this.step
                                 })
                             });
 
@@ -994,81 +1155,42 @@
                                 });
                                 this.step = proximoPaso;
                                 if (this.step >= 2) this.yaAvanzo = true;
-                                window.scrollTo({
-                                    top: 0,
-                                    behavior: 'smooth'
-                                });
-
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                             } else {
                                 throw new Error(result.error || 'Error al guardar');
                             }
                         } catch (error) {
                             console.error(error);
-                            Swal.fire('Error',
-                                'No se pudo guardar la información antes de cambiar de sección.',
-                                'error');
+                            Swal.fire('Error', 'No se pudo guardar la información antes de cambiar de sección.', 'error');
                         }
                     },
                 }));
             });
         </script>
         <style>
-            [x-cloak] {
-                display: none !important;
-            }
-
-            .tox-tinymce-aux {
-                z-index: 9999 !important;
-            }
-
-            .no-scrollbar::-webkit-scrollbar {
-                display: none;
-            }
-
-            .no-scrollbar {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-
+            [x-cloak] { display: none !important; }
+            .tox-tinymce-aux { z-index: 9999 !important; }
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             .sticky-header-glass {
                 background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
             }
-
             @keyframes subtle-bounce {
-
-                0%,
-                100% {
-                    transform: translateY(0);
-                }
-
-                50% {
-                    transform: translateY(-3px);
-                }
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-3px); }
             }
-
-            .step-active {
-                animation: subtle-bounce 2s infinite ease-in-out;
-            }
-
+            .step-active { animation: subtle-bounce 2s infinite ease-in-out; }
             .tox-tinymce {
                 border-radius: 12px !important;
                 border: 1px solid #e2e8f0 !important;
                 overflow: hidden;
             }
-
-            .tox .tox-toolbar__group {
-                padding: 0px 4px !important;
-            }
-
-            .tox .tox-tbtn {
-                height: 18px !important;
-                width: 18px !important;
-            }
+            .tox .tox-toolbar__group { padding: 0px 4px !important; }
+            .tox .tox-tbtn { height: 18px !important; width: 18px !important; }
         </style>
     </head>
-
 
     <body class="bg-gray-100 min-h-screen" x-data="formEspecies">
         <x-header />
@@ -1078,12 +1200,9 @@
                     <div class="min-h-[50px] flex items-center">
                         <div x-show="!isItemSelected" class="w-full" x-transition:enter="duration-200">
                             <div class="max-w-xl mx-auto relative">
-                                <div
-                                    class="flex items-center bg-gray-50 border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl px-4 py-2 shadow-sm">
-                                    <svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                <div class="flex items-center bg-gray-50 border-2 border-indigo-100 focus-within:border-indigo-500 rounded-xl px-4 py-2 shadow-sm">
+                                    <svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <input type="text" x-model="search"
                                         @input.debounce.300ms="showResults = true; buscarEspecie()"
@@ -1110,13 +1229,10 @@
                             </div>
                         </div>
 
-                        <div x-show="isItemSelected" class="w-full flex items-center justify-between"
-                            x-transition:enter="duration-200">
+                        <div x-show="isItemSelected" class="w-full flex items-center justify-between" x-transition:enter="duration-200">
                             <div class="flex items-baseline gap-3 overflow-hidden">
-                                <h1 class="text-[38px]  font-black text-indigo-900 italic truncate tracking-tight"
-                                    x-text="form.taxon"></h1>
-                                <span class="text-sm md:text-lg font-bold text-slate-400 truncate opacity-80"
-                                    x-text="form.AutorTaxon"></span>
+                                <h1 class="text-[38px] font-black text-indigo-900 italic truncate tracking-tight" x-text="form.taxon"></h1>
+                                <span class="text-sm md:text-lg font-bold text-slate-400 truncate opacity-80" x-text="form.AutorTaxon"></span>
                             </div>
 
                             <button x-show="step === 1 && !isEdit" @click="limpiarSeleccion()"
@@ -1131,21 +1247,11 @@
 
                     <div class="mt-3 overflow-x-auto no-scrollbar">
                         <div class="min-w-[1000px] lg:min-w-full relative py-2 px-2">
-
                             <div class="relative flex justify-between z-10">
                                 @php
                                     $secciones = [
-                                        'Clasificación',
-                                        'Distribución',
-                                        'Ambiente',
-                                        'Biología',
-                                        'Ecología',
-                                        'Genética',
-                                        'Importancia',
-                                        'Conservación',
-                                        'Prioritarias',
-                                        'Necesidades',
-                                        'Metadatos',
+                                        'Clasificación', 'Distribución', 'Ambiente', 'Biología', 'Ecología',
+                                        'Genética', 'Importancia', 'Conservación', 'Prioritarias', 'Necesidades', 'Metadatos',
                                     ];
                                 @endphp
                                 @foreach ($secciones as $index => $titulo)
@@ -1159,22 +1265,17 @@
                                                     'bg-emerald-500 border-emerald-500 text-white' :
                                                     'bg-white border-slate-300 text-slate-400 group-hover:border-indigo-400'
                                                 )">
-
                                             <template x-if="step > {{ $n }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                             </template>
                                             <template x-if="step <= {{ $n }}">
-                                                <span class="text-[16px] font-black"
-                                                    x-text="{{ $n }}"></span>
+                                                <span class="text-[16px] font-black" x-text="{{ $n }}"></span>
                                             </template>
                                         </div>
                                         <span class="mt-1 text-[14px] font-bold text-center w-20 transition-colors"
-                                            :class="step == {{ $n }} ? 'text-indigo-900' : (step >
-                                                {{ $n }} ? 'text-emerald-600' : 'text-slate-400')">
+                                            :class="step == {{ $n }} ? 'text-indigo-900' : (step > {{ $n }} ? 'text-emerald-600' : 'text-slate-400')">
                                             {{ $titulo }}
                                         </span>
                                     </div>
@@ -1186,8 +1287,7 @@
             </div>
 
             <main class="relative">
-                <div class="sticky top-0 z-[1000] w-full bg-white shadow-md">
-                </div>
+                <div class="sticky top-0 z-[1000] w-full bg-white shadow-md"></div>
                 <div class="px-6">
                     <div x-show="step === 1" class="pt-10">
                         <x-seccion1 />
@@ -1198,12 +1298,14 @@
                     <div x-show="step === 3" x-cloak class="pt-10">
                         <x-seccion3 :tipos-suelo="$tiposSuelo" />
                     </div>
+                    <div x-show="step === 4" x-cloak class="pt-10">
+                        @include('components.seccion4')
+                    </div>
                 </div>
             </main>
         </main>
 
         <div class="fixed right-6 top-1/2 -translate-y-1/2 z-[9999] flex flex-col gap-4">
-
             <div class="flex items-center justify-end group">
                 <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg mr-3 tracking-widest shadow-xl pointer-events-none whitespace-nowrap">
                     Ir a inicio
