@@ -8,20 +8,7 @@
         id: 'select-' + Math.random().toString(36).substr(2, 9),
 
         init() {
-            let raw = {{ is_string($options) ? $options : json_encode($options) }};
-            if (typeof raw === 'string') {
-                raw = this.$data[raw] || window[raw] || [];
-            }
-
-            raw.forEach(o => {
-                let item = {
-                    v: o.v ?? o.municipioId ?? o.id ?? String(o),
-                    t: o.t ?? o.nombreMunicipio ?? o.nombre ?? String(o),
-                    g: o.g ?? o.nombreEstado ?? null
-                };
-                this.optionsList.push(item);
-                this.optionsMap[item.v] = item.t;
-            });
+            this.refresh(@js($options ?? []));
 
             this.$watch('activeIndex', (val) => {
                 if (!this.open) return;
@@ -36,31 +23,65 @@
             this.$watch('filter', () => this.activeIndex = 0);
         },
 
+        refresh(inputOptions) {
+            let raw = [];
+
+            if (typeof inputOptions === 'string') {
+                raw = this[inputOptions] || (this.$data && this.$data[inputOptions]) || window[inputOptions] || [];
+            } else if (Array.isArray(inputOptions)) {
+                raw = inputOptions;
+            }
+
+            let newList = [];
+            let newMap = {};
+
+            if (Array.isArray(raw)) {
+                raw.forEach(o => {
+                    if (!o) return;
+                    let val = String(o.v ?? o.idopcion ?? o.id ?? (typeof o === 'object' ? Object.values(o)[0] : o));
+                    let txt = String(o.t ?? o.descn1 ?? o.descripcion ?? o.nombre ?? (typeof o === 'object' ? (o.t || o.descn1 || Object.values(o)[1] || JSON.stringify(o)) : o));
+                    let grp = o.g ? String(o.g) : null;
+
+                    if (txt.includes('[object Object]') || typeof txt !== 'string') {
+                        txt = o.t || o.descn1 || o.nombre || o.descripcion || 'Opción';
+                    }
+
+                    newList.push({ v: String(val), t: String(txt), g: grp });
+                    newMap[String(val)] = String(txt);
+                });
+            }
+
+            this.optionsList = newList;
+            this.optionsMap = newMap;
+        },
+
         get selectedIds() {
             let val = {{ $model }};
-            return Array.isArray(val) ? val : [];
+            return Array.isArray(val) ? val.map(String) : (val ? [String(val)] : []);
         },
 
         get filteredOptions() {
-            let f = this.filter.toLowerCase();
+            let f = this.filter.toLowerCase().trim();
             return this.optionsList
-                .filter(i => !this.selectedIds.includes(i.v))
+                .filter(i => !this.selectedIds.includes(String(i.v)))
                 .filter(i => !f || i.t.toLowerCase().includes(f) || (i.g && i.g.toLowerCase().includes(f)))
                 .slice(0, 50);
         },
 
         toggle(id) {
+            id = String(id);
             let current = [...this.selectedIds];
             if (current.includes(id)) return;
             current.push(id);
             {{ $model }} = current;
             this.filter = '';
-            this.$refs.searchInput.focus();
+            if (this.$refs.searchInput) this.$refs.searchInput.focus();
         },
 
         remove(id) {
-            let current = [...this.selectedIds];
-            {{ $model }} = current.filter(i => i != id);
+            id = String(id);
+            let current = this.selectedIds.filter(i => String(i) !== id);
+            {{ $model }} = current;
         }
     }"
     class="relative w-full"
@@ -97,10 +118,14 @@
         </div>
 
         <div class="max-h-80 overflow-y-auto">
+            <template x-if="filteredOptions.length === 0">
+                <div class="p-4 text-xs text-slate-400 font-bold text-center">No hay opciones disponibles</div>
+            </template>
+
             <template x-for="(opt, index) in filteredOptions" :key="opt.v">
                 <div>
                     <template x-if="opt.g && (index === 0 || opt.g !== filteredOptions[index-1].g)">
-                        <div class="bg-slate-100 px-4 py-1.5 text-[10px] font-black text-indigo-500  tracking-widest border-y border-slate-200 sticky top-0 z-10">
+                        <div class="bg-slate-100 px-4 py-1.5 text-[10px] font-black text-indigo-500 tracking-widest border-y border-slate-200 sticky top-0 z-10">
                             <span x-text="opt.g"></span>
                         </div>
                     </template>
