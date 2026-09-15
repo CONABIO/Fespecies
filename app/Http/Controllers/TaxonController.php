@@ -72,6 +72,10 @@ class TaxonController extends Controller
                     });
                 }
             })
+            ->whereNotNull('especie')
+            ->where('especie', '!=', '')
+            ->whereNotNull('genero')
+            ->where('genero', '!=', '')
             ->select(
                 DB::raw("TRIM(CONCAT(TRIM(genero), ' ', TRIM(especie), ' ', IFNULL(TRIM(infraespecie), ''))) as taxon"),
                 DB::raw("TRIM(autor) as AutorTaxon"),
