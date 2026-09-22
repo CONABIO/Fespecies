@@ -332,7 +332,12 @@
 
                     async init() {
                         const municipioGuardado = this.form.dist_historica_municipio;
-
+                        if (this.form.potencial_info && this.form.potencial_info.trim() !== '') {
+                            this.form.siNoPotencial = '1';
+                        }
+                        if ((this.form.endemismo_info && this.form.endemismo_info.trim() !== '') || (this.form.endemica_a && this.form.endemica_a.trim() !== '')) {
+                            this.form.siNoEndemismo = '1';
+                        }
                         [
                             'alimentacion', 'habito_planta', 'forma_vida_planta', 'forma_vida_otros',
                             'estrategia_trofica', 'expresion_flores', 'expresion_individuos',
@@ -645,13 +650,14 @@
                         tinymce.remove(selector);
                         tinymce.init({
                             selector: selector,
-                            plugins: 'lists link',
+                            plugins: 'lists link paste',
                             toolbar: 'bold italic | link',
                             height: 200,
                             menubar: false,
                             branding: false,
                             statusbar: false,
                             contextmenu: false,
+                            paste_as_text: true,
                             content_style: `
                                 body {
                                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

@@ -5,12 +5,13 @@
         activeIndex: 0,
         optionsList: [],
         optionsMap: {},
+        displayLimit: 50,
         id: 'select-' + Math.random().toString(36).substr(2, 9),
 
         refresh(dataKey) {
             let rawItems = [];
             try {
-                if (typeof dataKey === 'string' && dataKey.includes('.map')) {
+                if (typeof dataKey === 'string' && (dataKey.includes('.map') || dataKey.includes('.filter'))) {
                     rawItems = new Function('return ' + 'this.' + dataKey).call(this.$data) || [];
                 } else if (typeof dataKey === 'string') {
                     rawItems = this.$data[dataKey] || this[dataKey] || window[dataKey] || [];
@@ -22,34 +23,46 @@
             const newList = [];
             const newMap = {};
 
+            newList.push({ v: 'ND', t: 'ND', g: null });
+            newMap['ND'] = 'ND';
+
             for (let i = 0; i < rawItems.length; i++) {
                 const o = rawItems[i];
                 if (!o) continue;
 
-                const v = String(o.v ?? o.idopcion ?? o.id ?? o);
-                const t = String(o.t ?? o.descn1 ?? o.descripcion ?? o.nombre ?? o);
-                const g = o.g ?? o.nombreEstado ?? null;
+                let v = '';
+                let t = '';
+                let g = null;
 
-                newList.push({ v, t, g });
-                newMap[v] = t;
-                newMap[Number(v)] = t;
-                newMap[String(v)] = t;
+                if (typeof o === 'object') {
+                    v = String(o.v ?? o.municipioId ?? o.estadoId ?? o.idopcion ?? o.id ?? Object.values(o)[0] ?? '');
+                    t = String(o.t ?? o.nombreMunicipio ?? o.nombreEstado ?? o.nombrepais ?? o.descn1 ?? o.descripcion ?? o.nombre ?? Object.values(o)[1] ?? '');
+                    g = o.g ?? o.nombreEstado ?? o.grupo ?? null;
+                } else {
+                    v = String(o);
+                    t = String(o);
+                }
+
+                if (v && t && v !== 'ND') {
+                    newList.push({ v, t, g });
+                    newMap[v] = t;
+                    newMap[Number(v)] = t;
+                    newMap[String(v)] = t;
+                }
             }
             this.optionsList = newList;
             this.optionsMap = newMap;
+            this.displayLimit = 50;
         },
 
         init() {
             this.refresh('{{ $options }}');
-
             if ('{{ $options }}'.includes('municipiosOptions')) {
-                this.$watch('municipiosOptions', () => this.refresh('municipiosOptions'));
+                this.$watch('municipiosOptions', () => this.refresh('{{ $options }}'));
             }
-
-            if (typeof '{{ $options }}' === 'string' && this.$data['{{ $options }}']) {
-                this.$watch('$data.{{ $options }}', () => this.refresh('{{ $options }}'));
+            if ('{{ $options }}'.includes('tipoAmbiente')) {
+                this.$watch('form.tipoAmbiente', () => this.refresh('{{ $options }}'));
             }
-
             this.$watch('activeIndex', (val) => {
                 if (!this.open) return;
                 this.$nextTick(() => {
@@ -60,7 +73,10 @@
                 });
             });
 
-            this.$watch('filter', () => { this.activeIndex = 0; });
+            this.$watch('filter', () => {
+                this.activeIndex = 0;
+                this.displayLimit = 50;
+            });
         },
 
         get selectedIds() {
@@ -82,10 +98,19 @@
                 if (!f || item.t.toLowerCase().includes(f) || (item.g && item.g.toLowerCase().includes(f))) {
                     results.push(item);
                     count++;
+                    if (!f && count >= this.displayLimit) break;
                 }
-                if (count >= 40) break;
             }
             return results;
+        },
+
+        loadMore(e) {
+            const el = e.target;
+            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 30) {
+                if (!this.filter && this.displayLimit < this.optionsList.length) {
+                    this.displayLimit += 50;
+                }
+            }
         },
 
         toggle(id) {
@@ -98,6 +123,12 @@
                 current.splice(index, 1);
             }
             {{ $model }} = current;
+
+            this.filter = '';
+            if (this.$refs.searchInput) {
+                this.$refs.searchInput.value = '';
+                this.$refs.searchInput.focus();
+            }
         },
 
         remove(id) {
@@ -137,7 +168,7 @@
                    class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-400">
         </div>
 
-        <div class="max-h-64 overflow-y-auto">
+        <div class="max-h-64 overflow-y-auto" @scroll="loadMore($event)">
             <template x-for="(opt, index) in filteredOptions" :key="opt.v">
                 <div>
                     <template x-if="opt.g && (index === 0 || opt.g !== filteredOptions[index-1].g)">
@@ -152,7 +183,8 @@
                          class="px-8 py-2 text-[13px] flex justify-between items-center border-b border-slate-50 transition-colors cursor-pointer"
                          :class="{
                             'bg-indigo-600 text-white font-black': activeIndex === index,
-                            'text-slate-700 hover:bg-slate-50': activeIndex !== index
+                            'text-slate-700 hover:bg-slate-50': activeIndex !== index,
+                            'text-indigo-600 font-bold': opt.v === 'ND'
                          }">
                         <span x-text="opt.t" class="font-medium"></span>
                     </div>

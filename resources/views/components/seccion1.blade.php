@@ -51,8 +51,7 @@
                     </template>
                 </div>
                 <h3 class="text-xs font-black text-slate-400  tracking-[0.2em] mb-6 flex items-center">
-                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2.
-                        Taxonomía:</label>
+                    <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2. Taxonomía:</label>
                     <div class="h-px bg-slate-100 flex-grow"></div>
                 </h3>
 
@@ -200,32 +199,34 @@
 
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
 
-                <div class="flex flex-col mb-8 relative group">
+                <div class="flex flex-col mb-8 relative" x-data="{ showTooltip: false }" @click.away="showTooltip = false">
 
-                    <div class="flex flex-col mb-8 relative group">
-                        <div class="flex items-center gap-2 mb-6">
-                            <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">4.
-                                Resumen de la especie:</label>
-                            <div class="cursor-help text-slate-300 hover:text-indigo-500 transition-colors">
+                    <div class="flex flex-col mb-8 relative">
+                        <div class="flex items-center gap-2 mb-6 relative">
+                            <div x-show="showTooltip" x-cloak
+                                class="absolute left-0 top-full mt-2 z-50 w-80 shadow-2xl transition-all duration-300 ease-out">
+                                <div class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10 relative">
+                                    <button type="button" @click="showTooltip = false" class="absolute top-2 right-2 text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded-lg bg-white/10">✕</button>
+                                    <p class="text-[14px] font-bold leading-relaxed text-slate-200 tracking-wider pr-4">
+                                        Descripción coloquial <span class="text-indigo-300">(evitar términos
+                                        técnicos)</span> que mencione características distintivas: origen,
+                                        morfología, distribución, biología, ecología, importancia y conservación.</p>
+                                    <div
+                                        class="absolute -top-1.5 left-4 w-3 h-3 bg-slate-900 rotate-45 border-t border-l border-white/10">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">4. Resumen de la especie:</label>
+
+                            <button type="button" @click="showTooltip = !showTooltip" class="cursor-help text-slate-300 hover:text-indigo-500 transition-colors inline-flex items-center focus:outline-none">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                            </div>
+                            </button>
                         </div>
-                        <div
-                            class="absolute right-0 -top-4 z-50 w-80 pointer-events-none opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out">
-                            <div
-                                class="bg-slate-900/95 backdrop-blur-sm text-white p-4 rounded-2xl shadow-2xl border border-white/10 shadow-indigo-500/10">
-                                <p class="text-[14px] font-bold leading-relaxed text-slate-200 tracking-wider">
-                                    Descripción coloquial <span class="text-indigo-300">(evitar términos
-                                        técnicos)</span> que mencione características distintivas: origen,
-                                    morfología, distribución, biología, ecología, importancia y conservación.</p>
-                                <div
-                                    class="absolute -bottom-1.5 right-12 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10">
-                                </div>
-                            </div>
-                        </div>
+
                         <textarea id="resumenEspecie_editor" class="w-full rounded-2xl border border-slate-200 p-4 text-sm"></textarea>
                     </div>
                 </div>
@@ -359,7 +360,7 @@
                     </template>
                     <div class="relative space-y-4" x-data="{ openYear: null }">
                         <template
-                            x-for="(data, index) in [{id:1, v:'2001', k:'2001', icon:'A'}, {id:2, v:'2010', k:'2010', icon:'B'}, {id:3, v:'2010 - Act. 2019', k:'2019', icon:'C'}]">
+                            x-for="(data, index) in [{id:1, v:'2001', k:'2001', icon:'I.'}, {id:2, v:'2010', k:'2010', icon:'II.'}, {id:3, v:'2010 - Act. 2019', k:'2019', icon:'III.'}]">
                             <div class="border border-black/10 rounded-2xl bg-black/5 backdrop-blur-md overflow-hidden transition-all duration-300"
                                 :class="openYear === data.id ? 'bg-black/10 ring-1 ring-black/20' : ''">
                                 <button type="button" @click="openYear = (openYear === data.id ? null : data.id)"
@@ -459,7 +460,11 @@
 
                     @include('components.multi-select-2', [
                         'model' => 'form.origen',
-                        'options' => "['Exótica/No nativa', 'Nativa', 'Criptogénica']",
+                        'options' => [
+                            ['v' => 'Exótica/No nativa', 't' => 'Exótica/No nativa'],
+                            ['v' => 'Nativa', 't' => 'Nativa'],
+                            ['v' => 'Criptogénica', 't' => 'Criptogénica']
+                        ],
                         'placeholder' => 'Selecciona el origen...'
                     ])
 

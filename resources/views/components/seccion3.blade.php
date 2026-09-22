@@ -9,7 +9,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-6 border-b border-slate-50">
             <label class="flex items-center space-x-3 p-3 rounded-xl transition-colors"
                 :class="form.bloquearAmbiente ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 group'">
-                <input type="radio" name="tipo_ambiente" value="Ambiente terrestre" x-model="form.tipoAmbiente"
+                <input type="radio" name="tipo_ambiente" value="terrestre" x-model="form.tipoAmbiente"
                     @change="form.ecosistemas = []" :disabled="form.bloquearAmbiente"
                     class="w-5 h-5 text-indigo-600 border-slate-300 disabled:bg-slate-200">
                 <span class="text-[16px] font-black text-slate-700">A. Ambiente terrestre</span>
@@ -17,7 +17,7 @@
 
             <label class="flex items-center space-x-3 p-3 rounded-xl transition-colors"
                 :class="form.bloquearAmbiente ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 group'">
-                <input type="radio" name="tipo_ambiente" value="Ambiente acuático" x-model="form.tipoAmbiente"
+                <input type="radio" name="tipo_ambiente" value="acuático" x-model="form.tipoAmbiente"
                     @change="form.ecosistemas = []" :disabled="form.bloquearAmbiente"
                     class="w-5 h-5 text-indigo-600 border-slate-300 disabled:bg-slate-200">
                 <span class="text-[16px] font-black text-slate-700">B. Ambiente marino </span>
@@ -25,7 +25,7 @@
 
             <label class="flex items-center space-x-3 p-3 rounded-xl transition-colors"
                 :class="form.bloquearAmbiente ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 group'">
-                <input type="radio" name="tipo_ambiente" value="Ambiente terrestre-acuático" x-model="form.tipoAmbiente"
+                <input type="radio" name="tipo_ambiente" value="terrestre-acuático" x-model="form.tipoAmbiente"
                     @change="form.ecosistemas = []" :disabled="form.bloquearAmbiente"
                     class="w-5 h-5 text-indigo-600 border-slate-300 disabled:bg-slate-200">
                 <span class="text-[16px] font-black text-slate-700">C. Ambiente epicontinental</span>
@@ -33,38 +33,30 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <div x-show="form.tipoAmbiente === 'Ambiente terrestre' || form.tipoAmbiente === 'Ambiente terrestre-acuático'"
+            <div x-show="form.tipoAmbiente === 'terrestre' || form.tipoAmbiente === 'terrestre-acuático'"
                 x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones terrestres </label>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.ecorregiones_terrestres',
                     'options' => 'ecorregionOptions.map(o => o.descripcion)',
                     'placeholder' => 'Seleccione ecorregion terrestre'
                 ])
             </div>
 
-            <div x-show="form.tipoAmbiente === 'Ambiente acuático'" x-transition class="space-y-4">
+            <div x-show="form.tipoAmbiente === 'acuático'" x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones marinas </label>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.ecorregiones_marinas_ids',
                     'options' => 'marinasOptions.map(o => o.descn1)',
                     'placeholder' => 'Seleccione ecorregion marina'
                 ])
             </div>
 
-            <div x-show="form.tipoAmbiente" x-transition class="space-y-4">
+           <div x-show="form.tipoAmbiente" x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> b) Ecosistemas </label>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.ecosistemas',
-                    'options' => "ecosistemaOptions.filter(o => {
-                        const grupoA = ['Selvas húmedas', 'Selvas secas', 'Bosques mesófilos de montaña', 'Bosques templados de coníferas y latifoliadas', 'Matorrales xerófilos', 'Pastizales'];
-                        const grupoB = ['Fondos blandos', 'Lechos de pastos marinos', 'Fondos duros o rocosos', 'Lechos de rodolitos', 'Arrecifes coralinos', 'Bosques de macroalgas', 'Regiones mesofóticas', 'Ambientes pelágicos', 'Fosas y llanuras abisales'];
-                        const grupoC = ['Humedales', 'Manglares', 'Marismas', 'Estuarios y lagunas costeras', 'Playas arenosas y zonas rocosas intermareales'];
-                        if (form.tipoAmbiente === 'Ambiente terrestre') return grupoA.includes(o.tipoecosistema);
-                        if (form.tipoAmbiente === 'Ambiente acuático') return grupoB.includes(o.tipoecosistema);
-                        if (form.tipoAmbiente === 'Ambiente terrestre-acuático') return grupoC.includes(o.tipoecosistema);
-                        return false;
-                    }).map(o => o.tipoecosistema)",
+                    'options' => 'ecosistemaOptions',
                     'placeholder' => 'Seleccione ecosistema'
                 ])
             </div>
@@ -79,7 +71,7 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'Ambiente terrestre' || form.tipoAmbiente === 'Ambiente terrestre-acuático'"
+    <div x-show="form.tipoAmbiente === 'terrestre' || form.tipoAmbiente === 'terrestre-acuático'"
         x-transition class="space-y-8">
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-10">
             <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2. Tipo de Vegetación</h3>
@@ -87,7 +79,7 @@
             <div class="space-y-4">
                 <div class="flex flex-col">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">a) Indicar el o los tipos de vegetación en los que se desarrolla la especie </label>
-                    @include('components.multi-select-2', [
+                    @include('components.multi-select', [
                         'model' => 'form.tipo_vegetacion_a',
                         'options' => 'vegetacionOptions.map(o => o.descripcionSubVegetacion)',
                         'placeholder' => 'Seleccione tipo de vegetación'
@@ -108,7 +100,7 @@
 
             <div class="space-y-6">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">c) Hábitats antrópicos</label>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.habitats_antropicos',
                     'options' => 'habitatsAntropicosOptions.map(o => o.descn1)',
                     'placeholder' => 'Indicar si se encuantra presente'
@@ -128,7 +120,7 @@
 
             <div class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">d) Tipo de vegetación secundaria</label>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.vegetacion_secundaria', {{-- CORREGIDO --}}
                     'options' => 'vegSecundariaOptions.map(o => o.descn1)',
                     'placeholder' => 'Seleccione vegetación secundaria'
@@ -170,7 +162,7 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
                 <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">4. Clima</h3>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.clima_tipo',
                     'options' => 'climaOptions.map(o => o.descn2)',
                     'placeholder' => 'Seleccione clima'
@@ -222,7 +214,7 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
                 <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">8. Tipo de Suelo</h3>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.suelo_tipo',
                     'options' => 'suelosOptions.map(o => o.descn1)',
                     'placeholder' => 'Seleccione tipo de suelo'
@@ -236,7 +228,7 @@
 
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6 col-span-1 lg:col-span-2">
                 <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">9. Geoforma </h3>
-                @include('components.multi-select-2', [
+                @include('components.multi-select', [
                     'model' => 'form.geoforma_tipo',
                     'options' => 'geoformaOptions.map(o => o.descn1)',
                     'placeholder' => 'Seleccione geoforma'
@@ -247,7 +239,7 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'Ambiente acuático'" x-transition class="space-y-8">
+    <div x-show="form.tipoAmbiente === 'acuático'" x-transition class="space-y-8">
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
             <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"><span class="mr-4">2. Tipo de hábitat marino</span>
                 <div class="h-px bg-slate-100 flex-grow"></div>
@@ -304,12 +296,12 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'Ambiente acuático' || form.tipoAmbiente === 'Ambiente terrestre-acuático'"
+    <div x-show="form.tipoAmbiente === 'acuático' || form.tipoAmbiente === 'terrestre-acuático'"
         x-transition class="space-y-8">
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-4">
             <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
                 <span
-                    x-text="form.tipoAmbiente === 'Ambiente acuático' ? '3. Intervalo batimétrico' : '10. Intervalo batimétrico'"></span>
+                    x-text="form.tipoAmbiente === 'acuático' ? '3. Intervalo batimétrico' : '10. Intervalo batimétrico'"></span>
             </h3>
             <div class="flex flex-col lg:flex-row gap-6">
                 <div class="flex flex-col gap-3 w-full lg:w-64 flex-shrink-0">
@@ -345,7 +337,7 @@
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-4">
             <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
                 <span
-                    x-text="form.tipoAmbiente === 'Ambiente acuático' ? '4. Amplitud de mareas' : '11. Amplitud de mareas'"></span>
+                    x-text="form.tipoAmbiente === 'acuático' ? '4. Amplitud de mareas' : '11. Amplitud de mareas'"></span>
             </h3>
             <div class="flex flex-col lg:flex-row gap-6">
                 <div class="flex flex-col gap-3 w-full lg:w-64 flex-shrink-0">
@@ -381,7 +373,7 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
     <div class="flex items-center gap-4">
         <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
-            <span x-text="form.tipoAmbiente === 'Ambiente acuático' ? '5. Características del agua' : '12. Características del agua'"></span>
+            <span x-text="form.tipoAmbiente === 'acuático' ? '5. Características del agua' : '12. Características del agua'"></span>
         </h3>
         <div class="h-[1px] bg-slate-100 flex-1"></div>
     </div>

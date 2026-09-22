@@ -102,7 +102,6 @@ class FormController extends Controller {
             if (!$query) return response()->json([]);
             $resultados = DB::connection('mysql_catalogo')
                 ->table('_TransformaTablaNombre')
-                ->whereIn('EstatusTaxon', ['aceptado', 'válido'])
                 ->where('taxon', 'LIKE', "%{$query}%")
                 ->select(
                     'taxon', 'IdNombre', 'IdNombreRel', 'Reino', 'Clase', 'Orden',
@@ -171,7 +170,7 @@ class FormController extends Controller {
                         'infoUICN' => $f['infoUICN'] ?? null,
                         'infoCITES' => $f['infoCITES'] ?? null,
                         'descEspecie' => $f['descEspecie'] ?? null,
-                        'origen' => is_array($f['origen']) ? implode(', ', $f['origen']) : $f['origen'],
+                        'origen' => is_array($f['origen'] ?? null) ? implode(', ', $f['origen']) : ($f['origen'] ?? ''),
                         'largoinicialhembras' => $f['largoinicialhembras'] ?? null,
                         'largofinalhembras' => $f['largofinalhembras'] ?? null,
                         'largoinicialmachos' => $f['largoinicialmachos'] ?? null,
@@ -227,25 +226,49 @@ class FormController extends Controller {
                 }
 
                 DB::table('legislacion')->where('especieId', $especieId)->delete();
-                $legisInsert = [];
-                if (!empty($f['riesgoUICN'])) $legisInsert[] = ['especieId' => $especieId, 'nombreLegislacion' => 'UICN', 'estatusLegalProteccion' => $f['riesgoUICN'], 'infoAdicional' => $f['infoUICN'] ?? 'EMPTY'];
-                if (!empty($f['cites'])) $legisInsert[] = ['especieId' => $especieId, 'nombreLegislacion' => 'CITES', 'estatusLegalProteccion' => $f['cites'], 'infoAdicional' => $f['infoCITES'] ?? 'EMPTY'];
-                if (isset($f['nom059']) && is_array($f['nom059'])) {
-                    foreach ($f['nom059'] as $year => $data) {
-                        $categoria = $data['categoria'] ?? null;
-                        $info = $data['info'] ?? null;
-                        $infoLimpia = ($info === '<p>&nbsp;</p>' || $info === '&nbsp;' || empty($info)) ? 'EMPTY' : $info;
-                        if (!empty($categoria) || $infoLimpia !== 'EMPTY') {
-                            $legisInsert[] = [
-                                'especieId' => $especieId,
-                                'nombreLegislacion' => "NOM-059-SEMARNAT-{$year}",
-                                'estatusLegalProteccion' => $categoria ?? '',
-                                'infoAdicional' => $infoLimpia
-                            ];
+                    $legisInsert = [];
+                    if (!empty($f['riesgoUICN'])) {
+                        $legisInsert[] = [
+                            'especieId' => $especieId,
+                            'nombreLegislacion' => 'UICN',
+                            'estatusLegalProteccion' => $f['riesgoUICN'],
+                            'infoAdicional' => $f['infoUICN'] ?? 'EMPTY'
+                        ];
+                    }
+                    if (!empty($f['cites'])) {
+                        $legisInsert[] = [
+                            'especieId' => $especieId,
+                            'nombreLegislacion' => 'CITES',
+                            'estatusLegalProteccion' => $f['cites'],
+                            'infoAdicional' => $f['infoCITES'] ?? 'EMPTY'
+                        ];
+                    }
+
+                    if (isset($f['nom059']) && is_array($f['nom059'])) {
+                        foreach ($f['nom059'] as $year => $data) {
+                            $categoria = $data['categoria'] ?? null;
+                            $info = $data['info'] ?? null;
+                            $infoLimpia = ($info === '<p>&nbsp;</p>' || $info === '&nbsp;' || empty($info)) ? 'EMPTY' : $info;
+
+                            if (!empty($categoria) || $infoLimpia !== 'EMPTY') {
+
+                                $nombreLegis = ($year == '2010')
+                                    ? "NOM-059-SEMARNAT"
+                                    : "NOM-059-SEMARNAT-{$year}";
+
+                                $legisInsert[] = [
+                                    'especieId' => $especieId,
+                                    'nombreLegislacion' => $nombreLegis,
+                                    'estatusLegalProteccion' => $categoria ?? '',
+                                    'infoAdicional' => $infoLimpia
+                                ];
+                            }
                         }
                     }
-                }
-                if(!empty($legisInsert)) DB::table('legislacion')->insert($legisInsert);
+
+                    if (!empty($legisInsert)) {
+                        DB::table('legislacion')->insert($legisInsert);
+                    }
             }
 
             if ($seccion == 2) {
@@ -731,7 +754,11 @@ class FormController extends Controller {
 
         foreach ($legisRows as $row) {
             if (str_contains($row->nombreLegislacion, 'NOM-059')) {
-                if (preg_match('/(2001|2010|2019)$/', $row->nombreLegislacion, $matches)) {
+                if (trim($row->nombreLegislacion) === 'NOM-059-SEMARNAT') {
+                    $nom059Processed['2010']['categoria'] = $row->estatusLegalProteccion ?? '';
+                    $nom059Processed['2010']['info'] = ($row->infoAdicional === 'EMPTY' || empty($row->infoAdicional)) ? '' : $row->infoAdicional;
+                }
+                elseif (preg_match('/(2001|2010|2019)$/', $row->nombreLegislacion, $matches)) {
                     $year = $matches[1];
                     if (isset($nom059Processed[$year])) {
                         $nom059Processed[$year]['categoria'] = $row->estatusLegalProteccion ?? '';
@@ -942,18 +969,18 @@ class FormController extends Controller {
             'bloquearAmbiente' => $bloquearAmbiente,
             'tipoAmbiente' => $habitat->tipoAmbiente ?? '',
             'taxon'     => trim(($t['genero'] ?? '') . ' ' . ($t['especie'] ?? '') . ' ' . ($t['infraespecie'] ?? '')),
-            'Reino'     => $t['reino'] ?? '',
-            'Divisionphylum' => $t['divisionphylum'] ?? '',
-            'Clase'     => $t['clase'] ?? '',
-            'Orden'     => $t['orden'] ?? '',
-            'Familia'   => $t['familia'] ?? '',
-            'Genero'    => $t['genero'] ?? '',
-            'Especie_epiteto' => $t['especie'] ?? '',
-            'Nombreinfra'     => $t['infraespecie'] ?? '',
-            'Categinfra'      => $t['categinfra'] ?? '',
-            'EstatusTaxon'    => $t['estatus'] ?? '',
-            'AutorTaxon'      => $t['autor'] ?? '',
-            'IdCAT'           => $t['IdCAT'] ?? $t['idcat'] ?? '',
+             'Reino'           => $datosCatalogo->Reino ?? $t['reino'] ?? '',
+            'Divisionphylum'  => $datosCatalogo->Divisionphylum ?? $t['divisionphylum'] ?? '',
+            'Clase'           => $datosCatalogo->Clase ?? $t['clase'] ?? '',
+            'Orden'           => $datosCatalogo->Orden ?? $t['orden'] ?? '',
+            'Familia'         => $datosCatalogo->Familia ?? $t['familia'] ?? '',
+            'Genero'          => $datosCatalogo->Genero ?? $t['genero'] ?? '',
+            'Especie_epiteto' => $datosCatalogo->Especie_epiteto ?? $t['especie'] ?? '',
+            'Nombreinfra'     => $datosCatalogo->Nombreinfra ?? $t['infraespecie'] ?? '',
+            'Categinfra'      => $datosCatalogo->Categinfra ?? $t['categinfra'] ?? '',
+            'EstatusTaxon'    => $datosCatalogo->EstatusTaxon ?? $t['estatus'] ?? '',
+            'AutorTaxon'      => $datosCatalogo->AutorTaxon ?? $t['autor'] ?? '',
+            'IdCAT'           => $datosCatalogo->IdCAT ?? $t['IdCAT'] ?? $t['idcat'] ?? '',
             'Nom'             => $t['Nom'] ?? $t['nom'] ?? '',
             'resumenEspecie'          => $getData('resumenEspecie'),
             'infoAddNombreCientifico' => $getData('infoAddNombreCientifico'),
@@ -1044,7 +1071,7 @@ class FormController extends Controller {
             'info_adicional_municipio' => $dist['infoAdicionalMun'] ?? '',
             'potencial_info'           => $dist['historicaPotencial'] ?? '',
             'siNoPotencial'            => (!empty($dist['historicaPotencial'])) ? '1' : '0',
-            'siNoEndemismo'            => ($endemismo['endemicaMexico'] ?? 'NO') === 'SÍ' ? '1' : '0',
+            'siNoEndemismo'            => (($endemismo['endemicaMexico'] ?? '') === 'SÍ') ? '1' : '0',
             'endemica_a'               => $endemismo['endemicaA'] ?? '',
             'endemismo_info'           => $endemismo['infoAdicionalEndemica'] ?? '',
             'tipoCiclo'                    => $habitat->tipoCiclo ?? '',
