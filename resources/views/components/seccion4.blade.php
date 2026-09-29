@@ -70,7 +70,7 @@
             </div>
 
             <div x-show="form.Reino !== 'Animalia' && form.Reino !== 'Plantae'">
-                <label class="text-sm font-bold text-slate-700 block mb-2">Forma de vida</label>
+                <label class="text-sm font-bold text-slate-700 block mb-2">a) Forma de vida</label>
                 @include('components.multi-select', [
                     'model' => 'form.forma_vida_otros',
                     'options' => 'formaVidaOptions',
@@ -82,7 +82,7 @@
                 <label class="text-sm font-bold text-slate-700 flex items-center justify-between">
                     <span>Información adicional</span>
                 </label>
-                <textarea id="tiny-forma-vida-ia" x-model="form.forma_vida_ia" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50" placeholder="Información adicional"></textarea>
+                <textarea id="tiny-forma-vida-ia" x-model="form.infoAddUsoHabitat" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50" placeholder="Información adicional"></textarea>
             </div>
         </div>
 
@@ -98,12 +98,15 @@
                 </div>
                 <div>
                     <label class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center mb-2">4. Estrategia trófica</label>
-                    @include('components.multi-select', [
-                        'model' => 'form.estrategia_trofica',
-                        'options' => 'estrategiaTroficaOptions',
-                        'placeholder' => 'Selecciona estrategia trófica...'
-                    ])
+                    <select x-model="form.estrategia_trofica"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        <option value="">Selecciona estrategia trófica...</option>
+                        <template x-for="item in estrategiaTroficaOptions" :key="item.v">
+                            <option :value="item.v" x-text="item.t" :selected="form.estrategia_trofica == item.v"></option>
+                        </template>
+                    </select>
                 </div>
+
             </div>
         </div>
 
@@ -119,12 +122,20 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">b) Estatus migratorio</label>
-                    <textarea id="tiny-estatus-migratorio" x-model="form.estatus_migratorio" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">b) Estatus migratorio</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.estatus_migratorio',
+                        'options' => 'migracionOptions',
+                        'placeholder' => 'Selecciona estatus migratorio...'
+                    ])
                 </div>
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">c) Tipo de migración</label>
-                    <textarea id="tiny-tipo-migracion" x-model="form.tipo_migracion" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">c) Tipo de migración</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.tipo_migracion',
+                        'options' => 'tipoMigracionOptions',
+                        'placeholder' => 'Selecciona tipo de migración...'
+                    ])
                 </div>
             </div>
 
@@ -141,18 +152,43 @@
 
                 <div class="space-y-3">
                     <template x-for="(loc, index) in form.localidades_migracion" :key="index">
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap md:flex-nowrap items-center gap-3">
-                            <span class="text-xs font-black text-slate-400 w-6" x-text="(index + 1) + ')'"></span>
-                            <input type="text" x-model="loc.localidad" placeholder="Localidad" class="flex-1 min-w-[200px] px-3 py-2 text-sm border border-slate-200 rounded-lg">
-                            <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
-                                <span>De:</span>
-                                <input type="text" x-model="loc.mes_inicio" placeholder="mes" class="w-36 px-2.5 py-2 text-xs border border-slate-200 rounded-lg">
-                                <span>a:</span>
-                                <input type="text" x-model="loc.mes_fin" placeholder="mes" class="w-36 px-2.5 py-2 text-xs border border-slate-200 rounded-lg">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 grid grid-cols-12 items-center gap-2">
+
+                            <!-- Número + Input Localidad (Ocupa 4 columnas) -->
+                            <div class="col-span-12 md:col-span-4 flex items-center gap-2">
+                                <span class="text-xs font-black text-slate-400 shrink-0" x-text="(index + 1) + ')'"></span>
+                                <input type="text" x-model="loc.localidad" placeholder="Localidad" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg">
                             </div>
-                            <button type="button" @click="eliminarLocalidad(index)" x-show="form.localidades_migracion.length > 1" class="text-rose-500 hover:text-rose-700 p-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
+
+                            <!-- Selects de Meses (Ocupa 7 columnas) -->
+                            <div class="col-span-12 md:col-span-7 flex items-center justify-between md:justify-start gap-2 text-xs font-bold text-slate-600">
+                                <span class="shrink-0">De:</span>
+                                <select x-model="loc.mes_inicio" class="w-full px-2 py-2 text-xs border border-slate-200 rounded-lg bg-white">
+                                    <option value="">Selecciona...</option>
+                                    <template x-for="mes in ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']" :key="mes">
+                                        <option :value="mes" x-text="mes"></option>
+                                    </template>
+                                </select>
+
+                                <span class="shrink-0 px-1">a:</span>
+                                <select x-model="loc.mes_fin" class="w-full px-2 py-2 text-xs border border-slate-200 rounded-lg bg-white">
+                                    <option value="">Selecciona...</option>
+                                    <template x-for="mes in ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']" :key="mes">
+                                        <option :value="mes" x-text="mes"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <!-- Botón de Eliminar (Ocupa 1 columna restante) -->
+                            <div class="col-span-12 md:col-span-1 flex justify-end md:justify-center">
+                                <button type="button" @click="eliminarLocalidad(index)" x-show="form.localidades_migracion.length > 1"
+                                    class="flex items-center justify-center w-11 h-11 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+
                         </div>
                     </template>
                 </div>
@@ -204,31 +240,29 @@
 
             <div>
                 @include('components.input-rangos', [
-                    'label' => 'g) Ámbito hogareño',
+                    'label' => 'g) Ámbito hogareno',
                     'modelMin' => 'form.ambito_hogareno_min',
                     'modelMax' => 'form.ambito_hogareno_max',
                     'modelPromedio' => 'form.ambito_hogareno_promedio'
                 ])
-                <div class="mt-3">
-                    <span class="text-xs font-bold text-slate-500 block mb-1">Unidades</span>
-                    <select x-model="form.ambito_hogareno_unidad" class="w-full sm:w-1/3 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700">
-                        <option value="">Seleccionar...</option>
-                        <option value="km2">Kilómetros cuadrados</option>
-                        <option value="ha">Hectáreas</option>
-                        <option value="m2">Metros cuadrados</option>
-                        <option value="acres">Acres</option>
-                    </select>
-                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">h) Mecanismos de defensa</label>
-                    <textarea id="tiny-mecanismos-defensa" x-model="form.mecanismos_defensa" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">h) Mecanismos de defensa</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.mecanismos_defensa',
+                        'options' => 'mecanismosDefensaOptions',
+                        'placeholder' => 'Selecciona mecanismos de defensa...'
+                    ])
                 </div>
-                <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">i) Organización social</label>
-                    <textarea id="tiny-organizacion-social" x-model="form.organizacion_social" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+               <div>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">i) Organización social</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.organizacion_social',
+                        'options' => 'organizacionSocialOptions',
+                        'placeholder' => 'Selecciona organización social...'
+                    ])
                 </div>
             </div>
         </div>
@@ -240,7 +274,7 @@
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">a) Generalidades</label>
-                <textarea id="tiny-descripcion-reproduccion" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Generalidades"></textarea>
+                <textarea id="tiny-repro-vegetal-gen" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Generalidades"></textarea>
             </div>
 
             <div class="space-y-4">
@@ -466,15 +500,25 @@
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
-                <div class="space-y-2">
-                    <div class="flex items-center gap-4">
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">i) Número de eventos reproductivos</label>
-                        <select x-model="form.estrategia_reproductiva_planta"
-                                class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                            <option value="">Seleccionar número de eventos...</option>
-                            <option value="Iteróparo" :selected="form.estrategia_reproductiva_planta && form.estrategia_reproductiva_planta.startsWith('Ite')">Iteróparo (policárpica)</option>
-                            <option value="Semélparo" :selected="form.estrategia_reproductiva_planta && form.estrategia_reproductiva_planta.startsWith('Sem')">Semélparo (monocárpica)</option>
-                        </select>
+                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
+                    <div class="space-y-2">
+                        <div>
+                            <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">d) Número de eventos reproductivos</label>
+                            <!-- DEBE SER form.estrategia_reproductiva_planta -->
+                            <select x-model="form.estrategia_reproductiva_planta"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                <option value="">Selecciona número de eventos...</option>
+                                <option value="Iteróparos">Iteróparos</option>
+                                <option value="Semélparos">Semélparos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 pt-1">
+                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
+                        <textarea id="tiny-eventos-ia" x-model="form.estrategia_reproductiva_planta_ia"
+                                class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
+                                placeholder="Información adicional"></textarea>
                     </div>
                 </div>
 
@@ -555,7 +599,7 @@
         </div>
 
         <div x-show="form.Reino === 'Animalia'" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/80 space-y-10">
-            <div class="border-b border-slate-100 pb-4">
+             <div class="border-b border-slate-100 pb-4">
                 <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">6. Reproducción animal</h3>
             </div>
 
@@ -609,7 +653,11 @@
 
                 <div x-show="form.hay_dimorfismo === 'si'" class="space-y-2 pt-2">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">ii. Tipo de dimorfismo</label>
-                    <textarea id="tiny-tipo-dimorfismo" x-model="form.tipo_dimorfismo" placeholder="VC (varias opciones)..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
+                    @include('components.multi-select', [
+                        'model' => 'form.tipo_dimorfismo',
+                        'options' => 'tipoDimorfismoOptions',
+                        'placeholder' => 'Selecciona tipo(s) de dimorfismo...'
+                    ])
                 </div>
 
                 <div class="pt-2">
@@ -620,12 +668,21 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">d) Sistemas de apareamiento</label>
-                    <textarea id="tiny-sistemas-apareamiento" x-model="form.sistemas_apareamiento" placeholder="Sistemas de apareamiento" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">d) Sistemas de apareamiento</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.sistemas_apareamiento',
+                        'options' => 'sistApareamientoOpts',
+                        'placeholder' => 'Selecciona sistemas...'
+                    ])
                 </div>
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">e) Estrategia reproductiva</label>
-                    <textarea id="tiny-estrategia-reproductiva-animal" x-model="form.estrategia_reproductiva_animal" placeholder="Estrategia reproductiva" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">e) Estrategia reproductiva</label>
+                    <select x-model="form.estrategia_reproductiva_animal"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        <option value="">Seleccionar estrategia...</option>
+                        <option value="Iteróparos">Iteróparos</option>
+                        <option value="Semélparos">Semélparos</option>
+                    </select>
                 </div>
             </div>
 
@@ -636,33 +693,40 @@
                     'modelMax' => 'form.tiempo_eventos_max',
                     'modelPromedio' => 'form.tiempo_eventos_promedio'
                 ])
-                <div class="mt-2">
-                    <span class="text-xs font-bold text-slate-500 block mb-1">Unidad de tiempo</span>
-                    <input type="text" x-model="form.tiempo_eventos_unidad" placeholder="ej. meses / años" class="w-full sm:w-1/3 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold">
-                </div>
-                <textarea id="tiny-tiempo-eventos-ia" x-model="form.tiempo_eventos_ia" placeholder="Agregar casilla de texto libre para IA..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 mt-2"></textarea>
+                <textarea id="tiny-tiempo-eventos-ia" x-model="form.tiempo_eventos_ia" placeholder="Informacion adicional de Ttempo entre eventos reproductivos" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 mt-2"></textarea>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">g) Edad o talla a la primera reproducción</label>
-                    <textarea id="tiny-edad-primera-reproduccion" x-model="form.edad_primera_reproduccion" placeholder="Transformar la casilla actual en casilla de texto libre..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
+                    <textarea id="tiny-edad-primera-reproduccion" x-model="form.edad_primera_reproduccion" placeholder="Edad o talla a la primera reproducción" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
                 </div>
                 <div>
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">h) Duración de la vida reproductiva</label>
-                    <textarea id="tiny-duracion-vida-reproductiva" x-model="form.duracion_vida_reproductiva" placeholder="Transformar la casilla actual en casilla de texto libre..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
+                    <textarea id="tiny-duracion-vida-reproductiva" x-model="form.duracion_vida_reproductiva" placeholder="Duración de la vida reproductiva" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
                 </div>
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">j) Sitios de anidación o crianza</label>
-                        <textarea id="tiny-sitios-anidacion" x-model="form.sitios_anidacion" placeholder="Cambiar los VC..." class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white"></textarea>
+                    <div class="mt-6">
+                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">j) Sitios de anidación o de crianza</label>
+                        @include('components.multi-select', [
+                            'model' => 'form.sitios_anidacion',
+                            'options' => 'sitioAnidacionOpts',
+                            'placeholder' => 'Selecciona sitios de anidación...'
+                        ])
                     </div>
                     <div>
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">k) Tipo de estructura de anidación o crianza</label>
-                        <textarea id="tiny-tipo-estructura-anidacion" x-model="form.tipo_estructura_anidacion" placeholder="Incluir VC..." class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm bg-white"></textarea>
+                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">k) Tipo de estructura de anidación o crianza</label>
+                        <select x-model="form.tipo_estructura_anidacion" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                            <option value="">Selecciona estructura...</option>
+                            <option value="Hueco">Hueco</option>
+                            <option value="Madriguera">Madriguera</option>
+                            <option value="Nido">Nido</option>
+                            <option value="Panal">Panal</option>
+                            <option value="Termitero">Termitero</option>
+                        </select>
                     </div>
                 </div>
                 <div>
@@ -690,7 +754,7 @@
                 </div>
 
                 <div x-show="form.cuidado_parental === 'si'" class="space-y-1 pt-1">
-                    <textarea id="tiny-cuidado-parental-vc" x-model="form.cuidado_parental_vc" placeholder="Selección de VC correspondientes..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
+                    <textarea id="tiny-cuidado-parental-vc" x-model="form.cuidado_parental_vc" placeholder="Informacion adicional de cuidado parental  " class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
                 </div>
 
                 <div class="pt-2">
@@ -701,7 +765,9 @@
         </div>
 
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/80 space-y-6">
-            <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">7. Dispersión</h3>
+            <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"
+                x-text="form.Reino === 'Animalia' ? '7. Dispersión' : (form.Reino === 'Plantae' ? '6. Dispersión' : '5. Dispersión')">
+            </h3>
 
             <div>
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">a) Tipo de dispersión</label>
