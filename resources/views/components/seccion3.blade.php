@@ -56,7 +56,7 @@
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> b) Ecosistemas </label>
                 @include('components.multi-select', [
                     'model' => 'form.ecosistemas',
-                    'options' => 'ecosistemaOptions',
+                    'options' => 'ecosistemaOptions.map(o => o.tipoecosistema)',
                     'placeholder' => 'Seleccione ecosistema'
                 ])
             </div>
@@ -133,23 +133,23 @@
                 <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">3. Intervalo altitudinal</h3>
                 <div class="grid grid-cols-3 gap-4 mb-6">
                     <div class="space-y-1">
-                        <label class="text-[11px] font-black text-slate-400  tracking-wider ml-1">de (m)</label>
+                        <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">de (m)</label>
                         <input type="number" x-model="form.intervaloaltitudinalinicial"
-                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'altitud_prom')"
-                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud')"
+                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
+                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
                             class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
                     </div>
                     <div class="space-y-1">
                         <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">a (m)</label>
                         <input type="number" x-model="form.intervaloaltitudinalfinal"
-                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'altitud_prom')"
-                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud')"
+                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
+                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
                             class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
                     </div>
                     <div class="space-y-1">
                         <label class="text-[11px] font-black text-indigo-400 tracking-wider ml-1">Promedio</label>
                         <div class="w-full px-4 py-3 rounded-2xl bg-indigo-50 border-2 border-indigo-50 text-sm font-black text-indigo-600 flex items-center justify-center">
-                            <span x-text="form.altitud_prom"></span>
+                            <span x-text="form.intervaloaltitudinalprom"></span>
                         </div>
                     </div>
                 </div>
@@ -249,7 +249,7 @@
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">a) Vertical:</label>
                     @include('components.multi-select-2', [
                         'model' => 'form.habitat_marino_vertical',
-                        'options' => "['Bentónico', 'Demersal', 'Epipelágico', 'Mesopelágico', 'Bathipelágico']",
+                        'options' => collect(['Bentónico', 'Demersal', 'Epipelágico', 'Mesopelágico', 'Bathipelágico'])->map(fn($item) => ['v' => $item, 't' => $item])->values()->all(),
                         'placeholder' => 'Seleccionar vertical'
                     ])
                 </div>
@@ -257,7 +257,7 @@
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">b) Horizontal:</label>
                     @include('components.multi-select-2', [
                         'model' => 'form.habitat_marino_horizontal',
-                        'options' => "['Asociado a arrecifes', 'Costero', 'Plataforma continental', 'Talud continental', 'Oceánico']",
+                        'options' => collect(['Asociado a arrecifes', 'Costero', 'Plataforma continental', 'Talud continental', 'Oceánico'])->map(fn($item) => ['v' => $item, 't' => $item])->values()->all(),
                         'placeholder' => 'Seleccione horizontal'
                     ])
                 </div>

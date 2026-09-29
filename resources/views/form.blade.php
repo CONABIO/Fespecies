@@ -12,7 +12,8 @@
             'zonaUrbana' => '',
             'VegetacionSecundaria' => '',
             'intervaloaltitudinalinicial' => '',
-            'intervaloaltitudinalfinal' => '',
+            'intervaloaltitudinalprom' => '',
+            'infoAddintervaloaltitudinal' => '',
             'infoAddintervaloaltitudinal' => '',
             'temperaturainicial' => '',
             'temperaturafinal' => '',
@@ -98,8 +99,8 @@
             'unidadPesoHembras' => 'g',
             'promedioPesoMachos' => '',
             'unidadPesoMachos' => 'g',
-            'habitat_marino_vertical' => '',
-            'habitat_marino_horizontal' => '',
+            'habitat_marino_vertical' => [],
+            'habitat_marino_horizontal' => [],
             'habitat_marino_infoAddVH' => '',
             'habitat_marino_especiesAsociadas' => '',
             'habitat_marino_disturbiosAntropicos' => 'NO',
@@ -193,8 +194,6 @@
             'dimorfismo_ia' => '',
             'sistemas_apareamiento' => '',
             'estrategia_reproductiva_animal' => '',
-            'tiempo_eventos_min' => '',
-            'tiempo_eventos_max' => '',
             'tiempo_eventos_unidad' => '',
             'tiempo_eventos_ia' => '',
             'edad_primera_reproduccion' => '',
@@ -222,6 +221,24 @@
             'semillas_tam_promedio' => '',
             'supervivencia_promedio' => '',
             'germinacion_promedio' => '',
+            'tipo_dimorfismo' => [],
+            'localidades_migracion' => [['localidad' => '', 'mes_inicio' => '', 'mes_fin' => '']],
+            'mecanismos_defensa' => [],
+            'organizacion_social' => [],
+
+            'ambito_hogareno_min' => '',
+            'ambito_hogareno_max' => '',
+            'ambito_hogareno_promedio' => '',
+
+            'crias_min' => '',
+            'crias_max' => '',
+            'crias_promedio' => '',
+
+            'tiempo_eventos_min' => '',
+            'tiempo_eventos_max' => '',
+            'tiempo_eventos_promedio' => '',
+            'dispersion_unidad' => '',
+            'infoAddUsoHabitat'  => '',
         ];
         $formData = $especie ?? $defaultForm;
     @endphp
@@ -299,6 +316,15 @@
                     expresionIndividuosOptions: @json($expresionIndividuosOptions ?? []),
                     expresionPoblacionesOptions: @json($expresionPoblacionesOptions ?? []),
                     polinizacionOptions: @json($polinizacionOptions ?? []),
+                    habitoAnimalOptions: @json($habitoAnimalOptions ?? []),
+                    migracionOptions: @json($migracionOptions ?? []),
+                    tipoMigracionOptions: @json($tipoMigracionOptions ?? []),
+                    sistApareamientoOpts: @json($sistApareamientoOpts ?? []),
+                    sitioAnidacionOpts: @json($sitioAnidacionOpts ?? []),
+                    numEventosReproOptions: @json($numEventosReproOptions ?? []),
+                    organizacionSocialOptions: @json($organizacionSocialOpts ?? []),
+                    cuidadoParentalOptions: @json($cuidadoParentalOpts ?? []),
+
                     meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                     aislamientoOptions: ['Dicogamia', 'Protandria', 'Protoginia', 'Hercogamia'],
                     sistemasAsexualesOptions: ['Multiplicación vegetativa', 'Esporulación', 'Apomixis'],
@@ -307,6 +333,9 @@
                     caracFrutoOptions: @json($caracFrutoOptions ?? []),
                     tipoDispersionOptions: @json($tipoDispersionOptions ?? []),
                     estructuraDispersionOptions: @json($estructuraDispersionOptions ?? []),
+                    tipoDimorfismoOptions: @json($tipoDimorfismoOpts ?? []),
+                    mecanismosDefensaOptions: @json($mecanismosDefensaOptions ?? []),
+                    organizacionSocialOptions: @json($organizacionSocialOptions ?? []),
 
 
                     toggleMes(arrayRef, mes) {
@@ -342,7 +371,8 @@
                             'alimentacion', 'habito_planta', 'forma_vida_planta', 'forma_vida_otros',
                             'estrategia_trofica', 'expresion_flores', 'expresion_individuos',
                             'expresion_poblaciones',  'aislamiento_temporal', 'sistemas_reproductivos_asexuales',
-                            'tipo_fecundacion_plantae','tipo_polinizacion','dispersion_tipo', 'dispersion_estructura'
+                            'tipo_fecundacion_plantae','tipo_polinizacion','dispersion_tipo', 'dispersion_estructura','tipo_dimorfismo',
+                            'mecanismos_defensa', 'organizacion_social'
                         ].forEach(k => {
                             if (!Array.isArray(this.form[k])) {
                                 this.form[k] = this.form[k] ? [String(this.form[k])] : [];
@@ -383,11 +413,25 @@
 
                         this.$watch('showModalNombre', v => {
                             if (v) {
-                                this.$nextTick(() => this.initEditor('#bibliografia_editor', 'bibliografia', 'tempNombre'));
+                                if (this.editandoIndice === -1) {
+                                    this.tempNombre.bibliografia = '';
+                                }
+
+                                this.$nextTick(() => {
+                                    if (tinymce.get('bibliografia_editor')) {
+                                        tinymce.get('bibliografia_editor.remove()');
+                                    }
+
+                                    this.initEditor('#bibliografia_editor', 'bibliografia', 'tempNombre');
+                                });
                             } else {
-                                tinymce.remove('#bibliografia_editor');
+                                if (tinymce.get('bibliografia_editor')) {
+                                    tinymce.get('bibliografia_editor').remove();
+                                }
                             }
                         });
+
+
 
                         this.$watch('form.siNoPotencial', v => {
                             if (v === '1') {
@@ -454,6 +498,8 @@
                                 { id: '#infoAddDistribucionMundialPais', field: 'dist_mundial_info' },
                                 { id: '#infoAddDistribucionMundialEstado', field: 'info_adicional_estado' },
                                 { id: '#infoAddDistribucionMundialMunicipio', field: 'info_adicional_municipio' },
+                                { id: '#infoAddDistPotMex', field: 'potencial_info' },
+                                { id: '#infoAddEndemismo', field: 'endemismo_info' },
                             ],
                             3: [
                                 { id: '#tiny-altitud', field: 'infoAddintervaloaltitudinal' },
@@ -477,7 +523,7 @@
                             4: [
                                 { id: '#tiny-aspectos', field: 'aspectos' },
                                 { id: '#tiny-uso-habitat', field: 'uso_habitat' },
-                                { id: '#tiny-forma-vida-ia', field: 'forma_vida_ia' },
+                                { id: '#tiny-forma-vida-ia', field: 'infoAddUsoHabitat' },
                                 { id: '#tiny-caracteristicas-conductuales', field: 'caracteristicas_conductuales' },
                                 { id: '#tiny-estatus-migratorio', field: 'estatus_migratorio' },
                                 { id: '#tiny-tipo-migracion', field: 'tipo_migracion' },
@@ -514,7 +560,8 @@
                                 { id: '#tiny-tipo-estructura-anidacion', field: 'tipo_estructura_anidacion' },
                                 { id: '#tiny-anidacion-ia', field: 'anidacion_ia' },
                                 { id: '#tiny-cuidado-parental-vc', field: 'cuidado_parental_vc' },
-                                { id: '#tiny-tiempo-cuidado-parental', field: 'tiempo_cuidado_parental' }
+                                { id: '#tiny-tiempo-cuidado-parental', field: 'tiempo_cuidado_parental' },
+                                { id: '#tiny-repro-vegetal-gen', field: 'descripcion_reproduccion' },
                             ]
                         };
 
@@ -560,14 +607,13 @@
                                 'tiny-caracteristicas-conductuales', 'tiny-estatus-migratorio',
                                 'tiny-tipo-migracion', 'tiny-migracion-ia', 'tiny-periodo-actividad',
                                 'tiny-hibernacion-torpor-ia', 'tiny-mecanismos-defensa',
-                                'tiny-organizacion-social', 'tiny-descripcion-reproduccion',
-                                'tiny-aislamiento-temporal-ia', 'tiny-flor-longevidad',
+                                'tiny-organizacion-social', 'tiny-aislamiento-temporal-ia', 'tiny-flor-longevidad',
                                 'tiny-floracion-ia', 'tiny-nectar-ia', 'tiny-polen',
                                 'tiny-fructificacion-ia', 'tiny-fruto-ia', 'tiny-eventos-ia',
                                 'tiny-semillas-ia', 'tiny-semillas-tam-ia', 'tiny-germinacion-ia',
-                                'tiny-supervivencia-ia', 'tiny-repro-animal-gen', 'tiny-tipo-fecundacion-animal',
+                                'tiny-supervivencia-ia', 'tiny-tipo-fecundacion-animal',
                                 'tiny-tipo-repro-asexual-animal', 'tiny-sistema-repro-animal-ia',
-                                'tiny-tipo-dimorfismo', 'tiny-dimorfismo-ia', 'tiny-sistemas-apareamiento',
+                                'tiny-dimorfismo-ia', 'tiny-sistemas-apareamiento',
                                 'tiny-estrategia-reproductiva-animal', 'tiny-tiempo-eventos-ia',
                                 'tiny-edad-primera-reproduccion', 'tiny-duracion-vida-reproductiva',
                                 'tiny-sitios-anidacion', 'tiny-tipo-estructura-anidacion',
@@ -575,66 +621,26 @@
                             ]
                         };
 
-                        const mapaCampos = {
-                            'infoAddDistribucionMundialPais': 'dist_mundial_info',
-                            'infoAddDistribucionMundialEstado': 'info_adicional_estado',
-                            'infoAddDistribucionMundialMunicipio': 'info_adicional_municipio',
-                            'infoAddDistPotMex': 'potencial_info',
-                            'infoAddEndemismo': 'endemismo_info',
-                            'tiny-altitud': 'infoAddintervaloaltitudinal',
-                            'tiny-clima': 'clima_info',
-                            'tiny-temp': 'infoaddtemperatura',
-                            'tiny-aspectos': 'aspectos',
-                            'tiny-uso-habitat': 'uso_habitat',
-                            'tiny-forma-vida-ia': 'forma_vida_ia',
-                            'tiny-caracteristicas-conductuales': 'caracteristicas_conductuales',
-                            'tiny-estatus-migratorio': 'estatus_migratorio',
-                            'tiny-tipo-migracion': 'tipo_migracion',
-                            'tiny-migracion-ia': 'migracion_ia',
-                            'tiny-periodo-actividad': 'periodo_actividad',
-                            'tiny-hibernacion-torpor-ia': 'hibernacion_torpor_ia',
-                            'tiny-mecanismos-defensa': 'mecanismos_defensa',
-                            'tiny-organizacion-social': 'organizacion_social',
-                            'tiny-descripcion-reproduccion': 'descripcion_reproduccion',
-                            'tiny-aislamiento-temporal-ia': 'aislamiento_temporal_ia',
-                            'tiny-flor-longevidad': 'flor_longevidad',
-                            'tiny-floracion-ia': 'floracion_ia',
-                            'tiny-nectar-ia': 'cantidad_nectar_ia',
-                            'tiny-polen': 'cantidad_polen',
-                            'tiny-fructificacion-ia': 'fructificacion_ia',
-                            'tiny-fruto-ia': 'frutos_ia',
-                            'tiny-eventos-ia': 'estrategia_reproductiva_planta_ia',
-                            'tiny-semillas-ia': 'semillas_caracteristicas_ia',
-                            'tiny-semillas-tam-ia': 'semillas_tam_ia',
-                            'tiny-germinacion-ia': 'germinacion_ia',
-                            'tiny-supervivencia-ia': 'supervivencia_ia',
-                            'tiny-repro-animal-gen': 'descripcion_reproduccion',
-                            'tiny-tipo-fecundacion-animal': 'tipo_fecundacion_animal',
-                            'tiny-tipo-repro-asexual-animal': 'tipo_reproduccion_asexual_animal',
-                            'tiny-sistema-repro-animal-ia': 'sistema_repro_animal_ia',
-                            'tiny-tipo-dimorfismo': 'tipo_dimorfismo',
-                            'tiny-dimorfismo-ia': 'dimorfismo_ia',
-                            'tiny-sistemas-apareamiento': 'sistemas_apareamiento',
-                            'tiny-estrategia-reproductiva-animal': 'estrategia_reproductiva_animal',
-                            'tiny-tiempo-eventos-ia': 'tiempo_eventos_ia',
-                            'tiny-edad-primera-reproduccion': 'edad_primera_reproduccion',
-                            'tiny-duracion-vida-reproductiva': 'duracion_vida_reproductiva',
-                            'tiny-sitios-anidacion': 'sitios_anidacion',
-                            'tiny-tipo-estructura-anidacion': 'tipo_estructura_anidacion',
-                            'tiny-anidacion-ia': 'anidacion_ia',
-                            'tiny-cuidado-parental-vc': 'cuidado_parental_vc',
-                            'tiny-tiempo-cuidado-parental': 'tiempo_cuidado_parental'
-                        };
-
                         const activos = editoresPorSeccion[this.step] || [];
-                        activos.forEach(selectorId => {
-                            const cleanId = selectorId.replace('#', '');
+                        activos.forEach(cleanId => {
                             const ed = tinymce.get(cleanId);
                             if (ed) {
-                                const campo = mapaCampos[selectorId] || cleanId.replace('tiny-', '').replace(/-/g, '_');
+                                const campo = cleanId.replace('tiny-', '').replace(/-/g, '_');
                                 this.form[campo] = ed.getContent();
                             }
                         });
+
+                        if (this.form.Reino === 'Animalia') {
+                            const edAnimal = tinymce.get('tiny-repro-animal-gen');
+                            if (edAnimal) {
+                                this.form.descripcion_reproduccion = edAnimal.getContent();
+                            }
+                        } else if (this.form.Reino === 'Plantae') {
+                            const edPlanta = tinymce.get('tiny-repro-vegetal-gen');
+                            if (edPlanta) {
+                                this.form.descripcion_reproduccion = edPlanta.getContent();
+                            }
+                        }
 
                         if (this.step === 1 && this.form.nom059) {
                             ['2001', '2010', '2019'].forEach(year => {
@@ -647,7 +653,11 @@
                     },
 
                     initEditor(selector, field, parent = 'form') {
-                        tinymce.remove(selector);
+                        const cleanId = selector.replace('#', '');
+                        if (tinymce.get(cleanId)) {
+                            tinymce.get(cleanId).remove();
+                        }
+
                         tinymce.init({
                             selector: selector,
                             plugins: 'lists link paste',
@@ -668,9 +678,16 @@
                             `,
                             setup: (editor) => {
                                 editor.on('init', () => {
-                                    const content = this[parent][field];
-                                    if (content && content !== 'EMPTY') {
-                                        editor.setContent(content);
+                                    if (parent === 'tempNombre' && this.editandoIndice === -1) {
+                                        editor.setContent('');
+                                        this.tempNombre.bibliografia = '';
+                                    } else {
+                                        const content = this[parent][field];
+                                        if (content && content !== 'EMPTY') {
+                                            editor.setContent(content);
+                                        } else {
+                                            editor.setContent('');
+                                        }
                                     }
                                 });
                                 editor.on('change input undo redo', () => {
@@ -719,15 +736,18 @@
                             this.tempNombre = {
                                 nombre: '',
                                 lengua: '',
+                                lengua_otra: '',
                                 bibliografia: '',
                                 editable: true
                             };
                             if (tinymce.get('bibliografia_editor')) {
                                 tinymce.get('bibliografia_editor').setContent('');
                             }
+
                             this.showModalNombre = true;
                         }
                     },
+
 
                     async cargarMunicipios(nombreEdo, acumular = false) {
                         if (!nombreEdo) return;
@@ -779,9 +799,14 @@
                         }
 
                         this.tempNombre = { nombre: '', lengua: '', lengua_otra: '', bibliografia: '', editable: true };
+                        if (tinymce.get('bibliografia_editor')) {
+                            tinymce.get('bibliografia_editor').setContent('');
+                        }
+
                         this.showModalNombre = false;
                         this.editandoIndice = -1;
                     },
+
 
                     abrirModalSinonimo() {
                         if (!this.form.especieId) {
@@ -811,13 +836,29 @@
                         if (!this.tempSinonimo.sinonimo || this.tempSinonimo.sinonimo.trim() === '') {
                             return alert('El nombre del sinónimo es obligatorio.');
                         }
+                        if (this.tempSinonimo.anio !== '' && this.tempSinonimo.anio !== null) {
+                            const anioNum = parseInt(this.tempSinonimo.anio);
+                            if (anioNum < 1500 || anioNum > 2026) {
+                                Swal.fire({
+                                    title: 'Año inválido',
+                                    text: 'El año debe estar entre 1500 y 2026.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#4f46e5',
+                                    customClass: {
+                                        container: 'z-[99999]'
+                                    }
+                                });
+                                return;
+                            }
+                        }
 
                         if (this.editandoIndiceSinonimo === -1) {
                             this.form.sinonimos.push({ ...this.tempSinonimo, editable: true });
                         } else {
                             this.form.sinonimos[this.editandoIndiceSinonimo] = { ...this.tempSinonimo, editable: true };
                         }
-                        this.tempSinonimo = { nombre: '', autor: '', anio: '', editable: true };
+
+                        this.tempSinonimo = { sinonimo: '', autor: '', anio: '', editable: true };
                         this.showModalSinonimo = false;
                         this.editandoIndiceSinonimo = -1;
                     },
