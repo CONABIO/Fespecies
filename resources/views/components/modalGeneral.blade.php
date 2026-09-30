@@ -9,7 +9,7 @@
             <div class="space-y-4">{{ $slot }}</div>
             <div class="mt-6 flex justify-end space-x-3">
                 <button type="button" @click="{{ $id }} = false" class="px-4 py-2 text-[10px] font-black text-red-400 uppercase hover:text-gray-600 transition-colors">Cancelar</button>
-                <button type="button" @click="{{ $saveFunction }}" class="px-6 py-2 bg-indigo-600 text-white text-[10px] font-black rounded-full hover:bg-indigo-800 shadow-md shadow-indigo-100 transition-all">Guardar Datos</button>
+                <button type="button" @click="{{ $saveFunction }}" class="px-6 py-2 bg-indigo-600 text-white text-[10px] font-black rounded-full hover:bg-indigo-800 shadow-md shadow-indigo-100 transition-all uppercase">Guardar Datos</button>
             </div>
         </div>
     </div>

@@ -28,4 +28,15 @@ Route::get('/obtener-sinonimos', [FormController::class, 'obtenerSinonimos']);
 Route::get('/editar-ficha/{id}', [FormController::class, 'editarFicha'])->name('form.edit');
 Route::put('/actualizar_seccion/{id}', [FormController::class, 'guardarSeccion']);
 
+Route::get('/obtener-municipios/{nombreEdo}', [FormController::class, 'obtenerMunicipios']);
+
+Route::get('/buscar-dashboard', [TaxonController::class, 'buscarEnTaxon'])->name('especies.buscar_local');
+
+Route::get('/verificar-existencia/{idCAT}', [FormController::class, 'verificarExistencia']);
+
+Route::post('/obtener-municipios-multiple', [FormController::class, 'obtenerMunicipiosMultiple']);
+
+
+
+
 require __DIR__.'/auth.php';
