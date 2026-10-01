@@ -3,7 +3,7 @@
 # 🐒 Fichas de Especies (Fespecies)
 
 <p align="center">
-  <b>Sistema para la gestión y consulta de fichas de especies desarrollado con Laravel.</b>
+  <b> Sistema de Fichas de Especies</b>
 </p>
 
 </div>
