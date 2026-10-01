@@ -2,9 +2,6 @@
 
 # 🐒 Fichas de Especies (Fespecies)
 
-<p align="center">
-  <b> Sistema de Fichas de Especies</b>
-</p>
 
 </div>
 
