@@ -49,9 +49,9 @@ git clone (URL del repositorio)
 
 
 
-```markdown
-📥 Paso 2: Agregar el .env
-```
+
+## 📥 Paso 2: Agregar el .env
+
 
 #### Ya clonado el proyecto lo que se debe agregar el .env este archivo de texto plano es utilizado para almacenar variables de entorno, como credenciales de bases de datos, claves de API y otras configuraciones sensibles, #### separadas del código fuente, debes generar tu propio archivo .env a partir de este archivo de ejemplo: 
 
@@ -62,9 +62,7 @@ cp .env.example .env
 #### Copiado el archivo puedes empezar a modificar las variables y conexiones a tu base de datos 
 
 
-```markdown
-📥 Paso 3: Instalación de dependencias
-```
+## 📥 Paso 3: Instalación de dependencias
 
 #### Ya agregado el .env lo siguiente es la instalación de dependencias con estos dos comandos
 
@@ -74,9 +72,8 @@ npm install
 ```
 
 
-```markdown
-📥 Paso 4: Modificación del archivo vite.config.js
-```
+## 📥 Paso 4: Modificación del archivo vite.config.js
+
 
 ##### Antes de correr el proyecto es necesario modificar el vite.config.js 
 
@@ -90,9 +87,8 @@ server: {
 
 #### Se debe modificar el host y poner la ip del equipo donde se va a correr el proyecto y el puerto 
 
-```markdown
-📥 Paso 5: Correr los comandos para iniciar el proyecto
-```
+## 📥 Paso 5: Correr los comandos para iniciar el proyecto
+
 
 #### Ya instaladas las dependencias del proyecto y configurado el vite.config.js lo sigueinte es correr el proyecto con los sigueintes comandos
 
@@ -101,9 +97,8 @@ php artisan serve --host=0.0.0.0 --port=8000
 npm run dev
 ```
 
-```markdown
-📥 Paso 6: Entrar a la url para comprobar que el proyecto este corriendo
-```
+## 📥 Paso 6: Entrar a la url para comprobar que el proyecto este corriendo
+
 
 ##### Como ultimo paso es acceder al navegador en la siguiente URL 
 
