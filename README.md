@@ -34,14 +34,18 @@ Asegúrate de tener instalado en tu equipo lo siguiente antes de comenzar:
 ---
 
 
-##  🔧 Instalación y levntamiento
+##  🔧 Instalación y levantamiento
 
-## Paso 1
+```markdown
+### 📥 Paso 1: Clonar el proyecto
+```
 #### Para poder clonar el proyecto se necesita poner el siguiente comando en la consola, se debe acceder a la carpeta donde se quiere clonar el proyecto y ya dentro de la carpeta se abre la terminal y se pone 
 
 ```
 git clone (URL del repositorio)
 ```
+
+
 
 
 ## Paso 2
