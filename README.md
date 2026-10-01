@@ -9,7 +9,8 @@
 
 ## 🧠 Descripción
 
-El **Sistema de fichas de especies (Fespecies)** fue desarrollado por [Tu Nombre / Tu Equipo] con el objetivo de... *(agrega aquí una breve descripción extra si lo deseas)*.
+El **Sistema de fichas de especies (Fespecies)** fue desarrollado para la captura, almacenamiento y gestión integral de información sobre todo tipo de especies. Su objetivo principal es ofrecer una interfaz intuitiva para registrar datos científicos y generales, permitiendo un control organizado de la biodiversidad.
+
 
 ---
 
