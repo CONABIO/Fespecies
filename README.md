@@ -37,8 +37,9 @@ Asegúrate de tener instalado en tu equipo lo siguiente antes de comenzar:
 ##  🔧 Instalación y levantamiento
 
 ```markdown
-### 📥 Paso 1: Clonar el proyecto
+📥 Paso 1: Clonar el proyecto
 ```
+
 #### Para poder clonar el proyecto se necesita poner el siguiente comando en la consola, se debe acceder a la carpeta donde se quiere clonar el proyecto y ya dentro de la carpeta se abre la terminal y se pone 
 
 ```
@@ -48,7 +49,9 @@ git clone (URL del repositorio)
 
 
 
-## Paso 2
+```markdown
+📥 Paso 2: Agregar el .env
+```
 
 #### Ya clonado el proyecto lo que se debe agregar el .env este archivo de texto plano es utilizado para almacenar variables de entorno, como credenciales de bases de datos, claves de API y otras configuraciones sensibles, #### separadas del código fuente, debes generar tu propio archivo .env a partir de este archivo de ejemplo: 
 
@@ -59,7 +62,9 @@ cp .env.example .env
 #### Copiado el archivo puedes empezar a modificar las variables y conexiones a tu base de datos 
 
 
-## Paso 3
+```markdown
+📥 Paso 3: Instalación de dependencias
+```
 
 #### Ya agregado el .env lo siguiente es la instalación de dependencias con estos dos comandos
 
@@ -69,7 +74,9 @@ npm install
 ```
 
 
-## Paso 4
+```markdown
+📥 Paso 4: Modificación del archivo vite.config.js
+```
 
 ##### Antes de correr el proyecto es necesario modificar el vite.config.js 
 
@@ -83,7 +90,9 @@ server: {
 
 #### Se debe modificar el host y poner la ip del equipo donde se va a correr el proyecto y el puerto 
 
-## Paso 5
+```markdown
+📥 Paso 5: Correr los comandos para iniciar el proyecto
+```
 
 #### Ya instaladas las dependencias del proyecto y configurado el vite.config.js lo sigueinte es correr el proyecto con los sigueintes comandos
 
@@ -92,7 +101,9 @@ php artisan serve --host=0.0.0.0 --port=8000
 npm run dev
 ```
 
-## Paso 6
+```markdown
+📥 Paso 6: Entrar a la url para comprobar que el proyecto este corriendo
+```
 
 ##### Como ultimo paso es acceder al navegador en la siguiente URL 
 
