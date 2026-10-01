@@ -71,171 +71,114 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'terrestre' || form.tipoAmbiente === 'terrestre-acuático'"
-        x-transition class="space-y-8">
-        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-10">
-            <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">2. Tipo de Vegetación</h3>
+    <div class="grid grid-cols-1 gap-8">
 
-            <div class="space-y-4">
-                <div class="flex flex-col">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">a) Indicar el o los tipos de vegetación en los que se desarrolla la especie </label>
-                    @include('components.multi-select', [
-                        'model' => 'form.tipo_vegetacion_a',
-                        'options' => 'vegetacionOptions.map(o => o.descripcionSubVegetacion)',
-                        'placeholder' => 'Seleccione tipo de vegetación'
-                    ])
-                    <div class="mt-4">
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">Información adicional</label>
-                        <textarea id="vegetacion_info_adicional_a_editor"
-                            class="w-full rounded-xl border-2 border-slate-100 p-3 text-xs bg-slate-50 outline-none focus:border-indigo-400 min-h-[60px] shadow-inner"></textarea>
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
+            <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">3. Intervalo altitudinal</h3>
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="space-y-1">
+                    <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">de (m)</label>
+                    <input type="number" x-model="form.intervaloaltitudinalinicial"
+                        @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
+                        @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">a (m)</label>
+                    <input type="number" x-model="form.intervaloaltitudinalfinal"
+                        @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
+                        @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-black text-indigo-400 tracking-wider ml-1">Promedio</label>
+                    <div class="w-full px-4 py-3 rounded-2xl bg-indigo-50 border-2 border-indigo-50 text-sm font-black text-indigo-600 flex items-center justify-center">
+                        <span x-text="form.intervaloaltitudinalprom"></span>
                     </div>
                 </div>
             </div>
-
-            <div class="space-y-4">
-                <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">b) Mencionar las especies asociadas</label>
-                <textarea id="especies_asociadas_info_editor"
-                    class="w-full rounded-xl border-2 border-slate-100 p-3 text-xs bg-slate-50 outline-none focus:border-indigo-400 min-h-[80px] shadow-inner"></textarea>
-            </div>
-
-            <div class="space-y-6">
-                <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">c) Hábitats antrópicos</label>
-                @include('components.multi-select', [
-                    'model' => 'form.habitats_antropicos',
-                    'options' => 'habitatsAntropicosOptions.map(o => o.descn1)',
-                    'placeholder' => 'Indicar si se encuantra presente'
-                ])
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-6">
-                    <template x-for="(label, key) in { habitatAgropecuario: 'i. ¿Hábitat agropecuario?', zonaUrbana: 'ii. ¿Zonas urbanas?', VegetacionSecundaria: 'iii. ¿Vegetación secundaria?' }">
-                        <div class="flex flex-col space-y-3">
-                            <span class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center" x-text="label"></span>
-                            <div class="flex space-x-4">
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" :name="key" value="si" x-model="form[key]" class="w-4 h-4 text-indigo-600 border-slate-300"><span class="text-[10px] font-bold">Sí</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" :name="key" value="no" x-model="form[key]" class="w-4 h-4 text-rose-500 border-slate-300"><span class="text-[10px] font-bold">No</span></label>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-4">d) Tipo de vegetación secundaria</label>
-                @include('components.multi-select', [
-                    'model' => 'form.vegetacion_secundaria', {{-- CORREGIDO --}}
-                    'options' => 'vegSecundariaOptions.map(o => o.descn1)',
-                    'placeholder' => 'Seleccione vegetación secundaria'
-                ])
+            <div class="flex-grow">
+                <label class="text-[11px] font-black text-slate-400  tracking-wider mb-2 block ml-1">Información adicional altitud</label>
+                <textarea id="tiny-altitud"
+                    class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
+            <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">4. Clima</h3>
+            @include('components.multi-select', [
+                'model' => 'form.clima_tipo',
+                'options' => 'climaOptions.map(o => o.descn2)',
+                'placeholder' => 'Seleccione clima'
+            ])
+            <div class="flex-grow mt-6">
+                <label class="text-[11px] font-black text-slate-400  tracking-wider mb-2 block ml-1">Información adicional clima</label>
+                <textarea id="tiny-clima"
+                    class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
+            </div>
+        </div>
+
+        <template x-for="param in [
+            { id: 'temperatura', label: '5. Intervalo de temperatura', unit: '°C', tiny: 'tiny-temp', init: 'temperaturainicial', final: 'temperaturafinal', prom: 'temeperaturapromedio' },
+            { id: 'precipitacion', label: '6. Intervalo de precipitación', unit: 'mm', tiny: 'tiny-precip', init: 'precipitacioninicial', final: 'precipitacionfinal', prom: 'precipitacionpromedio' },
+            { id: 'humedad', label: '7. Intervalo de humedad relativa', unit: '%', tiny: 'tiny-humedad', init: 'humedadinicial', final: 'humedadfinal', prom: 'humedadpromedio' }
+        ]">
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
-                <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">3. Intervalo altitudinal</h3>
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">de (m)</label>
-                        <input type="number" x-model="form.intervaloaltitudinalinicial"
-                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
-                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
-                            class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
+                <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6" x-text="param.label"></h3>
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="relative">
+                        <label class="text-[11px] font-black text-slate-400  mb-1 block ml-1">De</label>
+                        <div class="relative">
+                            <input type="number" x-model="form[param.init]"
+                                @input="actualizarPromedio(param.init, param.final, param.prom)"
+                                @change="validarRango(param.init, param.final, param.label)"
+                                class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold shadow-inner">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-slate-300"
+                                x-text="param.unit"></span>
+                        </div>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-black text-slate-400 tracking-wider ml-1">a (m)</label>
-                        <input type="number" x-model="form.intervaloaltitudinalfinal"
-                            @input="actualizarPromedio('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'intervaloaltitudinalprom')"
-                            @change="validarRango('intervaloaltitudinalinicial', 'intervaloaltitudinalfinal', 'Altitud', 'intervaloaltitudinalprom')"
-                            class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold outline-none focus:border-indigo-400 transition-all shadow-inner">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-black text-indigo-400 tracking-wider ml-1">Promedio</label>
-                        <div class="w-full px-4 py-3 rounded-2xl bg-indigo-50 border-2 border-indigo-50 text-sm font-black text-indigo-600 flex items-center justify-center">
-                            <span x-text="form.intervaloaltitudinalprom"></span>
+                    <div class="relative">
+                        <label class="text-[11px] font-black text-slate-400  mb-1 block ml-1">A</label>
+                        <div class="relative">
+                            <input type="number" x-model="form[param.final]"
+                                @input="actualizarPromedio(param.init, param.final, param.prom)"
+                                @change="validarRango(param.init, param.final, param.label)"
+                                class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold shadow-inner">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-slate-300"
+                                x-text="param.unit"></span>
                         </div>
                     </div>
                 </div>
                 <div class="flex-grow">
-                    <label class="text-[11px] font-black text-slate-400  tracking-wider mb-2 block ml-1">Información adicional altitud</label>
-                    <textarea id="tiny-altitud"
+                    <textarea :id="param.tiny"
                         class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
                 </div>
             </div>
+        </template>
 
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
-                <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">4. Clima</h3>
-                @include('components.multi-select', [
-                    'model' => 'form.clima_tipo',
-                    'options' => 'climaOptions.map(o => o.descn2)',
-                    'placeholder' => 'Seleccione clima'
-                ])
-                <div class="flex-grow mt-6">
-                    <label class="text-[11px] font-black text-slate-400  tracking-wider mb-2 block ml-1">Información adicional clima</label>
-                    <textarea id="tiny-clima"
-                        class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
-                </div>
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
+            <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">8. Tipo de Suelo</h3>
+            @include('components.multi-select', [
+                'model' => 'form.suelo_tipo',
+                'options' => 'suelosOptions.map(o => o.descn1)',
+                'placeholder' => 'Seleccione tipo de suelo'
+            ])
+            <div class="flex-grow mt-6">
+                <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2 block ml-1">Información adicional suelo</label>
+                <textarea id="tiny-suelo"
+                    class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
             </div>
+        </div>
 
-            <template x-for="param in [
-                { id: 'temperatura', label: '5. Intervalo de temperatura', unit: '°C', tiny: 'tiny-temp', init: 'temperaturainicial', final: 'temperaturafinal', prom: 'temeperaturapromedio' },
-                { id: 'precipitacion', label: '6. Intervalo de precipitación', unit: 'mm', tiny: 'tiny-precip', init: 'precipitacioninicial', final: 'precipitacionfinal', prom: 'precipitacionpromedio' },
-                { id: 'humedad', label: '7. Intervalo de humedad relativa', unit: '%', tiny: 'tiny-humedad', init: 'humedadinicial', final: 'humedadfinal', prom: 'humedadpromedio' }
-            ]">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
-                    <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6" x-text="param.label"></h3>
-                    <div class="grid grid-cols-2 gap-6 mb-6">
-                        <div class="relative">
-                            <label class="text-[11px] font-black text-slate-400  mb-1 block ml-1">De</label>
-                            <div class="relative">
-                                <input type="number" x-model="form[param.init]"
-                                    @input="actualizarPromedio(param.init, param.final, param.prom)"
-                                    @change="validarRango(param.init, param.final, param.label)"
-                                    class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold shadow-inner">
-                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-slate-300"
-                                    x-text="param.unit"></span>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <label class="text-[11px] font-black text-slate-400  mb-1 block ml-1">A</label>
-                            <div class="relative">
-                                <input type="number" x-model="form[param.final]"
-                                    @input="actualizarPromedio(param.init, param.final, param.prom)"
-                                    @change="validarRango(param.init, param.final, param.label)"
-                                    class="w-full px-4 py-3 rounded-2xl border-2 border-slate-50 bg-slate-50 text-sm font-bold shadow-inner">
-                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-slate-300"
-                                    x-text="param.unit"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex-grow">
-                        <textarea :id="param.tiny"
-                            class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
-                    </div>
-                </div>
-            </template>
-
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
-                <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">8. Tipo de Suelo</h3>
-                @include('components.multi-select', [
-                    'model' => 'form.suelo_tipo',
-                    'options' => 'suelosOptions.map(o => o.descn1)',
-                    'placeholder' => 'Seleccione tipo de suelo'
-                ])
-                <div class="flex-grow mt-6">
-                    <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2 block ml-1">Información adicional suelo</label>
-                    <textarea id="tiny-suelo"
-                        class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none min-h-[80px] shadow-inner"></textarea>
-                </div>
-            </div>
-
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6 col-span-1 lg:col-span-2">
-                <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">9. Geoforma </h3>
-                @include('components.multi-select', [
-                    'model' => 'form.geoforma_tipo',
-                    'options' => 'geoformaOptions.map(o => o.descn1)',
-                    'placeholder' => 'Seleccione geoforma'
-                ])
-                <textarea id="tiny-geoforma"
-                    class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none focus:border-indigo-400 min-h-[80px] shadow-inner"></textarea>
-            </div>
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-6">
+            <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">9. Geoforma </h3>
+            @include('components.multi-select', [
+                'model' => 'form.geoforma_tipo',
+                'options' => 'geoformaOptions.map(o => o.descn1)',
+                'placeholder' => 'Seleccione geoforma'
+            ])
+            <textarea id="tiny-geoforma"
+                class="w-full rounded-xl border-2 border-slate-50 p-3 text-xs bg-slate-50 outline-none focus:border-indigo-400 min-h-[80px] shadow-inner"></textarea>
         </div>
     </div>
 
