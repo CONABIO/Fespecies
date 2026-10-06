@@ -849,17 +849,26 @@ class FormController extends Controller {
             '2019' => ['categoria' => '', 'info' => '']
         ];
 
+        $infoUICNLocal = '';
+        $infoCITESLocal = '';
+
         foreach ($legisRows as $row) {
-            if (str_contains($row->nombreLegislacion, 'NOM-059')) {
-                if (trim($row->nombreLegislacion) === 'NOM-059-SEMARNAT') {
+            $nombreLegis = trim($row->nombreLegislacion);
+            $infoAdicionalVal = ($row->infoAdicional === 'EMPTY' || empty($row->infoAdicional)) ? '' : $row->infoAdicional;
+
+            if ($nombreLegis === 'UICN') {
+                $infoUICNLocal = $infoAdicionalVal;
+            } elseif ($nombreLegis === 'CITES') {
+                $infoCITESLocal = $infoAdicionalVal;
+            } elseif (str_contains($nombreLegis, 'NOM-059')) {
+                if ($nombreLegis === 'NOM-059-SEMARNAT') {
                     $nom059Processed['2010']['categoria'] = $row->estatusLegalProteccion ?? '';
-                    $nom059Processed['2010']['info'] = ($row->infoAdicional === 'EMPTY' || empty($row->infoAdicional)) ? '' : $row->infoAdicional;
-                }
-                elseif (preg_match('/(2001|2010|2019)$/', $row->nombreLegislacion, $matches)) {
+                    $nom059Processed['2010']['info'] = $infoAdicionalVal;
+                } elseif (preg_match('/(2001|2010|2019)$/', $nombreLegis, $matches)) {
                     $year = $matches[1];
                     if (isset($nom059Processed[$year])) {
                         $nom059Processed[$year]['categoria'] = $row->estatusLegalProteccion ?? '';
-                        $nom059Processed[$year]['info'] = ($row->infoAdicional === 'EMPTY' || empty($row->infoAdicional)) ? '' : $row->infoAdicional;
+                        $nom059Processed[$year]['info'] = $infoAdicionalVal;
                     }
                 }
             }
@@ -1145,10 +1154,10 @@ class FormController extends Controller {
             'descripcionOrigen'       => $getData('descripcionOrigen'),
             'toxicidad'               => $getData('toxicidad'),
             'siNoToxicidad'           => (string)($t['siNoToxicidad'] ?? $t['sinotoxicidad'] ?? '0'),
-            'riesgoUICN' => $datosCatalogo->Iucn ?? $getData('infoUICN'),
-            'infoUICN'   => $getData('infoUICN'),
-            'cites'      => $datosCatalogo->Cites ?? $getData('infoCITES'),
-            'infoCITES'  => $getData('infoCITES'),
+            'riesgoUICN' => $datosCatalogo->Iucn ?? '',
+            'infoUICN'   => $infoUICNLocal,
+            'cites'      => $datosCatalogo->Cites ?? '',
+            'infoCITES'  => $infoCITESLocal,
             'nom059'     => $nom059Processed,
             'origen'     => ($t['origen'] ?? '') ? explode(', ', $t['origen']) : [],
             'paises_seleccionados'     => $paisesS,
