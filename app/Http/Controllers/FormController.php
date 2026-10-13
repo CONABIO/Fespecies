@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\DB;
 class FormController extends Controller {
 
     public function index(Request $request) {
+        $especiesCatalogo = \Illuminate\Support\Facades\Cache::remember('especies_catalogo_dropdown', 3600, function () {
+            return DB::connection('mysql_catalogo')
+                ->table('_TransformaTablaNombre')
+                ->select('taxon', 'Orden', 'Familia')
+                ->orderBy('taxon')
+                ->get();
+        });
         $tempId = $request->query('tempId');
         $paises = DB::table('pais')->orderBy('nombrepais')->get();
         $tiposSuelo = DB::table('cat_preguntas')->where('idpregunta', 6)->get();
@@ -138,6 +145,24 @@ class FormController extends Controller {
                 ];
             });
 
+
+        $amenazasOptions = DB::table('amenazadirecta')->select('amenazaId as v', 'subpresionesAmenazas as t', 'presionesAmenazas as g')->orderBy('presionesAmenazas')->orderBy('subpresionesAmenazas')->get();
+        $esquemamanejoOptions = DB::table('cat_preguntas')->where('idpregunta', 26)->select('idopcion as v', 'descn1 as t')->get();
+        $tipoaprovechamientoOptions = DB::table('cat_preguntas')->where('idpregunta', 27)->select('idopcion as v', 'descn1 as t')->get();
+
+        $funcionEcologicaOptions = DB::table('cat_preguntas')->where('idpregunta', 54)->select('idopcion as v', 'descn1 as t')->get();
+        $productoComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 19)->select('idopcion as v', 'descn1 as t')->get();
+        $unidadComercioOptions = DB::table('cat_preguntas')->where('idpregunta', 21)->select('idopcion as v', 'descn1 as t')->get();
+        $origenComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 18)->select('idopcion as v', 'descn1 as t')->get();
+        $propositoComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 20)->select('idopcion as v', 'descn1 as t')->get();
+
+        $productoComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 23)->select('idopcion as v', 'descn1 as t')->get();
+        $unidadComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 25)->select('idopcion as v', 'descn1 as t')->get();
+        $origenComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 22)->select('idopcion as v', 'descn1 as t')->get();
+        $propositoComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 24)->select('idopcion as v', 'descn1 as t')->get();
+        $usosCulturaOptions = DB::table('culturausos')->select('culturaUsosId as v', 'descripcion as t', 'descripcion as g')->get();
+
+
         return view('form', compact(
             'tempId', 'paises', 'estados', 'tiposSuelo', 'habitatsAntropicos',
             'vegSecundaria', 'clima', 'geoforma', 'vegetacionCat', 'ecorregiones',
@@ -148,7 +173,9 @@ class FormController extends Controller {
             'habitoAnimalOptions', 'migracionOptions', 'tipoMigracionOptions',
             'sistApareamientoOpts', 'sitioAnidacionOpts','numEventosReproOptions','mecanismosDefensaOpts','organizacionSocialOpts','cuidadoParentalOpts',
             'tipoDimorfismoOpts',
-            'mecanismosDefensaOptions', 'organizacionSocialOptions','habitatVerticalOptions','habitatHorizontalOptions'
+            'mecanismosDefensaOptions', 'organizacionSocialOptions','habitatVerticalOptions','habitatHorizontalOptions','especiesCatalogo','amenazasOptions', 'esquemamanejoOptions', 'tipoaprovechamientoOptions',
+            'funcionEcologicaOptions','productoComercioNalOptions','unidadComercioOptions','origenComercioNalOptions','propositoComercioNalOptions','productoComercioInterOptions',
+            'unidadComercioInterOptions','origenComercioInterOptions','propositoComercioInterOptions','usosCulturaOptions',
         ));
     }
 
@@ -509,6 +536,9 @@ class FormController extends Controller {
                         'oxigenopromedio' => $f['oxigenopromedio'] ?? null,
                         'phpromedio' => $f['phpromedio'] ?? null,
                         'temeperaturapromedio' => $f['temeperaturapromedio'] ?? null,
+                        'precipitacionpromedio' => $f['precipitacionpromedio'] ?? null,
+                        'humedadpromedio'       => $f['humedadpromedio'] ?? null,
+
                     ]
                 );
 
@@ -539,26 +569,46 @@ class FormController extends Controller {
                 DB::table('habitat')->updateOrInsert(
                     ['especieId' => $especieId],
                     [
-                        'tipoCiclo' => $f['tipoCiclo'] ?? null,
-                        'aspectos'  => $f['aspectos'] ?? null,
-                        'uso'       => $f['uso_habitat'] ?? null,
-                        'infoAddUsoHabitat'  => $f['infoAddUsoHabitat'] ?? null,
+                        'tipoCiclo'         => $f['tipoCiclo'] ?? null,
+                        'aspectos'          => $f['aspectos'] ?? null,
+                        'uso'               => $f['uso_habitat'] ?? null,
+                        'infoAddUsoHabitat' => $f['infoAddUsoHabitat'] ?? null,
                     ]
                 );
 
                 $saveCaracMulti = function($idPregunta, $valores) use ($especieId) {
-                    DB::table('caracteristicasespecie')->where('especieId', $especieId)->where('idpregunta', $idPregunta)->delete();
+                    $idsPregunta = is_array($idPregunta) ? $idPregunta : [$idPregunta];
+                    DB::table('caracteristicasespecie')
+                        ->where('especieId', $especieId)
+                        ->whereIn('idpregunta', $idsPregunta)
+                        ->delete();
+
                     $vals = array_unique(array_filter((array)$valores));
                     if (!empty($vals)) {
                         $inserts = [];
                         $yaInsertados = [];
                         foreach ($vals as $val) {
-                            $opId = is_numeric($val) ? (int)$val : DB::table('cat_preguntas')->where('idpregunta', $idPregunta)->where('descn1', $val)->value('idopcion');
+                            $pregActual = $idsPregunta[0];
+                            if (is_numeric($val)) {
+                                $opId = (int)$val;
+                                $pregEncontrada = DB::table('cat_preguntas')->where('idopcion', $opId)->value('idpregunta');
+                                if ($pregEncontrada && in_array($pregEncontrada, $idsPregunta)) {
+                                    $pregActual = $pregEncontrada;
+                                }
+                            } else {
+                                $filaCat = DB::table('cat_preguntas')
+                                    ->whereIn('idpregunta', $idsPregunta)
+                                    ->where('descn1', $val)
+                                    ->first();
+                                $opId = $filaCat ? $filaCat->idopcion : null;
+                                if ($filaCat) $pregActual = $filaCat->idpregunta;
+                            }
+
                             if ($opId && !in_array($opId, $yaInsertados)) {
                                 $yaInsertados[] = $opId;
                                 $inserts[] = [
                                     'especieId'  => $especieId,
-                                    'idpregunta' => $idPregunta,
+                                    'idpregunta' => $pregActual,
                                     'idopcion'   => $opId
                                 ];
                             }
@@ -574,17 +624,29 @@ class FormController extends Controller {
                     $tipoDimorfismoVal = implode(', ', array_filter($tipoDimorfismoVal));
                 }
 
+                $mecanismosDefensaVal = $f['mecanismos_defensa'] ?? null;
+                if (is_array($mecanismosDefensaVal)) {
+                    $mecanismosDefensaVal = implode(', ', array_filter($mecanismosDefensaVal));
+                }
+
+                $organizacionSocialVal = $f['organizacion_social'] ?? null;
+                if (is_array($organizacionSocialVal)) {
+                    $organizacionSocialVal = implode(', ', array_filter($organizacionSocialVal));
+                }
+
                 $saveCaracMulti(9, $f['alimentacion'] ?? []);
-                $estrategiaVal = is_array($f['estrategia_trofica'] ?? null) ? ($f['estrategia_trofica'][0] ?? null) : ($f['estrategia_trofica'] ?? null);
                 $saveCaracMulti(45, $f['habito_planta'] ?? []);
                 $formaVidaVals = ($reino === 'Plantae') ? ($f['forma_vida_planta'] ?? []) : ($f['forma_vida_otros'] ?? []);
                 $saveCaracMulti(12, $formaVidaVals);
                 $saveCaracMulti(49, $f['expresion_flores'] ?? []);
                 $saveCaracMulti(50, $f['expresion_individuos'] ?? []);
                 $saveCaracMulti(51, $f['expresion_poblaciones'] ?? []);
-                $saveCaracMulti(53, $f['tipo_polinizacion'] ?? []);
+                $saveCaracMulti([48, 53], $f['tipo_polinizacion'] ?? []);
                 $saveCaracMulti(15, $f['dispersion_tipo'] ?? []);
                 $saveCaracMulti(16, $f['dispersion_estructura'] ?? []);
+
+                $estrategiaRaw = is_array($f['estrategia_trofica'] ?? null) ? ($f['estrategia_trofica'][0] ?? null) : ($f['estrategia_trofica'] ?? null);
+                $estrategiaVal = (!empty($estrategiaRaw) && is_numeric(trim((string)$estrategiaRaw))) ? (int)$estrategiaRaw : null;
 
                 $historia = DB::table('historianatural')->where('especieId', $especieId)->first();
                 $idReproAnimal = $historia->reproduccionAnimalId ?? null;
@@ -618,18 +680,19 @@ class FormController extends Controller {
                         'NoHuevosMax'                => is_numeric($f['crias_max'] ?? '') ? $f['crias_max'] : null,
                         'NoHuevosProm'               => is_numeric($f['crias_promedio'] ?? '') ? $f['crias_promedio'] : null,
                         'noHuevosCrias'              => $f['crias_promedio'] ?? ($f['crias_min'] ?? null),
-                        'cuidadoParental'            => ($f['cuidado_parental'] ?? '') === 'si' ? 'Sí' : (($f['cuidado_parental'] ?? '') === 'no' ? 'no' : null),
-                        'cuidadoParentalPor'         => $f['cuidado_parental_vc'] ?? null,
-                        'tiempoCuidadoParental'      => $f['tiempo_cuidado_parental'] ?? null,
+                        'cuidadoParental'       => ($f['cuidado_parental'] ?? '') === 'si' ? 'Sí' : (($f['cuidado_parental'] ?? '') === 'no' ? 'no' : null),
+                        'cuidadoParentalPor'    => (($f['cuidado_parental'] ?? '') === 'si') ? ($f['cuidado_parental_por'] ?? null) : null,
+                        'desCuidadoParental'    => (($f['cuidado_parental'] ?? '') === 'si') ? ($f['cuidado_parental_ia'] ?? null) : null,
+                        'tiempoCuidadoParental' => $f['tiempo_cuidado_parental'] ?? null,
+                        'tipoReproAsexualAnimal'     => (!empty($f['repro_asexual'])) ? ($f['tipo_reproduccion_asexual_animal'] ?? null) : null,
                     ];
 
                     if ($idReproAnimal && DB::table('reproduccionanimal')->where('reproduccionAnimalId', $idReproAnimal)->exists()) {
                         DB::table('reproduccionanimal')->where('reproduccionAnimalId', $idReproAnimal)->update($datosAnimal);
                     } else {
-                        $reproExistente = DB::table('reproduccionanimal')->orderBy('reproduccionAnimalId', 'desc')->first();
                         $idReproAnimal = DB::table('reproduccionanimal')->insertGetId($datosAnimal);
                     }
-                }elseif ($reino === 'Plantae') {
+                } elseif ($reino === 'Plantae') {
                     $desempaquetarValor = function($val) {
                         if (empty($val)) return null;
                         while (is_string($val) && (str_starts_with(trim($val), '[') || str_starts_with(trim($val), '{') || str_starts_with(trim($val), '"'))) {
@@ -664,9 +727,9 @@ class FormController extends Controller {
                     $numerosFructi = array_filter(array_map(fn($m) => $mapMesesNum[$m] ?? null, $fructiMesesArray));
                     $cadenaMesesFructiNum = !empty($numerosFructi) ? implode(', ', $numerosFructi) : null;
 
-                    $tamanoSemillaFinal = $f['semillas_tam_promedio'] ?? null;
-                    if (empty($tamanoSemillaFinal) && (!empty($f['semillas_tam_min']) || !empty($f['semillas_tam_max']))) {
-                        $tamanoSemillaFinal = "De " . ($f['semillas_tam_min'] ?? '') . " a " . ($f['semillas_tam_max'] ?? '');
+                    $tamanoSemillaFinal = $f['semillas_tam_ia'] ?? null;
+                    if (empty($tamanoSemillaFinal) && (!empty($f['semillas_tam_min']) || !empty($f['semillas_tam_max']) || !empty($f['semillas_tam_promedio']))) {
+                        $tamanoSemillaFinal = !empty($f['semillas_tam_promedio']) ? $f['semillas_tam_promedio'] : "De " . ($f['semillas_tam_min'] ?? '') . " a " . ($f['semillas_tam_max'] ?? '');
                     }
 
                     $datosPlanta = [
@@ -693,26 +756,26 @@ class FormController extends Controller {
                         'promNoFrutos'           => is_numeric($f['frutos_promedio'] ?? '') ? $f['frutos_promedio'] : null,
                         'caracFruto'             => is_numeric($f['fruto_caracteristicas'] ?? '') ? $f['fruto_caracteristicas'] : null,
                         'descCaracFruto'         => $f['frutos_ia'] ?? null,
+                        'noEventos'              => $f['estrategia_reproductiva_planta'] ?? null,
                         'descNoEventos'          => $f['estrategia_reproductiva_planta_ia'] ?? null,
                         'nosemillasinicial'      => is_numeric($f['semillas_num_min'] ?? '') ? $f['semillas_num_min'] : null,
                         'nosemillasfinal'        => is_numeric($f['semillas_num_max'] ?? '') ? $f['semillas_num_max'] : null,
-                        'tamanioSemilla'         => $f['semillas_tam_ia'] ?? null,
+                        'promNoSemillas'         => is_numeric($f['semillas_num_promedio'] ?? '') ? $f['semillas_num_promedio'] : null,
+                        'tamanioSemilla'         => $tamanoSemillaFinal,
+                        'tamanoInicioSemilla'    => is_numeric($f['semillas_tam_min'] ?? '') ? $f['semillas_tam_min'] : null,
+                        'tamamoFinalSemilla'     => is_numeric($f['semillas_tam_max'] ?? '') ? $f['semillas_tam_max'] : null,
+                        'promTamanoSemillas'     => $f['semillas_tam_promedio'] ?? null,
                         'germinacioninicial'     => is_numeric($f['germinacion_min'] ?? '') ? $f['germinacion_min'] : null,
                         'germinacionfinal'       => is_numeric($f['germinacion_max'] ?? '') ? $f['germinacion_max'] : null,
+                        'porcentajeGerminacion'  => is_numeric($f['germinacion_promedio'] ?? '') ? $f['germinacion_promedio'] : null,
+                        'infoaddgerminacion'     => $f['germinacion_ia'] ?? null,
                         'plantulasinicial'       => is_numeric($f['supervivencia_min'] ?? '') ? $f['supervivencia_min'] : null,
                         'plantulasfinal'         => is_numeric($f['supervivencia_max'] ?? '') ? $f['supervivencia_max'] : null,
+                        'porcentajeSuprePlantulas' => is_numeric($f['supervivencia_promedio'] ?? '') ? $f['supervivencia_promedio'] : null,
                         'infoaddplantulas'       => $f['supervivencia_ia'] ?? null,
-                        'promNoSemillas'         => is_numeric($f['semillas_num_promedio'] ?? '') ? $f['semillas_num_promedio'] : null,
-                        'porcentajeSuprePlantulas'   => is_numeric($f['supervivencia_promedio'] ?? '') ? $f['supervivencia_promedio'] : null,
-                        'promTamanoSemillas'     => $f['semillas_tam_promedio'] ?? null,
-                        'tamanoInicioSemilla'        => is_numeric($f['semillas_tam_min'] ?? '') ? $f['semillas_tam_min'] : null,
-                        'tamamoFinalSemilla'         => is_numeric($f['semillas_tam_max'] ?? '') ? $f['semillas_tam_max'] : null,
-                        'porcentajeGerminacion'  => is_numeric($f['germinacion_promedio'] ?? '') ? $f['germinacion_promedio'] : null,
-                        'infoaddgerminacion'         => $f['germinacion_ia'] ?? null,
                         'caracToxica'            => (($f['semillas_toxicidad'] ?? '') === 'si') ? 'Sí' : 'no',
                         'caracLatente'           => (($f['semillas_latencia'] ?? '') === 'si') ? 'Sí' : 'no',
                         'infoAddSemillas'        => $f['semillas_caracteristicas_ia'] ?? null,
-                        'noEventos'              => $f['estrategia_reproductiva_planta'] ?? null,
                     ];
 
                     if ($idReproVeg && DB::table('reproduccionvegetal')->where('reproduccionVegetalId', $idReproVeg)->exists()) {
@@ -720,20 +783,9 @@ class FormController extends Controller {
                     } else {
                         $idReproVeg = DB::table('reproduccionvegetal')->insertGetId($datosPlanta);
                     }
-                } elseif (in_array(strtolower($reino), ['fungi', 'hongos'])) {
-                    try {
-                        DB::table('reproduccionhongos')->updateOrInsert(
-                            ['especieId' => $especieId],
-                            ['descripcion' => $f['descripcion_reproduccion'] ?? null]
-                        );
-                    } catch (\Exception $e) {}
                 }
 
-
-                $mecanismosDefensaVal = $f['mecanismos_defensa'] ?? null;
-                if (is_array($mecanismosDefensaVal)) {
-                    $mecanismosDefensaVal = implode(', ', array_filter($mecanismosDefensaVal));
-                }
+                $infoPeriodoActividadFinal = !empty($f['periodo_actividad_ia']) ? $f['periodo_actividad_ia'] : ($f['migracion_ia'] ?? null);
 
                 DB::table('historianatural')->updateOrInsert(
                     ['especieId' => $especieId],
@@ -742,8 +794,8 @@ class FormController extends Controller {
                         'reproduccionVegetalId'      => $idReproVeg,
                         'tipoReproduccion'           => $reino === 'Animalia' ? 'animal' : ($reino === 'Plantae' ? 'veget' : ''),
                         'conducta'                   => $f['caracteristicas_conductuales'] ?? null,
-                        'tipopHabito'                => $f['periodo_actividad'] ?? null,
-                        'infoaddperiodoactividad'    => $f['migracion_ia'] ?? null,
+                        'tipopHabito'                => is_array($f['periodo_actividad'] ?? null) ? implode(', ', array_filter($f['periodo_actividad'])) : ($f['periodo_actividad'] ?? null),
+                        'infoaddperiodoactividad'    => $infoPeriodoActividadFinal,
                         'hibernacion'                => ($f['hibernacion'] ?? '') === 'si' ? 'Sí' : (($f['hibernacion'] ?? '') === 'no' ? 'no' : null),
                         'torpor'                     => ($f['torpor'] ?? '') === 'si' ? 'Sí' : (($f['torpor'] ?? '') === 'no' ? 'no' : null),
                         'infoaddhibernacion'         => $f['hibernacion_torpor_ia'] ?? null,
@@ -760,13 +812,276 @@ class FormController extends Controller {
                     ]
                 );
 
-                try {
-                    DB::table('demografiaamenazas')->updateOrInsert(
-                        ['especieId' => $especieId],
-                        ['organizacionSocial' => $f['organizacion_social'] ?? null]
-                    );
-                } catch (\Exception $e) {}
+                DB::table('demografiaamenazas')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    ['organizacionSocial' => $organizacionSocialVal]
+                );
             }
+            if ($seccion == 5) {
+                DB::table('demografiaamenazas')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'tamaniopoblacional' => $f['tamano_poblacional_lugares'] ?? null,
+                        'abundancia'         => $f['abundancia_region'] ?? null,
+                        'densidad'           => $f['densidad_area'] ?? null,
+                        'patronOcupacion'    => $f['patronocupacion'] ?? null,
+                        'descripcionPatron'  => $f['info_adicional_patron'] ?? null,
+                        'parametrosPoblacionales'   => $f['parametros_poblacionales'] ?? null,
+                        'poblacionminviableinicial' => $f['pmv_de'] ?? null,
+                        'poblacionminviablefinal'   => $f['pmv_a'] ?? null,
+                    ]
+                );
+
+                DB::table('interaccion')->where('especieId', $especieId)->delete();
+
+                if (!empty($f['interacciones']) && is_array($f['interacciones'])) {
+                    $interaccionesInsert = [];
+                    foreach ($f['interacciones'] as $interaccion) {
+                        if (!empty($interaccion['tipo']) || !empty($interaccion['especie'])) {
+
+                            $mapTipos = [
+                                'depredacion' => 1,
+                                'mutualismo' => 2,
+                                'competencia' => 3,
+                                'parasitismo' => 4,
+                                'comensalismo' => 5
+                            ];
+
+                            $tipoVal = $interaccion['tipo'] ?? 0;
+                            $tipoInt = is_numeric($tipoVal) ? (int)$tipoVal : ($mapTipos[strtolower($tipoVal)] ?? 0);
+
+                            $interaccionesInsert[] = [
+                                'especieId'           => $especieId,
+                                'tipoInteraccion'     => $tipoInt,
+                                'descInteraccion'     => $interaccion['descripcion'] ?? '',
+                                'especie'             => $interaccion['especie'] ?? '',
+                                'orden'               => $interaccion['orden'] ?? '',
+                                'familia'             => $interaccion['familia'] ?? '',
+                                'IdCAT'               => '',
+                                'nomComun'            => '',
+                                'localidad'           => '',
+                                'pais'                => '',
+                                'edo'                 => '',
+                                'mun'                 => '',
+                                'infoAdicionalPem'    => '',
+                                'papelEcologico'      => null,
+                                'infoAdicionalPe'     => '',
+                                'grupoPolinizador'    => null,
+                                'spCultivada'         => '',
+                                'tipoCultivo'         => null,
+                                'infoCultivo'         => '',
+                                'plagicidas'          => null,
+                                'mesInicial'          => null,
+                                'mesFinal'            => null,
+                                'infoMesVisita'       => '',
+                                'horario'             => null,
+                                'horaInicial'         => '',
+                                'horaFinal'           => '',
+                                'infoHora'            => '',
+                                'recompensa'          => '',
+                                'infoRecompensa'      => '',
+                                'spSilvestre'         => '',
+                                'mesInicialSil'       => null,
+                                'mesFinalSil'         => null,
+                                'infoMesVisitaSil'    => '',
+                                'horariosil'          => null,
+                                'horaIncialSil'       => '',
+                                'horaFinalSil'        => '',
+                                'infoHoraSil'         => '',
+                                'recompensaSil'       => '',
+                                'infoRecompensaSil'   => '',
+                            ];
+                        }
+                    }
+                    if (!empty($interaccionesInsert)) {
+                        DB::table('interaccion')->insert($interaccionesInsert);
+                    }
+                }
+            }
+            if ($seccion == 6) {
+                DB::table('historianatural')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'variabilidadGenetica' => $f['variabilidad_genetica'] ?? null,
+                        'marcadorGenetico'     => $f['marcadores_variabilidad'] ?? null,
+                        'secuencias'           => $f['secuencias_publicadas'] ?? null,
+                        'mexbol'               => $f['mexbol_codigo_barras'] ?? null,
+                    ]
+                );
+            }
+            if ($seccion == 7) {
+                DB::table('historianatural')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'ImportanciaBiologica'   => $f['addinfofuneco'] ?? null,
+                        'importanciaEconomica'   => $f['impoeco'] ?? null,
+                        'comercioIlicitoNal'     => $f['sncomnal'] ?? null,
+                        'comercioIlicitoInter'   => $f['sncominter'] ?? null,
+                        'descComIlicito'         => $f['addinfocom'] ?? null,
+                        'descUsos'               => $f['culturausos'] ?? null,
+                    ]
+                );
+
+                $saveCaracMulti = function($idPregunta, $valores) use ($especieId) {
+                    DB::table('caracteristicasespecie')->where('especieId', $especieId)->where('idpregunta', $idPregunta)->delete();
+                    $vals = array_unique(array_filter((array)$valores));
+                    if (!empty($vals)) {
+                        $inserts = [];
+                        foreach ($vals as $val) {
+                            $inserts[] = [
+                                'especieId'  => $especieId,
+                                'idpregunta' => $idPregunta,
+                                'idopcion'   => (int)$val
+                            ];
+                        }
+                        if (!empty($inserts)) {
+                            DB::table('caracteristicasespecie')->insert($inserts);
+                        }
+                    }
+                };
+
+                $saveCaracMulti(54, $f['funcionecologica'] ?? []);
+
+                $saveCaracMulti(18, $f['comnalsel'] ?? []);
+                $saveCaracMulti(20, $f['comprodnal'] ?? []);
+                $saveCaracMulti(22, $f['comintersel'] ?? []);
+                $saveCaracMulti(24, $f['comprodinter'] ?? []);
+
+                DB::table('productocomercio')->where('especieId', $especieId)->delete();
+
+                if (!empty($f['comercio_nacional']) && is_array($f['comercio_nacional'])) {
+                    foreach ($f['comercio_nacional'] as $prod) {
+                        if (!empty($prod['tipo'])) {
+                            DB::table('productocomercio')->insert([
+                                'especieId'            => $especieId,
+                                'tipoproducto'         => $prod['tipo'],
+                                'unidadcomerciada'     => $prod['unidad'] ?? '',
+                                'cantidadcomerciada'   => $prod['cantidad'] ?? '',
+                                'nacionalinternacional'=> 'nacional'
+                            ]);
+                        }
+                    }
+                }
+
+                if (!empty($f['comercio_internacional']) && is_array($f['comercio_internacional'])) {
+                    foreach ($f['comercio_internacional'] as $prod) {
+                        if (!empty($prod['tipo'])) {
+                            DB::table('productocomercio')->insert([
+                                'especieId'            => $especieId,
+                                'tipoproducto'         => $prod['tipo'],
+                                'unidadcomerciada'     => $prod['unidad'] ?? '',
+                                'cantidadcomerciada'   => $prod['cantidad'] ?? '',
+                                'nacionalinternacional'=> 'internacional'
+                            ]);
+                        }
+                    }
+                }
+
+                $historiaId = DB::table('historianatural')->where('especieId', $especieId)->value('historiaNaturalId');
+                if ($historiaId) {
+                    DB::table('relhistorianaturalpais')->where('historiaNaturalId', $historiaId)->delete();
+                    if (!empty($f['paiscom'])) {
+                        $paisesIns = array_map(fn($paisId) => [
+                            'historiaNaturalId' => $historiaId,
+                            'paisId' => $paisId
+                        ], (array)$f['paiscom']);
+                        DB::table('relhistorianaturalpais')->insert($paisesIns);
+                    }
+
+                    DB::table('relhistorianaturalusos')->where('historiaNaturalId', $historiaId)->delete();
+                    if (!empty($f['usos'])) {
+                        $usosIns = array_map(fn($usoId) => [
+                            'historiaNaturalId' => $historiaId,
+                            'culturaUsosId' => $usoId
+                        ], (array)$f['usos']);
+                        DB::table('relhistorianaturalusos')->insert($usosIns);
+                    }
+                }
+            }
+            if ($seccion == 8) {
+                DB::table('demografiaamenazas')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'descPresionesAmenazas'  => $f['presiones'] ?? null,
+                        'tendenciaPoblacional'   => $f['tendenciapobla'] ?? null,
+                        'descTendenciaPoblacional' => $f['tendenciapoblacion'] ?? null,
+                    ]
+                );
+
+                DB::table('conservacion')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'estadoConser'  => $f['edoconservacion'] ?? null,
+                        'marcolegal'    => $f['marcolegal'] ?? null,
+                        'tipoVeda'      => $f['veda'] ?? null,
+                        'infoaddveda'   => $f['infoaddveda'] ?? null,
+                    ]
+                );
+
+                if (!empty($f['addinfocons'])) {
+                    DB::table('observacionescarac')->updateOrInsert(
+                        ['especieId' => $especieId, 'idpregunta' => 26],
+                        ['infoadicional' => $f['addinfocons']]
+                    );
+                } else {
+                    DB::table('observacionescarac')->where('especieId', $especieId)->where('idpregunta', 26)->delete();
+                }
+
+                DB::table('reldemografiaamenazas')->whereIn('demografiaAmenazasId', function($query) use ($especieId) {
+                    $query->select('demografiaAmenazasId')->from('demografiaamenazas')->where('especieId', $especieId);
+                })->delete();
+
+                $demografiaId = DB::table('demografiaamenazas')->where('especieId', $especieId)->value('demografiaAmenazasId');
+                if ($demografiaId && !empty($f['amenazas'])) {
+                    $amenazasInsert = array_map(fn($amenazaId) => [
+                        'demografiaAmenazasId' => $demografiaId,
+                        'amenazaId' => $amenazaId
+                    ], (array)$f['amenazas']);
+                    DB::table('reldemografiaamenazas')->insert($amenazasInsert);
+                }
+
+                $saveCaracMulti = function($idPregunta, $valores) use ($especieId) {
+                    DB::table('caracteristicasespecie')->where('especieId', $especieId)->where('idpregunta', $idPregunta)->delete();
+                    $vals = array_unique(array_filter((array)$valores));
+                    if (!empty($vals)) {
+                        $inserts = [];
+                        foreach ($vals as $val) {
+                            $inserts[] = [
+                                'especieId'  => $especieId,
+                                'idpregunta' => $idPregunta,
+                                'idopcion'   => (int)$val
+                            ];
+                        }
+                        if (!empty($inserts)) {
+                            DB::table('caracteristicasespecie')->insert($inserts);
+                        }
+                    }
+                };
+
+                $saveCaracMulti(26, $f['esquemamanejo'] ?? []);
+                $saveCaracMulti(27, $f['tipoaprovechamiento'] ?? []);
+            }
+            if ($seccion == 9) {
+                DB::table('taxon')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'prioritaria'              => $f['snprioritaria'] ?? null,
+                        'publicadaEn'              => $f['listaprioritaria'] ?? null,
+                        'nivelPrioridad'           => $f['prioridadresul'] ?? null,
+                        'justificacionPrioritaria' => $f['justificaprioritaria'] ?? null,
+                    ]
+                );
+            }
+
+            if ($seccion == 10) {
+                DB::table('taxon')->updateOrInsert(
+                    ['especieId' => $especieId],
+                    [
+                        'necesidadesEspecie' => $f['diagnosticoespecie'] ?? null,
+                    ]
+                );
+            }
+
 
             DB::commit();
             return response()->json(['success' => true]);
@@ -1127,6 +1442,30 @@ class FormController extends Controller {
 
         $florMesesArray = ($reproVeg) ? $procesarMesesParaVista($reproVeg->mesInicio) : [];
         $fructiMesesArray = ($reproVeg) ? $procesarMesesParaVista($reproVeg->mesInicialFructi) : [];
+        $especiesCatalogo = \Illuminate\Support\Facades\Cache::remember('especies_catalogo_dropdown', 3600, function () {
+            return DB::connection('mysql_catalogo')
+                ->table('_TransformaTablaNombre')
+                ->select('taxon', 'Orden', 'Familia')
+                ->orderBy('taxon')
+                ->get();
+        });
+
+        $amenazasOptions = DB::table('amenazadirecta')->select('amenazaId as v', 'subpresionesAmenazas as t', 'presionesAmenazas as g')->orderBy('presionesAmenazas')->orderBy('subpresionesAmenazas')->get();
+        $esquemamanejoOptions = DB::table('cat_preguntas')->where('idpregunta', 26)->select('idopcion as v', 'descn1 as t')->get();
+        $tipoaprovechamientoOptions = DB::table('cat_preguntas')->where('idpregunta', 27)->select('idopcion as v', 'descn1 as t')->get();
+
+        $funcionEcologicaOptions = DB::table('cat_preguntas')->where('idpregunta', 54)->select('idopcion as v', 'descn1 as t')->get();
+        $productoComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 19)->select('idopcion as v', 'descn1 as t')->get();
+        $unidadComercioOptions = DB::table('cat_preguntas')->where('idpregunta', 21)->select('idopcion as v', 'descn1 as t')->get();
+        $origenComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 18)->select('idopcion as v', 'descn1 as t')->get();
+        $propositoComercioNalOptions = DB::table('cat_preguntas')->where('idpregunta', 20)->select('idopcion as v', 'descn1 as t')->get();
+
+        $productoComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 23)->select('idopcion as v', 'descn1 as t')->get();
+        $unidadComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 25)->select('idopcion as v', 'descn1 as t')->get();
+        $origenComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 22)->select('idopcion as v', 'descn1 as t')->get();
+        $propositoComercioInterOptions = DB::table('cat_preguntas')->where('idpregunta', 24)->select('idopcion as v', 'descn1 as t')->get();
+        $usosCulturaOptions = DB::table('culturausos')->select('culturaUsosId as v', 'descripcion as t', 'descripcion as g')->get();
+
 
         $especie = [
             'id'        => $id,
@@ -1257,104 +1596,9 @@ class FormController extends Controller {
             'tipo_polinizacion'            => $polinizacionS,
 
             'caracteristicas_conductuales' => $historia->conducta ?? '',
-            'periodo_actividad'            => $historia->tipopHabito ?? ($historia->infoaddperiodoactividad ?? ''),
-            'hibernacion'                  => ($historia->hibernacion ?? '') === 'Sí' ? 'si' : (($historia->hibernacion ?? '') === 'no' ? 'no' : ''),
-            'hibernacion_torpor_ia'        => $historia->infoaddhibernacion ?? '',
-            'ambito_hogareno_promedio'     => $historia->ambitoHogareno ?? '',
-            'mecanismos_defensa'           => $historia->mecanismosDefensa ?? '',
-            'dispersion_dist_min'          => $historia->distanciadispercioninicial ?? '',
-            'dispersion_dist_max'          => $historia->distanciadispercionfinal ?? '',
-            'organizacion_social'          => $demografia->organizacionSocial ?? '',
-
-            'hay_dimorfismo'               => ($reproAnimal->dimorfismoSexual ?? '') === 'Sí' ? 'si' : (($reproAnimal->dimorfismoSexual ?? '') === 'no' ? 'no' : ''),
-            'dimorfismo_ia'                => $reproAnimal->additionalInfoDimorfiasmo ?? '',
-            'sistema_repro_animal_ia'      => $reproAnimal->descripcionTipoFec ?? '',
-            'edadPrimeraRepro'             => $reproAnimal->edadPrimeraRepro ?? '',
-            'duracionVidaRepro'            => $reproAnimal->duracionVidaRepro ?? '',
-            'crias_promedio'               => $reproAnimal->noHuevosCrias ?? '',
-            'cuidadoParental'             => ($reproAnimal->cuidadoParental ?? '') === 'Sí' ? 'si' : (($reproAnimal->cuidadoParental ?? '') === 'no' ? 'no' : ''),
-            'cuidadoParentalPor'         => $reproAnimal->cuidadoParentalPor ?? '',
-            'tiempoCuidadoParental'      => $reproAnimal->tiempoCuidadoParental ?? '',
-
-            'aislamiento_temporal_ia'      => $reproVeg->descAislaOrganos ?? '',
-            'aislamiento_temporal'             => is_array($reproVeg->aislamientoOrganos ?? null) ? ($reproVeg->aislamientoOrganos[0] ?? '') : (string)($reproVeg->aislamientoOrganos ?? ''),
-            'sistemas_reproductivos_asexuales' => $sanitizarLista($reproVeg->sistReproAsexuales ?? null),
-            'tipo_fecundacion_plantae'         => $sanitizarLista($reproVeg->fecuandacion ?? null),
-            'flor_horario_apertura'        => $reproVeg->aperturaFlor ?? '',
-            'flor_longevidad'              => $reproVeg->tiempoFloracion ?? '',
-            'floracion_meses'              => $florMesesArray,
-            'floracion_ia'                 => $reproVeg->addinfotiempoflora ?? '',
-            'cantidad_nectar'              => $reproVeg->cantidadnectarinicial ?? '',
-            'cantidad_polen'               => $reproVeg->cantidadpolen ?? '',
-            'fructificacion_meses'         => $fructiMesesArray,
-            'fructificacion_ia'            => $reproVeg->addinfotiempofructi ?? '',
-            'frutos_min'                   => $reproVeg->nofrutosinicial ?? '',
-            'frutos_max'                   => $reproVeg->nofrutosfinal ?? '',
-            'descCaracFruto'               => $reproVeg->descCaracFruto ?? '',
-            'estrategia_reproductiva_planta_ia' => $reproVeg->descNoEventos ?? '',
-            'semillas_num_min'             => $reproVeg->nosemillasinicial ?? '',
-            'semillas_num_max'             => $reproVeg->nosemillasfinal ?? '',
-            'semillas_num_promedio'     => $reproVeg->promNoSemillas ?? '',
-            'semillas_latencia'           => ($reproVeg && strtolower($reproVeg->caracLatente ?? '') === 'sí') ? 'si' : 'no',
-            'semillas_toxicidad'          => ($reproVeg && strtolower($reproVeg->caracToxica ?? '') === 'sí') ? 'si' : 'no',
-            'semillas_caracteristicas_ia' => ($reproVeg && $reproVeg->infoAddSemillas !== 'EMPTY') ? ($reproVeg->infoAddSemillas ?? '') : '',
-            'germinacion_min'              => $reproVeg->germinacioninicial ?? '',
-            'germinacion_max'              => $reproVeg->germinacionfinal ?? '',
-            'germinacion_ia'               => $reproVeg->infoaddgerminacion ?? '',
-            'supervivencia_min'            => $reproVeg->plantulasinicial ?? '',
-            'supervivencia_max'            => $reproVeg->plantulasfinal ?? '',
-            'supervivencia_ia'             => $reproVeg->infoaddplantulas ?? '',
-
-            'flor_horario_apertura' => $reproVeg->aperturaFlor ?? '',
-            'flor_horario_apertura' => $reproVeg->aperturaFlor ?? '',
-            'flor_longevidad'       => $reproVeg->tiempoFloracion ?? '',
-            'floracion_meses'       => $florMesesArray,
-            'fructificacion_meses'  => $fructiMesesArray,
-
-            'cantidad_nectar_min'   => $reproVeg->cantidadnectarinicial ?? '',
-            'cantidad_nectar_max'   => $reproVeg->cantidadnectarfinal ?? '',
-            'cantidad_nectar_promedio' => $reproVeg->promedioCantidadNectar ?? '',
-            'cantidad_nectar_ia'    => ($reproVeg && $reproVeg->addinfocantidadnectar !== 'EMPTY') ? ($reproVeg->addinfocantidadnectar ?? '') : '',
-            'cantidad_polen'        => ($reproVeg && $reproVeg->cantidadpolen !== 'EMPTY') ? ($reproVeg->cantidadpolen ?? '') : '',
-
-
-            'frutos_min'             => $reproVeg->nofrutosinicial ?? '',
-            'frutos_max'             => $reproVeg->nofrutosfinal ?? '',
-            'frutos_promedio'        => $reproVeg->promNoFrutos ?? '',
-            'frutos_ia'              => ($reproVeg && $reproVeg->descCaracFruto !== 'EMPTY') ? ($reproVeg->descCaracFruto ?? '') : '',
-            'fruto_caracteristicas'  => (string)($reproVeg->caracFruto ?? ''),
-
-            'semillas_latencia'        => ($reproVeg && strtolower($reproVeg->caracLatente ?? '') === 'sí') ? 'si' : 'no',
-            'semillas_toxicidad'       => ($reproVeg && strtolower($reproVeg->caracToxica ?? '') === 'sí') ? 'si' : 'no',
-            'semillas_caracteristicas_ia' => ($reproVeg && $reproVeg->infoAddSemillas !== 'EMPTY') ? ($reproVeg->infoAddSemillas ?? '') : '',
-
-            'semillas_num_min'            => $reproVeg->nosemillasinicial ?? '',
-            'semillas_num_max'            => $reproVeg->nosemillasfinal ?? '',
-            'semillas_tam_min'          => $reproVeg->tamanoInicioSemilla ?? '',
-            'semillas_tam_max'          => $reproVeg->tamamoFinalSemilla ?? '',
-            'semillas_tam_promedio'     => $reproVeg->promTamanoSemillas ?? '',
-            'semillas_tam_ia'           => ($reproVeg && $reproVeg->tamanioSemilla !== 'EMPTY') ? ($reproVeg->tamanioSemilla ?? '') : '',
-            'germinacion_promedio'      => $reproVeg->porcentajeGerminacion ?? '',
-
-            'supervivencia_min'         => $reproVeg->plantulasinicial ?? '',
-            'supervivencia_max'         => $reproVeg->plantulasfinal ?? '',
-            'supervivencia_promedio'    => $reproVeg->porcentajeSuprePlantulas ?? '',
-
-            'dispersion_tipo'          => $dispersionTipoS,
-            'dispersion_estructura'    => $dispersionEstructuraS,
-
-            'dispersion_dist_min'      => $historia->distanciadispercioninicial ?? '',
-            'dispersion_dist_max'      => $historia->distanciadispercionfinal ?? '',
-            'dispersion_dist_promedio' => (!empty($historia->distanciadispercioninicial) && !empty($historia->distanciadispercionfinal)) ? number_format(($historia->distanciadispercioninicial + $historia->distanciadispercionfinal) / 2, 2, '.', ''): '',
-
-            'estatus_migratorio'           => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 10)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
-            'tipo_migracion'               => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 11)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
-            'sistemas_apareamiento'        => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 13)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
-            'sitios_anidacion'             => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 14)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
-
-            'caracteristicas_conductuales' => $historia->conducta ?? '',
             'migracion_ia'                 => $historia->infoaddperiodoactividad ?? '',
-            'periodo_actividad'            => $historia->tipopHabito ?? '',
+            'periodo_actividad_ia'         => $historia->infoaddperiodoactividad ?? '',
+            'periodo_actividad'            => !empty($historia->tipopHabito)  ? array_map('trim', explode(',', str_replace(', ', ',', $historia->tipopHabito)))  : [],
             'hibernacion'                  => strtolower($historia->hibernacion ?? '') === 'sí' ? 'si' : (strtolower($historia->hibernacion ?? '') === 'no' ? 'no' : ''),
             'torpor'                       => strtolower($historia->torpor ?? '') === 'sí' ? 'si' : (strtolower($historia->torpor ?? '') === 'no' ? 'no' : ''),
             'hibernacion_torpor_ia'        => $historia->infoaddhibernacion ?? '',
@@ -1377,9 +1621,10 @@ class FormController extends Controller {
             'tipo_estructura_anidacion'    => $reproAnimal->tipoEstructuraAnidacion ?? '',
             'anidacion_ia'                 => $reproAnimal->anidacionIA ?? '',
             'crias_promedio'               => $reproAnimal->noHuevosCrias ?? '',
-            'cuidado_parental'             => strtolower($reproAnimal->cuidadoParental ?? '') === 'sí' ? 'si' : (strtolower($reproAnimal->cuidadoParental ?? '') === 'no' ? 'no' : ''),
-            'cuidado_parental_vc'          => $reproAnimal->cuidadoParentalPor ?? '',
-            'tiempo_cuidado_parental'      => $reproAnimal->tiempoCuidadoParental ?? '',
+            'cuidado_parental'        => strtolower($reproAnimal->cuidadoParental ?? '') === 'sí' ? 'si' : (strtolower($reproAnimal->cuidadoParental ?? '') === 'no' ? 'no' : ''),
+            'cuidado_parental_por'    => $reproAnimal->cuidadoParentalPor ?? '',
+            'cuidado_parental_ia'     => $reproAnimal->desCuidadoParental ?? '',
+            'tiempo_cuidado_parental' => $reproAnimal->tiempoCuidadoParental ?? '',
             'localidades_migracion'        => (!empty($historia->localidadesMigracion))
                                                 ? json_decode($historia->localidadesMigracion, true)
                                                 : [['localidad' => '', 'mes_inicio' => '', 'mes_fin' => '']],
@@ -1402,6 +1647,101 @@ class FormController extends Controller {
             'estrategia_reproductiva_planta' => $reproVeg->noEventos ?? '',
             'estrategia_reproductiva_animal' => $reproAnimal->noEventos ?? '',
             'estrategia_trofica' => $estrategiaTroficaS,
+
+            'tamano_poblacional_lugares' => $demografia->tamanioPoblacional ?? '',
+            'abundancia_region'          => $demografia->abundancia ?? '',
+            'densidad_area'              => $demografia->densidad ?? '',
+            'patronocupacion'            => $demografia->patronOcupacion ?? '',
+            'info_adicional_patron'      => $demografia->descripcionPatron ?? '',
+            'parametros_poblacionales'   => $demografia->parametrosPoblacionales ?? '',
+            'pmv_de'                     => $demografia->poblacionminviableinicial ?? '',
+            'pmv_a'                      => $demografia->poblacionminviablefinal ?? '',
+
+
+            'presiones'           => $demografia->descPresionesAmenazas ?? '',
+            'tendenciapobla'      => $demografia->tendenciaPoblacional ?? '',
+            'tendenciapoblacion'  => $demografia->descTendenciaPoblacional ?? '',
+            'addinfocons'         => DB::table('observacionescarac')->where('especieId', $id)->where('idpregunta', 26)->value('infoadicional') ?? '',
+            'edoconservacion'     => DB::table('conservacion')->where('especieId', $id)->value('estadoConser') ?? '',
+            'marcolegal'          => DB::table('conservacion')->where('especieId', $id)->value('marcolegal') ?? '',
+            'veda'                => DB::table('conservacion')->where('especieId', $id)->value('tipoVeda') ?? '',
+            'infoaddveda'         => DB::table('conservacion')->where('especieId', $id)->value('infoaddveda') ?? '',
+            'amenazas'            => DB::table('reldemografiaamenazas')
+                                        ->join('demografiaamenazas', 'reldemografiaamenazas.demografiaAmenazasId', '=', 'demografiaamenazas.demografiaAmenazasId')
+                                        ->where('demografiaamenazas.especieId', $id)
+                                        ->pluck('reldemografiaamenazas.amenazaId')
+                                        ->map(fn($v) => (string)$v)->toArray(),
+            'esquemamanejo'       => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 26)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'tipoaprovechamiento' => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 27)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+
+
+            'addinfofuneco'       => $historia->ImportanciaBiologica ?? '',
+            'impoeco'             => $historia->importanciaEconomica ?? '',
+            'sncomnal'            => $historia->comercioIlicitoNal ?? '',
+            'sncominter'          => $historia->comercioIlicitoInter ?? '',
+            'addinfocom'          => $historia->descComIlicito ?? '',
+            'culturausos'         => $historia->descUsos ?? '',
+            'funcionecologica'    => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 54)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'comnalsel'           => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 18)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'comprodnal'          => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 20)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'comintersel'         => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 22)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'comprodinter'        => DB::table('caracteristicasespecie')->where('especieId', $id)->where('idpregunta', 24)->pluck('idopcion')->map(fn($v)=>(string)$v)->toArray(),
+            'paiscom'             => $historia ? DB::table('relhistorianaturalpais')->where('historiaNaturalId', $historia->historiaNaturalId)->pluck('paisId')->map(fn($v)=>(string)$v)->toArray() : [],
+            'usos'                => $historia ? DB::table('relhistorianaturalusos')->where('historiaNaturalId', $historia->historiaNaturalId)->pluck('culturaUsosId')->map(fn($v)=>(string)$v)->toArray() : [],
+            'comercio_nacional'   => DB::table('productocomercio')->where('especieId', $id)->where('nacionalinternacional', 'nacional')->get()->map(fn($p) => ['tipo' => $p->tipoproducto, 'unidad' => $p->unidadcomerciada, 'cantidad' => $p->cantidadcomerciada])->toArray(),
+            'comercio_internacional' => DB::table('productocomercio')->where('especieId', $id)->where('nacionalinternacional', 'internacional')->get()->map(fn($p) => ['tipo' => $p->tipoproducto, 'unidad' => $p->unidadcomerciada, 'cantidad' => $p->cantidadcomerciada])->toArray(),
+
+            'snprioritaria'        => $t['prioritaria'] ?? '',
+            'listaprioritaria'     => $t['publicadaEn'] ?? '',
+            'prioridadresul'       => $t['nivelPrioridad'] ?? '',
+            'justificaprioritaria' => $getData('justificacionPrioritaria'),
+            'diagnosticoespecie'   => $getData('necesidadesEspecie'),
+
+
+            'repro_asexual' => !empty($reproAnimal->tipoReproAsexualAnimal ?? null),
+            'tipo_reproduccion_asexual_animal' => $reproAnimal->tipoReproAsexualAnimal ?? '',
+
+            'variabilidad_genetica'   => $historia->variabilidadGenetica ?? '',
+            'marcadores_variabilidad' => $historia->marcadorGenetico ?? '',
+            'secuencias_publicadas'   => $historia->secuencias ?? '',
+            'mexbol_codigo_barras'    => $historia->mexbol ?? '',
+
+
+            'estatus_migratorio'           => $migracionS,
+            'tipo_migracion'               => $tipoMigracionS,
+            'sistemas_apareamiento'        => $sistApareamientoS,
+            'sitios_anidacion'             => $sitioAnidacionS,
+            'dispersion_tipo'              => $dispersionTipoS,
+            'dispersion_estructura'        => $dispersionEstructuraS,
+
+
+            'precipitacionpromedio' => $habitat->precipitacionpromedio ?? '',
+            'humedadpromedio'       => $habitat->humedadpromedio ?? '',
+
+
+            'interacciones' => DB::table('interaccion')
+                ->where('especieId', $id)
+                ->get()
+                ->map(function($i) {
+                    $mapInverso = [
+                        1 => 'depredacion',
+                        2 => 'mutualismo',
+                        3 => 'competencia',
+                        4 => 'parasitismo',
+                        5 => 'comensalismo'
+                    ];
+
+                    $tipoTexto = $mapInverso[$i->tipoInteraccion] ?? (string)$i->tipoInteraccion;
+
+                    return [
+                        'tipo' => $tipoTexto,
+                        'descripcion' => ($i->descInteraccion === 'EMPTY' || $i->descInteraccion === '<p>&nbsp;</p>') ? '' : ($i->descInteraccion ?? ''),
+                        'especie' => $i->especie ?? '',
+                        'orden' => $i->orden ?? '',
+                        'familia' => $i->familia ?? ''
+                    ];
+                })->toArray(),
+
 
         ];
 
@@ -1435,11 +1775,25 @@ class FormController extends Controller {
             'tipoMigracionOptions' => DB::table('cat_preguntas')->where('idpregunta', 11)->select('idopcion as v', 'descn1 as t')->get(),
             'sistApareamientoOpts' => DB::table('cat_preguntas')->where('idpregunta', 13)->select('idopcion as v', 'descn1 as t')->get(),
             'sitioAnidacionOpts'   => DB::table('cat_preguntas')->where('idpregunta', 14)->select('idopcion as v', 'descn1 as t')->get(),
-
             'mecanismosDefensaOptions' => $mecanismosDefensaOptions,
             'organizacionSocialOptions' => $organizacionSocialOptions,
             'habitatVerticalOptions'  => $habitatVerticalOptions,
             'habitatHorizontalOptions'  =>  $habitatHorizontalOptions,
+            'especiesCatalogo' => DB::connection('mysql_catalogo')->table('_TransformaTablaNombre')->select('taxon')->orderBy('taxon')->get(),
+            'amenazasOptions' => $amenazasOptions,
+            'esquemamanejoOptions' => $esquemamanejoOptions,
+            'tipoaprovechamientoOptions' => $tipoaprovechamientoOptions,
+
+            'funcionEcologicaOptions' => $funcionEcologicaOptions,
+            'productoComercioNalOptions' => $productoComercioNalOptions,
+            'unidadComercioOptions' => $unidadComercioOptions,
+            'origenComercioNalOptions' => $origenComercioNalOptions,
+            'propositoComercioNalOptions' => $propositoComercioNalOptions,
+            'productoComercioInterOptions' => $productoComercioInterOptions,
+            'unidadComercioInterOptions' => $unidadComercioInterOptions,
+            'origenComercioInterOptions' => $origenComercioInterOptions,
+            'propositoComercioInterOptions' => $propositoComercioInterOptions,
+            'usosCulturaOptions' => $usosCulturaOptions,
         ]);
     }
 
@@ -1461,5 +1815,33 @@ class FormController extends Controller {
             ->orderBy('g')
             ->orderBy('t')
             ->get();
+    }
+
+    public function obtenerTaxonInteraccion(Request $request) {
+        try {
+            $taxonNombre = $request->get('taxon');
+            if (!$taxonNombre) {
+                return response()->json(['orden' => '', 'familia' => '']);
+            }
+
+            $info = \Illuminate\Support\Facades\Cache::remember('taxon_' . md5($taxonNombre), 3600, function () use ($taxonNombre) {
+                return DB::connection('mysql_catalogo')
+                    ->table('_TransformaTablaNombre')
+                    ->where('taxon', $taxonNombre)
+                    ->select('Orden', 'Familia')
+                    ->first();
+            });
+
+            if ($info) {
+                return response()->json([
+                    'orden' => $info->Orden ?? '',
+                    'familia' => $info->Familia ?? ''
+                ]);
+            }
+
+            return response()->json(['orden' => '', 'familia' => '']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

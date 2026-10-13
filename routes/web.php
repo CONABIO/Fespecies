@@ -36,6 +36,8 @@ Route::get('/verificar-existencia/{idCAT}', [FormController::class, 'verificarEx
 
 Route::post('/obtener-municipios-multiple', [FormController::class, 'obtenerMunicipiosMultiple']);
 
+Route::get('/obtener-taxon-interaccion', [FormController::class, 'obtenerTaxonInteraccion']);
+
 
 
 
