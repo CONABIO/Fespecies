@@ -17,7 +17,7 @@
 
             <label class="flex items-center space-x-3 p-3 rounded-xl transition-colors"
                 :class="form.bloquearAmbiente ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 group'">
-                <input type="radio" name="tipo_ambiente" value="acuático" x-model="form.tipoAmbiente"
+                <input type="radio" name="tipo_ambiente" value="acuatico" x-model="form.tipoAmbiente"
                     @change="form.ecosistemas = []" :disabled="form.bloquearAmbiente"
                     class="w-5 h-5 text-indigo-600 border-slate-300 disabled:bg-slate-200">
                 <span class="text-[16px] font-black text-slate-700">B. Ambiente marino </span>
@@ -25,7 +25,7 @@
 
             <label class="flex items-center space-x-3 p-3 rounded-xl transition-colors"
                 :class="form.bloquearAmbiente ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-50 group'">
-                <input type="radio" name="tipo_ambiente" value="terrestre-acuático" x-model="form.tipoAmbiente"
+                <input type="radio" name="tipo_ambiente" value="terrestre-acuatico" x-model="form.tipoAmbiente"
                     @change="form.ecosistemas = []" :disabled="form.bloquearAmbiente"
                     class="w-5 h-5 text-indigo-600 border-slate-300 disabled:bg-slate-200">
                 <span class="text-[16px] font-black text-slate-700">C. Ambiente epicontinental</span>
@@ -33,7 +33,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <div x-show="form.tipoAmbiente === 'terrestre' || form.tipoAmbiente === 'terrestre-acuático'"
+            <div x-show="form.tipoAmbiente === 'terrestre' || form.tipoAmbiente === 'terrestre-acuatico'"
                 x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones terrestres </label>
                 @include('components.multi-select', [
@@ -43,7 +43,7 @@
                 ])
             </div>
 
-            <div x-show="form.tipoAmbiente === 'acuático'" x-transition class="space-y-4">
+            <div x-show="form.tipoAmbiente === 'acuatico'" x-transition class="space-y-4">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center"> a) Ecorregiones marinas </label>
                 @include('components.multi-select', [
                     'model' => 'form.ecorregiones_marinas_ids',
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-8">
+    <div x-show="form.tipoAmbiente === 'terrestre'" class="grid grid-cols-1 gap-8">
 
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col h-full hover:shadow-md transition-all duration-300">
             <h3 class="text-[22px] font-black text-slate-800 tracking-tight mb-6">3. Intervalo altitudinal</h3>
@@ -182,7 +182,7 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'acuático'" x-transition class="space-y-8">
+    <div x-show="form.tipoAmbiente === 'acuatico'" x-transition class="space-y-8">
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
             <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center"><span class="mr-4">2. Tipo de hábitat marino</span>
                 <div class="h-px bg-slate-100 flex-grow"></div>
@@ -239,12 +239,14 @@
         </div>
     </div>
 
-    <div x-show="form.tipoAmbiente === 'acuático' || form.tipoAmbiente === 'terrestre-acuático'"
+    <div x-show="form.tipoAmbiente === 'acuatico' || form.tipoAmbiente === 'terrestre-acuatico'"
         x-transition class="space-y-8">
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-4">
             <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
-                <span
-                    x-text="form.tipoAmbiente === 'acuático' ? '3. Intervalo batimétrico' : '10. Intervalo batimétrico'"></span>
+                <span x-text="(form.tipoAmbiente === 'acuatico' || form.tipoAmbiente === 'marino' || form.tipoAmbiente === 'terrestre-acuatico')
+                    ? '2. Intervalo batimétrico'
+                    : '10. Intervalo batimétrico'">
+                </span>
             </h3>
             <div class="flex flex-col lg:flex-row gap-6">
                 <div class="flex flex-col gap-3 w-full lg:w-64 flex-shrink-0">
@@ -279,8 +281,11 @@
 
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 space-y-4">
             <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
-                <span
-                    x-text="form.tipoAmbiente === 'acuático' ? '4. Amplitud de mareas' : '11. Amplitud de mareas'"></span>
+                <span x-text="(form.tipoAmbiente === 'acuatico' || form.tipoAmbiente === 'marino' || form.tipoAmbiente === 'terrestre-acuatico')
+                    ? '3. Amplitud de mareas'
+                    : '11. Amplitud de mareas'">
+                </span>
+
             </h3>
             <div class="flex flex-col lg:flex-row gap-6">
                 <div class="flex flex-col gap-3 w-full lg:w-64 flex-shrink-0">
@@ -316,7 +321,10 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 space-y-8">
     <div class="flex items-center gap-4">
         <h3 class="text-[22px] font-bold text-slate-700 flex items-center">
-            <span x-text="form.tipoAmbiente === 'acuático' ? '5. Características del agua' : '12. Características del agua'"></span>
+            <span x-text="(form.tipoAmbiente === 'acuatico' || form.tipoAmbiente === 'marino' || form.tipoAmbiente === 'terrestre-acuatico')
+                ? '4. Características del agua'
+                : '12. Características del agua'">
+            </span>
         </h3>
         <div class="h-[1px] bg-slate-100 flex-1"></div>
     </div>
@@ -326,7 +334,7 @@
             { id_de: 'salinidadinicial', id_a: 'salinidadfinal', id_p: 'salinidadpromedio', label: 'a) Salinidad' },
             { id_de: 'oxigenoinicial', id_a: 'oxigenofinal', id_p: 'oxigenopromedio', label: 'b) Oxígeno disuelto' },
             { id_de: 'phinicial', id_a: 'phfinal', id_p: 'phpromedio', label: 'c) pH' },
-            { id_de: 'temperaturainicial', id_a: 'temperaturafinal', id_p: 'temperaturapromedio', label: 'd) Temperatura' }
+            { id_de: 'temeperaturainicial', id_a: 'temeperaturafinal', id_p: 'temeperaturapromedio', label: 'd) Temperatura' }
         ]">
             <div class="p-6 bg-slate-50 rounded-2xl">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center" x-text="item.label"></label>

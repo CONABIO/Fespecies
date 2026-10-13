@@ -245,18 +245,14 @@
                     </h3>
 
                     <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-                        <div
-                            class="hidden md:grid grid-cols-10 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
-                            <div class="col-span-4 text-[11px] font-black text-slate-400  tracking-widest">
+                        <div class="hidden md:grid md:grid-cols-12 gap-4 bg-slate-50/50 px-8 py-4 border-b border-slate-100">
+                            <div class="col-span-4 text-[11px] font-black text-slate-400 tracking-widest">
                                 Atributo</div>
-                            <div
-                                class="col-span-4 text-[11px] font-black text-slate-400  tracking-widest text-center">
+                            <div class="col-span-4 text-[11px] font-black text-slate-400 tracking-widest text-center">
                                 De - A</div>
-                            <div
-                                class="col-span-2 text-[11px] font-black text-slate-400  tracking-widest text-center">
+                            <div class="col-span-2 text-[11px] font-black text-slate-400 tracking-widest text-center">
                                 Promedio</div>
-                            <div
-                                class="col-span-2 text-[11px] font-black text-slate-400  tracking-widest text-right">
+                            <div class="col-span-2 text-[11px] font-black text-slate-400 tracking-widest text-right">
                                 Unidad</div>
                         </div>
 

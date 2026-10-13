@@ -106,7 +106,6 @@
                         </template>
                     </select>
                 </div>
-
             </div>
         </div>
 
@@ -153,14 +152,11 @@
                 <div class="space-y-3">
                     <template x-for="(loc, index) in form.localidades_migracion" :key="index">
                         <div class="bg-white p-4 rounded-xl border border-slate-200 grid grid-cols-12 items-center gap-2">
-
-                            <!-- Número + Input Localidad (Ocupa 4 columnas) -->
                             <div class="col-span-12 md:col-span-4 flex items-center gap-2">
                                 <span class="text-xs font-black text-slate-400 shrink-0" x-text="(index + 1) + ')'"></span>
                                 <input type="text" x-model="loc.localidad" placeholder="Localidad" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg">
                             </div>
 
-                            <!-- Selects de Meses (Ocupa 7 columnas) -->
                             <div class="col-span-12 md:col-span-7 flex items-center justify-between md:justify-start gap-2 text-xs font-bold text-slate-600">
                                 <span class="shrink-0">De:</span>
                                 <select x-model="loc.mes_inicio" class="w-full px-2 py-2 text-xs border border-slate-200 rounded-lg bg-white">
@@ -179,7 +175,6 @@
                                 </select>
                             </div>
 
-                            <!-- Botón de Eliminar (Ocupa 1 columna restante) -->
                             <div class="col-span-12 md:col-span-1 flex justify-end md:justify-center">
                                 <button type="button" @click="eliminarLocalidad(index)" x-show="form.localidades_migracion.length > 1"
                                     class="flex items-center justify-center w-11 h-11 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-700 transition-all">
@@ -188,7 +183,6 @@
                                     </svg>
                                 </button>
                             </div>
-
                         </div>
                     </template>
                 </div>
@@ -199,9 +193,41 @@
                 </div>
             </div>
 
-            <div>
-                <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">d) Periodo de actividad</label>
-                <textarea id="tiny-periodo-actividad" x-model="form.periodo_actividad" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium" placeholder="Periodo de actividad"></textarea>
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <label class="text-[16px] font-bold text-slate-800 tracking-tight flex items-center">
+                        d) Periodo de actividad:
+                    </label>
+                    <div class="flex flex-wrap items-center gap-6">
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-700">
+                            <input type="checkbox" value="diurno" x-model="form.periodo_actividad"
+                                class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                            <span>Diurno</span>
+                        </label>
+
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-700">
+                            <input type="checkbox" value="nocturno" x-model="form.periodo_actividad"
+                                class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                            <span>Nocturno</span>
+                        </label>
+
+                        <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-700">
+                            <input type="checkbox" value="crepuscular" x-model="form.periodo_actividad"
+                                class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                            <span>Crepuscular</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-3 border-t border-slate-100">
+                    <label class="text-[15px] font-bold text-slate-700 tracking-tight flex items-center">
+                        Información adicional
+                    </label>
+                    <textarea id="tiny-periodo-actividad-ia"
+                        x-model="form.periodo_actividad_ia"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium"
+                        placeholder="Información adicional sobre periodo de actividad"></textarea>
+                </div>
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200/80 space-y-4">
@@ -234,20 +260,19 @@
 
                 <div class="space-y-1">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-hibernacion-torpor-ia" x-model="form.hibernacion_torpor_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white" placeholder="Entra cuadro de texto..."></textarea>
+                    <textarea id="tiny-hibernacion-torpor-ia" x-model="form.hibernacion_torpor_ia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white" placeholder="Información adicional sobre hibernación o torpor..."></textarea>
                 </div>
             </div>
 
             <div>
                 @include('components.input-rangos', [
-                    'label' => 'g) Ámbito hogareno',
+                    'label' => 'g) Ámbito hogareño',
                     'modelMin' => 'form.ambito_hogareno_min',
                     'modelMax' => 'form.ambito_hogareno_max',
                     'modelPromedio' => 'form.ambito_hogareno_promedio'
                 ])
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div>
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">h) Mecanismos de defensa</label>
                     @include('components.multi-select', [
@@ -256,7 +281,7 @@
                         'placeholder' => 'Selecciona mecanismos de defensa...'
                     ])
                 </div>
-               <div>
+                <div>
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">i) Organización social</label>
                     @include('components.multi-select', [
                         'model' => 'form.organizacion_social',
@@ -264,7 +289,6 @@
                         'placeholder' => 'Selecciona organización social...'
                     ])
                 </div>
-            </div>
         </div>
 
         <div x-show="form.Reino === 'Plantae'" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/80 space-y-10">
@@ -306,7 +330,6 @@
                     </div>
                 </div>
             </div>
-
 
             <div class="grid grid-cols-1 gap-6">
                 <div>
@@ -500,33 +523,23 @@
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
-                <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
-                    <div class="space-y-2">
-                        <div>
-                            <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">d) Número de eventos reproductivos</label>
-                            <!-- DEBE SER form.estrategia_reproductiva_planta -->
-                            <select x-model="form.estrategia_reproductiva_planta"
-                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                                <option value="">Selecciona número de eventos...</option>
-                                <option value="Iteróparos">Iteróparos</option>
-                                <option value="Semélparos">Semélparos</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1 pt-1">
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                        <textarea id="tiny-eventos-ia" x-model="form.estrategia_reproductiva_planta_ia"
-                                class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
-                                placeholder="Información adicional"></textarea>
+                <div class="space-y-2">
+                    <div>
+                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">i) Número de eventos reproductivos</label>
+                        <select x-model="form.estrategia_reproductiva_planta"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                            <option value="">Selecciona número de eventos...</option>
+                            <option value="Iteróparo">Iteróparo</option>
+                            <option value="Semélparo">Semélparo</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="space-y-1 pt-1">
                     <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
                     <textarea id="tiny-eventos-ia" x-model="form.estrategia_reproductiva_planta_ia"
-                              class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
-                              placeholder="Información adicional"></textarea>
+                            class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white min-h-[90px]"
+                            placeholder="Información adicional"></textarea>
                 </div>
             </div>
 
@@ -570,8 +583,8 @@
                         'modelMax' => 'form.semillas_tam_max',
                         'modelPromedio' => 'form.semillas_tam_promedio'
                     ])
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-semillas-tam-ia" x-model="form.semillas_tam_ia" placeholder="Información adicional" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mt-2">Información adicional</label>
+                    <textarea id="tiny-semillas-tam-ia" x-model="form.semillas_tam_ia" placeholder="Información adicional sobre tamaño de semillas" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-1"></textarea>
                 </div>
 
                 <div>
@@ -581,8 +594,8 @@
                         'modelMax' => 'form.germinacion_max',
                         'modelPromedio' => 'form.germinacion_promedio'
                     ])
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-germinacion-ia" x-model="form.germinacion_ia" placeholder="Información adicional" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mt-2">Información adicional</label>
+                    <textarea id="tiny-germinacion-ia" x-model="form.germinacion_ia" placeholder="Información adicional sobre germinación" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-1"></textarea>
                 </div>
 
                 <div>
@@ -592,20 +605,20 @@
                         'modelMax' => 'form.supervivencia_max',
                         'modelPromedio' => 'form.supervivencia_promedio'
                     ])
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
-                    <textarea id="tiny-supervivencia-ia" x-model="form.supervivencia_ia" placeholder="Información adicional" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-2"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mt-2">Información adicional</label>
+                    <textarea id="tiny-supervivencia-ia" x-model="form.supervivencia_ia" placeholder="Información adicional sobre supervivencia" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white mt-1"></textarea>
                 </div>
             </div>
         </div>
 
         <div x-show="form.Reino === 'Animalia'" class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/80 space-y-10">
-             <div class="border-b border-slate-100 pb-4">
+            <div class="border-b border-slate-100 pb-4">
                 <h3 class="text-[22px] font-bold text-slate-700 tracking-tight flex items-center">6. Reproducción animal</h3>
             </div>
 
             <div class="space-y-2">
                 <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">a) Generalidades</label>
-                <textarea id="tiny-repro-animal-gen" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Entra cuadro de texto..."></textarea>
+                <textarea id="tiny-repro-animal-gen" x-model="form.descripcion_reproduccion" class="w-full rounded-2xl border border-slate-200 p-4 text-sm bg-slate-50/50 min-h-[80px]" placeholder="Información adicional sobre generalidades"></textarea>
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-6">
@@ -625,14 +638,35 @@
                     </div>
                 </div>
 
-                <div x-show="form.repro_sexual" class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">i. Tipo de fecundación</label>
-                    <textarea id="tiny-tipo-fecundacion-animal" x-model="form.tipo_fecundacion_animal" placeholder="Tipo de fecundación" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm"></textarea>
+                <div x-show="form.repro_sexual" class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <label class="text-[16px] font-bold text-slate-800 tracking-tight flex items-center">
+                            f) Tipo de fecundación:
+                        </label>
+                        <select x-model="form.tipo_fecundacion_animal"
+                            class="w-full sm:w-72 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all cursor-pointer">
+                            <option value="">Seleccione...</option>
+                            <option value="Interna">Interna</option>
+                            <option value="Externa">Externa</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div x-show="form.repro_asexual" class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">ii. Tipo de reproducción asexual</label>
-                    <textarea id="tiny-tipo-repro-asexual-animal" x-model="form.tipo_reproduccion_asexual_animal" placeholder="Tipo de reproducción asexual" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm"></textarea>
+                <div x-show="form.repro_asexual" class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <label class="text-[16px] font-bold text-slate-800 tracking-tight flex items-center">
+                            ii. Tipo de reproducción asexual:
+                        </label>
+                        <select x-model="form.tipo_reproduccion_asexual_animal"
+                            class="w-full sm:w-72 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all cursor-pointer">
+                            <option value="">Seleccione...</option>
+                            <option value="Bipartición">Bipartición</option>
+                            <option value="Fragmentación">Fragmentación</option>
+                            <option value="Gemación">Gemación</option>
+                            <option value="Poliembrionía">Poliembrionía</option>
+                            <option value="Partenogénesis">Partenogénesis</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div>
@@ -693,45 +727,45 @@
                     'modelMax' => 'form.tiempo_eventos_max',
                     'modelPromedio' => 'form.tiempo_eventos_promedio'
                 ])
-                <textarea id="tiny-tiempo-eventos-ia" x-model="form.tiempo_eventos_ia" placeholder="Informacion adicional de Ttempo entre eventos reproductivos" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 mt-2"></textarea>
+                <label style="margin-top: 20px" class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">Información adicional</label>
+                <textarea id="tiny-tiempo-eventos-ia" x-model="form.tiempo_eventos_ia" placeholder="Información adicional de tiempo entre eventos reproductivos" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 mt-2"></textarea>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">g) Edad o talla a la primera reproducción</label>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-1">g) Edad o talla a la primera reproducción</label>
                     <textarea id="tiny-edad-primera-reproduccion" x-model="form.edad_primera_reproduccion" placeholder="Edad o talla a la primera reproducción" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
                 </div>
                 <div>
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">h) Duración de la vida reproductiva</label>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-1">h) Duración de la vida reproductiva</label>
                     <textarea id="tiny-duracion-vida-reproductiva" x-model="form.duracion_vida_reproductiva" placeholder="Duración de la vida reproductiva" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-slate-50/50 min-h-[80px]"></textarea>
                 </div>
             </div>
 
             <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="mt-6">
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">j) Sitios de anidación o de crianza</label>
-                        @include('components.multi-select', [
-                            'model' => 'form.sitios_anidacion',
-                            'options' => 'sitioAnidacionOpts',
-                            'placeholder' => 'Selecciona sitios de anidación...'
-                        ])
-                    </div>
-                    <div>
-                        <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">k) Tipo de estructura de anidación o crianza</label>
-                        <select x-model="form.tipo_estructura_anidacion" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                            <option value="">Selecciona estructura...</option>
-                            <option value="Hueco">Hueco</option>
-                            <option value="Madriguera">Madriguera</option>
-                            <option value="Nido">Nido</option>
-                            <option value="Panal">Panal</option>
-                            <option value="Termitero">Termitero</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">j) Sitios de anidación o de crianza</label>
+                    @include('components.multi-select', [
+                        'model' => 'form.sitios_anidacion',
+                        'options' => 'sitioAnidacionOpts',
+                        'placeholder' => 'Selecciona sitios de anidación...'
+                    ])
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">Información adicional</label>
-                    <textarea id="tiny-anidacion-ia" x-model="form.anidacion_ia" placeholder="Entra cuadro de texto..." class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white"></textarea>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">k) Tipo de estructura de anidación o crianza</label>
+                    <select x-model="form.tipo_estructura_anidacion" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        <option value="">Selecciona estructura...</option>
+                        <option value="Hueco">Hueco</option>
+                        <option value="Madriguera">Madriguera</option>
+                        <option value="Nido">Nido</option>
+                        <option value="Panal">Panal</option>
+                        <option value="Termitero">Termitero</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center mb-2">Información adicional</label>
+                    <textarea id="tiny-anidacion-ia" x-model="form.anidacion_ia" placeholder="Información adicional de estructura y sitios de anidación" class="w-full rounded-xl border border-slate-200 p-3 text-sm bg-white"></textarea>
                 </div>
             </div>
 
@@ -744,24 +778,63 @@
                 ])
             </div>
 
-            <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
-                <div class="flex flex-wrap items-center gap-6">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">m) Cuidado parental</label>
-                    <div class="flex items-center gap-3 text-xs font-bold bg-white px-3 py-1.5 rounded-lg border border-slate-200">
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" x-model="form.cuidado_parental" value="si" class="text-indigo-600"> Sí</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" x-model="form.cuidado_parental" value="no" class="text-indigo-600"> No</label>
+            <div class="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">
+                        m) Cuidado parental
+                    </label>
+                    <div class="flex items-center gap-3 text-xs font-bold bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio"
+                                x-model="form.cuidado_parental"
+                                value="si"
+                                class="text-indigo-600 focus:ring-indigo-500">
+                            <span>Sí</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio"
+                                x-model="form.cuidado_parental"
+                                value="no"
+                                @change="form.cuidado_parental_por = ''; form.cuidado_parental_ia = ''"
+                                class="text-indigo-600 focus:ring-indigo-500">
+                            <span>No</span>
+                        </label>
                     </div>
                 </div>
 
-                <div x-show="form.cuidado_parental === 'si'" class="space-y-1 pt-1">
-                    <textarea id="tiny-cuidado-parental-vc" x-model="form.cuidado_parental_vc" placeholder="Informacion adicional de cuidado parental  " class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
+                <div x-show="form.cuidado_parental === 'si'" x-cloak class="space-y-4 pt-2 border-t border-slate-200/60">
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-slate-700">Tipo de cuidado parental:</label>
+                        <select x-model="form.cuidado_parental_por"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                            <option value="">Selecciona tipo de cuidado parental...</option>
+                            <option value="Aloparental">Aloparental</option>
+                            <option value="Bipaternal">Bipaternal</option>
+                            <option value="Materno">Materno</option>
+                            <option value="Paterno">Paterno</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-sm font-bold text-slate-700">Información adicional:</label>
+                        <textarea id="tiny-cuidado-parental-ia"
+                                x-model="form.cuidado_parental_ia"
+                                placeholder="Información adicional sobre el cuidado parental..."
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm min-h-[90px]"></textarea>
+                    </div>
                 </div>
 
-                <div class="pt-2">
-                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">n) Tiempo de cuidado parental</label>
-                    <textarea id="tiny-tiempo-cuidado-parental" x-model="form.tiempo_cuidado_parental" placeholder="Tiempo de cuidado parental..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm"></textarea>
+                <div class="pt-3 border-t border-slate-200/60 space-y-1.5">
+                    <label class="text-[16px] font-bold text-slate-700 tracking-tight flex items-center">
+                        n) Tiempo de cuidado parental
+                    </label>
+                    <textarea id="tiny-tiempo-cuidado-parental"
+                            x-model="form.tiempo_cuidado_parental"
+                            placeholder="Indicar tiempo y frecuencia del cuidado parental..."
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm min-h-[75px]"></textarea>
                 </div>
             </div>
+
         </div>
 
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200/80 space-y-6">
