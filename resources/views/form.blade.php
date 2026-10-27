@@ -1422,6 +1422,42 @@
                             Swal.fire('Error', 'No se pudo guardar la información antes de cambiar de sección.', 'error');
                         }
                     },
+
+                    getEcosistemasFiltrados(ambiente = null) {
+                        const tipo = ambiente || this.form?.tipoAmbiente;
+                        const terrestres = [
+                            'Selvas húmedas',
+                            'Selvas secas',
+                            'Bosques mesófilos de montaña',
+                            'Bosques templados de coníferas y latifoliadas',
+                            'Matorrales xerófilos',
+                            'Pastizales'
+                        ];
+                        const marinos = [
+                            'Fondos blandos',
+                            'Lechos de pastos marinos',
+                            'Fondos duros o rocosos',
+                            'Lechos de rodolitos',
+                            'Arrecifes coralinos',
+                            'Bosques de macroalgas',
+                            'Regiones mesofóticas',
+                            'Ambientes pelágicos',
+                            'Fosas y llanuras abisales'
+                        ];
+                        const epicontinentales = [
+                            ...terrestres,
+                            'Humedales',
+                            'Manglares',
+                            'Marismas',
+                            'Estuarios y lagunas costeras',
+                            'Playas arenosas y zonas rocosas intermareales'
+                        ];
+
+                        if (tipo === 'terrestre') return terrestres;
+                        if (tipo === 'acuatico') return marinos;
+                        if (tipo === 'terrestre-acuatico') return epicontinentales;
+                        return [];
+                    },
                 }));
             });
         </script>
